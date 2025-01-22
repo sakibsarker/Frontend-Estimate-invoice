@@ -1,5 +1,8 @@
-import React from "react";
-
+import NewInvoiceForm from "./components/forms/NewInvoiceForm";
 export default function App() {
-  return <div>App</div>;
+  return (
+    <>
+      <NewInvoiceForm />
+    </>
+  );
 }
