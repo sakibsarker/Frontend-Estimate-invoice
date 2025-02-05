@@ -12,10 +12,47 @@ import { DateTimePicker } from "@/components/ui/date-time-picker";
 export default function CreateEstimate() {
   const [repairDate, setRepairDate] = useState<Date | undefined>(undefined);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Handle form submission logic here
-    console.log("Form submitted");
+    const formData = new FormData(event.currentTarget);
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/estimate/repair-requests/create/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            username: formData.get("username"),
+            email: formData.get("email"),
+            phone_number: formData.get("phone"),
+            repair_date: repairDate?.toISOString().split("T")[0], // Format as YYYY-MM-DD
+            repair_details: formData.get("repair_details"),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Estimate creation failed");
+      }
+
+      // Handle successful response
+      const result = await response.json();
+      console.log("Estimate created:", result);
+      alert("Estimate request submitted successfully!");
+
+      // Reset form
+      event.currentTarget.reset();
+      setRepairDate(undefined);
+    } catch (error: any) {
+      console.error("Submission error:", error);
+      alert(error.message || "Failed to submit estimate request");
+    }
   };
 
   return (
@@ -34,13 +71,19 @@ export default function CreateEstimate() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
               <div className="space-y-2">
                 <Label htmlFor="username">Name:</Label>
-                <Input id="username" placeholder="Enter your name" required />
+                <Input
+                  id="username"
+                  name="username"
+                  placeholder="Enter your name"
+                  required
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="email">Email:</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="Enter your email"
                   required
@@ -51,6 +94,7 @@ export default function CreateEstimate() {
                 <Label htmlFor="phone">Phone:</Label>
                 <Input
                   id="phone"
+                  name="phone"
                   type="tel"
                   placeholder="Enter your phone number"
                   required
@@ -67,6 +111,7 @@ export default function CreateEstimate() {
               <Label htmlFor="repair_details">Repair Details:</Label>
               <Textarea
                 id="repair_details"
+                name="repair_details"
                 placeholder="Describe the repairs needed"
                 className="min-h-[100px]"
                 required
