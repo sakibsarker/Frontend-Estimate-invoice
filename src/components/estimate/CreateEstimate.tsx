@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Printer } from "lucide-react";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 
 export default function CreateEstimate() {
@@ -62,9 +61,6 @@ export default function CreateEstimate() {
           <CardTitle className="text-2xl font-normal">
             Estimate Request Form:
           </CardTitle>
-          <Button variant="ghost" size="icon" className="text-gray-500">
-            <Printer className="h-5 w-5" />
-          </Button>
         </CardHeader>
         <CardContent className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">

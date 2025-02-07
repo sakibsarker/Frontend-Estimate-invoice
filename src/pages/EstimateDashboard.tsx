@@ -33,6 +33,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useNavigate } from "react-router";
 
 // Sample JSON data for estimates
 const estimatesData = [
@@ -129,6 +130,7 @@ export default function EstimateDashboard() {
   const [estimatesPerPage] = useState(6);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredEstimates, setFilteredEstimates] = useState(estimatesData);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const results = estimatesData.filter(
@@ -244,7 +246,10 @@ export default function EstimateDashboard() {
           <X className="h-4 w-4 ml-2" />
         </Button>
 
-        <Button className="bg-orange-500 hover:bg-orange-600">
+        <Button
+          className="bg-orange-500 hover:bg-orange-600"
+          onClick={() => navigate("/admin/estimate")}
+        >
           Create Estimate
         </Button>
       </div>
