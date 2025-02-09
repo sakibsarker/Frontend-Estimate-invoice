@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Printer } from "lucide-react";
+
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -30,8 +30,6 @@ type User = {
   username: string;
   email: string;
   phone_number: string;
-  language_preference: string;
-  role: string;
 };
 
 export default function AdminCreateEstimate() {
@@ -51,7 +49,7 @@ export default function AdminCreateEstimate() {
         if (!token) throw new Error("No authentication token found");
 
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/users/list/`,
+          `${import.meta.env.VITE_API_URL}/estimate/list-repair-requests/`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -215,7 +213,65 @@ export default function AdminCreateEstimate() {
                   onChange={(e) => setPhone(e.target.value)}
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="vehicle_name">Vehicle Name</Label>
+                <select
+                  id="vehicle_name"
+                  name="vehicle_name"
+                  className="w-full border rounded-lg p-2"
+                  required
+                >
+                  <option value="" disabled selected>
+                    Select a vehicle model
+                  </option>
+                  <optgroup label="BMW">
+                    <option value="BMW X5">BMW X5</option>
+                    <option value="BMW X3">BMW X3</option>
+                    <option value="BMW X7">BMW X7</option>
+                    <option value="BMW 3 Series">BMW 3 Series</option>
+                    <option value="BMW 5 Series">BMW 5 Series</option>
+                  </optgroup>
+                  <optgroup label="Audi">
+                    <option value="Audi Q5">Audi Q5</option>
+                    <option value="Audi Q7">Audi Q7</option>
+                    <option value="Audi A4">Audi A4</option>
+                    <option value="Audi A6">Audi A6</option>
+                    <option value="Audi e-tron">Audi e-tron</option>
+                  </optgroup>
+                  <optgroup label="Audi">
+                    <option value="Audi Q5">Audi Q5</option>
+                    <option value="Audi Q7">Audi Q7</option>
+                    <option value="Audi A4">Audi A4</option>
+                    <option value="Audi A6">Audi A6</option>
+                    <option value="Audi e-tron">Audi e-tron</option>
+                  </optgroup>
+                  <optgroup label="Audi">
+                    <option value="Audi Q5">Audi Q5</option>
+                    <option value="Audi Q7">Audi Q7</option>
+                    <option value="Audi A4">Audi A4</option>
+                    <option value="Audi A6">Audi A6</option>
+                    <option value="Audi e-tron">Audi e-tron</option>
+                  </optgroup>
+                  <optgroup label="Audi">
+                    <option value="Audi Q5">Audi Q5</option>
+                    <option value="Audi Q7">Audi Q7</option>
+                    <option value="Audi A4">Audi A4</option>
+                    <option value="Audi A6">Audi A6</option>
+                    <option value="Audi e-tron">Audi e-tron</option>
+                  </optgroup>
+                </select>
+              </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="estimate_attachments">File Attachment</Label>
+                <Input
+                  id="estimate_attachments"
+                  name="estimate_attachments"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="repair_date">Repair Date and Time:</Label>
                 <DateTimePicker date={repairDate} setDate={setRepairDate} />

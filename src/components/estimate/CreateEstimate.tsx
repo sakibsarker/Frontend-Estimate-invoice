@@ -14,24 +14,18 @@ export default function CreateEstimate() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const token = localStorage.getItem("token");
+
+    // Append date separately (since FormData does not support Date objects)
+    if (repairDate) {
+      formData.append("repair_date", repairDate.toISOString().split("T")[0]); // Format as YYYY-MM-DD
+    }
 
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/estimate/repair-requests/create/`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            username: formData.get("username"),
-            email: formData.get("email"),
-            phone_number: formData.get("phone"),
-            repair_date: repairDate?.toISOString().split("T")[0], // Format as YYYY-MM-DD
-            repair_details: formData.get("repair_details"),
-          }),
+          body: formData, // Send FormData directly
         }
       );
 
@@ -89,11 +83,71 @@ export default function CreateEstimate() {
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone:</Label>
                 <Input
-                  id="phone"
-                  name="phone"
+                  id="phone_number"
+                  name="phone_number"
                   type="tel"
                   placeholder="Enter your phone number"
                   required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="vehicle_name">Vehicle Name</Label>
+                <select
+                  id="vehicle_name"
+                  name="vehicle_name"
+                  className="w-full border rounded-lg p-2"
+                  required
+                >
+                  <option value="" disabled selected>
+                    Select a vehicle model
+                  </option>
+                  <optgroup label="BMW">
+                    <option value="BMW X5">BMW X5</option>
+                    <option value="BMW X3">BMW X3</option>
+                    <option value="BMW X7">BMW X7</option>
+                    <option value="BMW 3 Series">BMW 3 Series</option>
+                    <option value="BMW 5 Series">BMW 5 Series</option>
+                  </optgroup>
+                  <optgroup label="Audi">
+                    <option value="Audi Q5">Audi Q5</option>
+                    <option value="Audi Q7">Audi Q7</option>
+                    <option value="Audi A4">Audi A4</option>
+                    <option value="Audi A6">Audi A6</option>
+                    <option value="Audi e-tron">Audi e-tron</option>
+                  </optgroup>
+                  <optgroup label="Audi">
+                    <option value="Audi Q5">Audi Q5</option>
+                    <option value="Audi Q7">Audi Q7</option>
+                    <option value="Audi A4">Audi A4</option>
+                    <option value="Audi A6">Audi A6</option>
+                    <option value="Audi e-tron">Audi e-tron</option>
+                  </optgroup>
+                  <optgroup label="Audi">
+                    <option value="Audi Q5">Audi Q5</option>
+                    <option value="Audi Q7">Audi Q7</option>
+                    <option value="Audi A4">Audi A4</option>
+                    <option value="Audi A6">Audi A6</option>
+                    <option value="Audi e-tron">Audi e-tron</option>
+                  </optgroup>
+                  <optgroup label="Audi">
+                    <option value="Audi Q5">Audi Q5</option>
+                    <option value="Audi Q7">Audi Q7</option>
+                    <option value="Audi A4">Audi A4</option>
+                    <option value="Audi A6">Audi A6</option>
+                    <option value="Audi e-tron">Audi e-tron</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="estimate_attachments">File Attachment</Label>
+                <Input
+                  id="estimate_attachments"
+                  name="estimate_attachments"
+                  type="file"
+                  accept="image/*"
+                  multiple
                 />
               </div>
 
