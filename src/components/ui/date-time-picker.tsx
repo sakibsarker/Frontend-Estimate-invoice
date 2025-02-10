@@ -43,15 +43,12 @@ export function DateTimePicker({ date, setDate }: DateTimePickerProps) {
     }
   };
 
-  const handleTimeSelect = (time: string) => {
-    const [hours, minutes] = time.split(":").map(Number);
-    if (selectedDateTime) {
-      const newDateTime = new Date(selectedDateTime);
-      newDateTime.setHours(hours);
-      newDateTime.setMinutes(minutes);
-      setSelectedDateTime(newDateTime);
-      setDate(newDateTime);
-    }
+  const handleTimeSelect = (duration: string) => {
+    const days = parseInt(duration) * 7; // Convert weeks to days
+    const newDate = new Date(selectedDateTime || new Date());
+    newDate.setDate(newDate.getDate() + days);
+    setSelectedDateTime(newDate);
+    setDate(newDate);
   };
 
   return (
@@ -65,7 +62,7 @@ export function DateTimePicker({ date, setDate }: DateTimePickerProps) {
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP p") : <span>Pick a date</span>}
+          {date ? format(date, "PPP") : <span>Pick a date</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
@@ -78,21 +75,23 @@ export function DateTimePicker({ date, setDate }: DateTimePickerProps) {
         <div className="p-3 border-t">
           <Select onValueChange={handleTimeSelect}>
             <SelectTrigger>
-              <SelectValue placeholder="Select a time" />
+              <SelectValue placeholder="Select duration" />
             </SelectTrigger>
             <SelectContent>
-              {Array.from({ length: 24 * 4 }).map((_, index) => {
-                const hours = Math.floor(index / 4);
-                const minutes = (index % 4) * 15;
-                const time = `${hours.toString().padStart(2, "0")}:${minutes
-                  .toString()
-                  .padStart(2, "0")}`;
-                return (
-                  <SelectItem key={time} value={time}>
-                    {time}
-                  </SelectItem>
-                );
-              })}
+              {[
+                { label: "1 week", value: "1" },
+                { label: "2 weeks", value: "2" },
+                { label: "3 weeks", value: "3" },
+                { label: "1 month", value: "4" },
+                { label: "2 months", value: "8" },
+                { label: "3 months", value: "12" },
+                { label: "6 months", value: "24" },
+                { label: "1 year", value: "48" },
+              ].map((duration) => (
+                <SelectItem key={duration.value} value={duration.value}>
+                  {duration.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

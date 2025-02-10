@@ -226,12 +226,6 @@ export default function CreateEstimate() {
               >
                 Close
               </Button>
-              <Button
-                type="button"
-                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-800"
-              >
-                Create Account
-              </Button>
             </div>
           </form>
         </CardContent>
