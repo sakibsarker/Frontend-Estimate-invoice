@@ -7,17 +7,39 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
+import Vehicle_Database from "@/lib/Vehicle_Database.json";
 
 export default function CreateEstimate() {
   const [repairDate, setRepairDate] = useState<Date | undefined>(undefined);
+  const [selectedYear, setSelectedYear] = useState<string>("");
+  const [selectedMake, setSelectedMake] = useState<string>("");
+  const [selectedModel, setSelectedModel] = useState<string>("");
+
+  // Parse the vehicle database to create a structured object
+  const vehicleOptions = Vehicle_Database.reduce((acc, vehicle) => {
+    if (!acc[vehicle.Year]) {
+      acc[vehicle.Year] = {};
+    }
+    if (!acc[vehicle.Year][vehicle.Make]) {
+      acc[vehicle.Year][vehicle.Make] = [];
+    }
+    if (!acc[vehicle.Year][vehicle.Make].includes(vehicle.Model)) {
+      acc[vehicle.Year][vehicle.Make].push(vehicle.Model);
+    }
+    return acc;
+  }, {} as Record<string, Record<string, string[]>>);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
 
-    // Append date separately (since FormData does not support Date objects)
+    // Combine vehicle details into one string
+    const vehicleName = `${selectedYear} ${selectedMake} ${selectedModel}`;
+    formData.append("vehicle_name", vehicleName);
+
+    // Append date separately
     if (repairDate) {
-      formData.append("repair_date", repairDate.toISOString().split("T")[0]); // Format as YYYY-MM-DD
+      formData.append("repair_date", repairDate.toISOString().split("T")[0]);
     }
 
     try {
@@ -25,7 +47,7 @@ export default function CreateEstimate() {
         `${import.meta.env.VITE_API_URL}/estimate/repair-requests/create/`,
         {
           method: "POST",
-          body: formData, // Send FormData directly
+          body: formData,
         }
       );
 
@@ -92,51 +114,73 @@ export default function CreateEstimate() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="vehicle_name">Vehicle Name</Label>
+                <Label htmlFor="vehicle_year">Vehicle Year</Label>
                 <select
-                  id="vehicle_name"
-                  name="vehicle_name"
+                  id="vehicle_year"
                   className="w-full border rounded-lg p-2"
+                  value={selectedYear}
+                  onChange={(e) => {
+                    setSelectedYear(e.target.value);
+                    setSelectedMake("");
+                    setSelectedModel("");
+                  }}
                   required
                 >
-                  <option value="" disabled selected>
-                    Select a vehicle model
+                  <option value="" disabled>
+                    Select a year
                   </option>
-                  <optgroup label="BMW">
-                    <option value="BMW X5">BMW X5</option>
-                    <option value="BMW X3">BMW X3</option>
-                    <option value="BMW X7">BMW X7</option>
-                    <option value="BMW 3 Series">BMW 3 Series</option>
-                    <option value="BMW 5 Series">BMW 5 Series</option>
-                  </optgroup>
-                  <optgroup label="Audi">
-                    <option value="Audi Q5">Audi Q5</option>
-                    <option value="Audi Q7">Audi Q7</option>
-                    <option value="Audi A4">Audi A4</option>
-                    <option value="Audi A6">Audi A6</option>
-                    <option value="Audi e-tron">Audi e-tron</option>
-                  </optgroup>
-                  <optgroup label="Audi">
-                    <option value="Audi Q5">Audi Q5</option>
-                    <option value="Audi Q7">Audi Q7</option>
-                    <option value="Audi A4">Audi A4</option>
-                    <option value="Audi A6">Audi A6</option>
-                    <option value="Audi e-tron">Audi e-tron</option>
-                  </optgroup>
-                  <optgroup label="Audi">
-                    <option value="Audi Q5">Audi Q5</option>
-                    <option value="Audi Q7">Audi Q7</option>
-                    <option value="Audi A4">Audi A4</option>
-                    <option value="Audi A6">Audi A6</option>
-                    <option value="Audi e-tron">Audi e-tron</option>
-                  </optgroup>
-                  <optgroup label="Audi">
-                    <option value="Audi Q5">Audi Q5</option>
-                    <option value="Audi Q7">Audi Q7</option>
-                    <option value="Audi A4">Audi A4</option>
-                    <option value="Audi A6">Audi A6</option>
-                    <option value="Audi e-tron">Audi e-tron</option>
-                  </optgroup>
+                  {Object.keys(vehicleOptions).map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="vehicle_make">Vehicle Make</Label>
+                <select
+                  id="vehicle_make"
+                  className="w-full border rounded-lg p-2"
+                  value={selectedMake}
+                  onChange={(e) => {
+                    setSelectedMake(e.target.value);
+                    setSelectedModel("");
+                  }}
+                  required
+                  disabled={!selectedYear}
+                >
+                  <option value="" disabled>
+                    {selectedYear ? "Select a make" : "First select a year"}
+                  </option>
+                  {selectedYear &&
+                    Object.keys(vehicleOptions[selectedYear]).map((make) => (
+                      <option key={make} value={make}>
+                        {make}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="vehicle_model">Vehicle Model</Label>
+                <select
+                  id="vehicle_model"
+                  className="w-full border rounded-lg p-2"
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  required
+                  disabled={!selectedMake}
+                >
+                  <option value="" disabled>
+                    {selectedMake ? "Select a model" : "First select a make"}
+                  </option>
+                  {selectedMake &&
+                    vehicleOptions[selectedYear][selectedMake].map((model) => (
+                      <option key={model} value={model}>
+                        {model}
+                      </option>
+                    ))}
                 </select>
               </div>
 
@@ -181,6 +225,12 @@ export default function CreateEstimate() {
                 className="w-full sm:w-auto bg-blue-800 hover:bg-blue-900"
               >
                 Close
+              </Button>
+              <Button
+                type="button"
+                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-800"
+              >
+                Create Account
               </Button>
             </div>
           </form>
