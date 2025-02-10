@@ -170,6 +170,20 @@ export default function AdminCreateEstimate() {
     return acc;
   }, {} as Record<string, Record<string, string[]>>);
 
+  // Add this function inside your component
+  const uniqueUsers = users.reduce((acc: User[], current: User) => {
+    const existing = acc.find(
+      (user) =>
+        user.username === current.username &&
+        user.email === current.email &&
+        user.phone_number === current.phone_number
+    );
+    if (!existing) {
+      acc.push(current);
+    }
+    return acc;
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <Card className="mx-auto max-w-4xl">
@@ -200,9 +214,10 @@ export default function AdminCreateEstimate() {
                       <CommandList>
                         <CommandEmpty>No name found.</CommandEmpty>
                         <CommandGroup>
-                          {users.map((user) => (
+                          {uniqueUsers.map((user) => (
                             <CommandItem
                               key={user.id}
+                              value={`${user.username}-${user.id}`}
                               onSelect={() => {
                                 setUsername(user.username);
                                 setEmail(user.email);
@@ -217,7 +232,12 @@ export default function AdminCreateEstimate() {
                                     : "opacity-0"
                                 )}
                               />
-                              {user.username}
+                              <div className="flex gap-2 items-baseline">
+                                <span>{user.username}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  # {user.email}
+                                </span>
+                              </div>
                             </CommandItem>
                           ))}
                         </CommandGroup>
