@@ -9,6 +9,7 @@ import Signup from "@/components/auth/signup";
 import LayoutPage from "@/pages/layout";
 import Profile from "@/pages/profile";
 import CreateEstimate from "@/components/estimate/CreateEstimate";
+import EstimateView from "@/components/estimate/EstimateView";
 import AdminCreateEstimate from "@/components/estimate/AdminCreateEstimate";
 export const AppRoutes = () => {
   return (
@@ -21,6 +22,7 @@ export const AppRoutes = () => {
       <Route element={<LayoutPage />}>
         <Route path="/" element={<EstimateDashboard />} />
         <Route path="/estimate" element={<CreateEstimate />} />
+        <Route path="/estimate/:estimateId" element={<EstimateView />} />
         <Route path="/admin/estimate" element={<AdminCreateEstimate />} />
         <Route path="/invoice" element={<App />} />
         <Route path="/request" element={<EstimateRequestPage />} />
