@@ -52,100 +52,12 @@ interface RepairRequest {
   updated_at: string;
 }
 
-// Sample JSON data for estimates
-const estimatesData = [
-  {
-    id: 1,
-    number: "#1116",
-    title: "Water Pump R&R",
-    status: "Pending",
-    statusColor: "red-500",
-    repair_status: "Expired",
-    createdDate: "01-20-2025",
-    expirationDate: "02-27-2025",
-    carModel: "2004 Honda CR-V EX",
-    userName: "Anthony Masters",
-    value: 951.64,
-  },
-  {
-    id: 2,
-    number: "#1117",
-    title: "Brake Pad Replacement",
-    status: "Sent",
-    statusColor: "blue-500",
-    repair_status: "Viewed",
-    createdDate: "02-15-2025",
-    expirationDate: "03-15-2025",
-    carModel: "2018 Toyota Camry",
-    userName: "Jane Doe",
-    value: 325.5,
-  },
-  {
-    id: 3,
-    number: "#1118",
-    title: "Oil Change",
-    status: "Accept",
-    statusColor: "blue-500",
-    repair_status: "Viewed",
-    createdDate: "03-05-2025",
-    expirationDate: "04-05-2025",
-    carModel: "2022 Ford F-150",
-    userName: "John Smith",
-    value: 110.0,
-  },
-  {
-    id: 4,
-    number: "#1119",
-    title: "Transmission Flush",
-    status: "Pending",
-    statusColor: "blue-500",
-    repair_status: "Viewed",
-    createdDate: "03-10-2025",
-    expirationDate: "04-10-2025",
-    carModel: "2019 Chevrolet Malibu",
-    userName: "Emily Johnson",
-    value: 289.99,
-  },
-  {
-    id: 5,
-    number: "#1120",
-    title: "Tire Rotation",
-    status: "Approved",
-    statusColor: "green-500",
-    repair_status: "Viewed",
-    createdDate: "03-15-2025",
-    expirationDate: "04-15-2025",
-    carModel: "2020 Nissan Altima",
-    userName: "Michael Brown",
-    value: 79.99,
-  },
-  {
-    id: 6,
-    number: "#1121",
-    title: "Battery Replacement",
-    status: "Sent",
-    statusColor: "blue-500",
-    repair_status: "Viewed",
-    createdDate: "03-20-2025",
-    expirationDate: "04-20-2025",
-    carModel: "2017 Hyundai Sonata",
-    userName: "Sarah Davis",
-    value: 199.99,
-  },
-  {
-    id: 7,
-    number: "#1122",
-    title: "Spark Plug Replacement",
-    status: "Pending",
-    statusColor: "blue-500",
-    repair_status: "New",
-    createdDate: "03-25-2025",
-    expirationDate: "04-25-2025",
-    carModel: "2021 Kia Optima",
-    userName: "David Wilson",
-    value: 159.99,
-  },
-];
+interface StatisticRequest {
+  total_requests: string;
+  total_new_requests: string;
+  total_expired_requests: string;
+  accepted_percentage: string;
+}
 
 // Add these color mapping functions
 const getRepairStatusColor = (status: string) => {
@@ -175,65 +87,48 @@ const getEstimateStatusColor = (status: string) => {
 };
 
 export default function EstimateDashboard() {
-  const [timeframe, setTimeframe] = useState("this-month");
-  const [status, setStatus] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [estimatesPerPage] = useState(6);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filteredEstimates, setFilteredEstimates] = useState(estimatesData);
   const [estimates, setEstimates] = useState<RepairRequest[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [timeframeFilter, setTimeframeFilter] = useState("");
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const results = estimatesData.filter(
-      (estimate) =>
-        estimate.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        estimate.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        estimate.carModel.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        estimate.userName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredEstimates(results);
-    setCurrentPage(1);
-  }, [searchTerm]);
-
-  // Get current estimates
-  const indexOfLastEstimate = currentPage * estimatesPerPage;
-  const indexOfFirstEstimate = indexOfLastEstimate - estimatesPerPage;
-  const currentEstimates = filteredEstimates.slice(
-    indexOfFirstEstimate,
-    indexOfLastEstimate
-  );
-
-  // Change page
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   useEffect(() => {
     const fetchEstimates = async () => {
       try {
         const token = localStorage.getItem("token");
+        const queryParams = new URLSearchParams({
+          search: searchTerm,
+          status: statusFilter.toLowerCase(),
+          timeframe: timeframeFilter,
+          page: currentPage.toString(),
+        });
+
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/estimate/list-repair-requests/`,
+          `${
+            import.meta.env.VITE_API_URL
+          }/estimate/repair-requests/statistics/?${queryParams}`,
           {
-            method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
             },
           }
         );
 
         if (!response.ok) throw new Error("Failed to fetch estimates");
-        const data = await response.json();
-        setEstimates(data);
+        const responseData = await response.json();
+        setEstimates(responseData.repair_requests);
+        setTotalPages(responseData.total_pages || 1);
       } catch (error) {
         console.error("Fetch error:", error);
       }
     };
 
     fetchEstimates();
-  }, []);
+  }, [currentPage, searchTerm, statusFilter, timeframeFilter]);
 
-  console.log(estimates);
   return (
     <div className="min-h-screen bg-[#B8E1E9]">
       {/* Top Navigation */}
@@ -269,33 +164,28 @@ export default function EstimateDashboard() {
       {/* Filter Controls */}
       <div className="flex flex-wrap items-center gap-4 p-4">
         <div className="w-[200px]">
-          <Select value={timeframe} onValueChange={setTimeframe}>
+          <Select value={timeframeFilter} onValueChange={setTimeframeFilter}>
             <SelectTrigger>
               <SelectValue placeholder="Timeframe" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="today">Today</SelectItem>
-              <SelectItem value="this-week">This Week</SelectItem>
-              <SelectItem value="this-month">This Month</SelectItem>
-              <SelectItem value="last-six-months">Last Six Months</SelectItem>
-              <SelectItem value="specific-date">Specific Date</SelectItem>
+              <SelectItem value="7d">This Week</SelectItem>
+              <SelectItem value="30d">This Month</SelectItem>
+              <SelectItem value="180d">Last Six Months</SelectItem>
+              <SelectItem value="custom">Specific Date</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        <Select value={status} onValueChange={setStatus}>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-[200px] bg-[#1a237e] text-white">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="draft">Draft</SelectItem>
-            <SelectItem value="sent">Sent</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="expired">Expired</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-
             <SelectItem value="all">All</SelectItem>
+            <SelectItem value="new">New</SelectItem>
+            <SelectItem value="viewed">Viewed</SelectItem>
+            <SelectItem value="expired">Expired</SelectItem>
           </SelectContent>
         </Select>
 
@@ -413,20 +303,14 @@ export default function EstimateDashboard() {
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
-                  href="#"
-                  onClick={() => paginate(currentPage - 1)}
-                  className={
-                    currentPage === 1 ? "pointer-events-none opacity-50" : ""
-                  }
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  aria-disabled={currentPage === 1}
                 />
               </PaginationItem>
-              {Array.from({
-                length: Math.ceil(filteredEstimates.length / estimatesPerPage),
-              }).map((_, index) => (
+              {Array.from({ length: totalPages }, (_, index) => (
                 <PaginationItem key={index}>
                   <PaginationLink
-                    href="#"
-                    onClick={() => paginate(index + 1)}
+                    onClick={() => setCurrentPage(index + 1)}
                     isActive={currentPage === index + 1}
                   >
                     {index + 1}
@@ -435,14 +319,10 @@ export default function EstimateDashboard() {
               ))}
               <PaginationItem>
                 <PaginationNext
-                  href="#"
-                  onClick={() => paginate(currentPage + 1)}
-                  className={
-                    currentPage ===
-                    Math.ceil(filteredEstimates.length / estimatesPerPage)
-                      ? "pointer-events-none opacity-50"
-                      : ""
+                  onClick={() =>
+                    setCurrentPage(Math.min(totalPages, currentPage + 1))
                   }
+                  aria-disabled={currentPage === totalPages}
                 />
               </PaginationItem>
             </PaginationContent>
