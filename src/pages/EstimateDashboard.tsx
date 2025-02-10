@@ -3,11 +3,10 @@ import {
   Home,
   Search,
   MoreVertical,
-  Eye,
-  FileEdit,
   Printer,
-  Plus,
+  User,
   X,
+  Car,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,14 +34,33 @@ import {
 } from "@/components/ui/pagination";
 import { useNavigate } from "react-router";
 
+interface RepairRequest {
+  id: number;
+  username: string;
+  email: string;
+  phone_number: string;
+  repair_details: string;
+  repair_status: string;
+  previous_visits: number;
+  status: string;
+  vehicle_name: string;
+  estimate_attachments: string;
+  repair_date: string;
+  sms_sent_3_days: boolean;
+  sms_sent_7_days: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 // Sample JSON data for estimates
 const estimatesData = [
   {
     id: 1,
     number: "#1116",
     title: "Water Pump R&R",
-    status: "Expired",
+    status: "Pending",
     statusColor: "red-500",
+    repair_status: "Expired",
     createdDate: "01-20-2025",
     expirationDate: "02-27-2025",
     carModel: "2004 Honda CR-V EX",
@@ -54,7 +72,8 @@ const estimatesData = [
     number: "#1117",
     title: "Brake Pad Replacement",
     status: "Sent",
-    statusColor: "green-500",
+    statusColor: "blue-500",
+    repair_status: "Viewed",
     createdDate: "02-15-2025",
     expirationDate: "03-15-2025",
     carModel: "2018 Toyota Camry",
@@ -65,8 +84,9 @@ const estimatesData = [
     id: 3,
     number: "#1118",
     title: "Oil Change",
-    status: "New",
+    status: "Accept",
     statusColor: "blue-500",
+    repair_status: "Viewed",
     createdDate: "03-05-2025",
     expirationDate: "04-05-2025",
     carModel: "2022 Ford F-150",
@@ -78,7 +98,8 @@ const estimatesData = [
     number: "#1119",
     title: "Transmission Flush",
     status: "Pending",
-    statusColor: "yellow-500",
+    statusColor: "blue-500",
+    repair_status: "Viewed",
     createdDate: "03-10-2025",
     expirationDate: "04-10-2025",
     carModel: "2019 Chevrolet Malibu",
@@ -90,7 +111,8 @@ const estimatesData = [
     number: "#1120",
     title: "Tire Rotation",
     status: "Approved",
-    statusColor: "green-600",
+    statusColor: "green-500",
+    repair_status: "Viewed",
     createdDate: "03-15-2025",
     expirationDate: "04-15-2025",
     carModel: "2020 Nissan Altima",
@@ -102,7 +124,8 @@ const estimatesData = [
     number: "#1121",
     title: "Battery Replacement",
     status: "Sent",
-    statusColor: "green-500",
+    statusColor: "blue-500",
+    repair_status: "Viewed",
     createdDate: "03-20-2025",
     expirationDate: "04-20-2025",
     carModel: "2017 Hyundai Sonata",
@@ -113,8 +136,9 @@ const estimatesData = [
     id: 7,
     number: "#1122",
     title: "Spark Plug Replacement",
-    status: "New",
+    status: "Pending",
     statusColor: "blue-500",
+    repair_status: "New",
     createdDate: "03-25-2025",
     expirationDate: "04-25-2025",
     carModel: "2021 Kia Optima",
@@ -123,6 +147,33 @@ const estimatesData = [
   },
 ];
 
+// Add these color mapping functions
+const getRepairStatusColor = (status: string) => {
+  switch (status.toUpperCase()) {
+    case "NEW":
+      return "bg-blue-500";
+    case "VIEWED":
+      return "bg-green-500";
+    case "EXPIRED":
+      return "bg-red-500";
+    default:
+      return "bg-gray-500";
+  }
+};
+
+const getEstimateStatusColor = (status: string) => {
+  switch (status.toUpperCase()) {
+    case "PENDING":
+      return "bg-yellow-500";
+    case "ACCEPTED":
+      return "bg-green-500";
+    case "REJECTED":
+      return "bg-red-500";
+    default:
+      return "bg-gray-500";
+  }
+};
+
 export default function EstimateDashboard() {
   const [timeframe, setTimeframe] = useState("this-month");
   const [status, setStatus] = useState("all");
@@ -130,6 +181,7 @@ export default function EstimateDashboard() {
   const [estimatesPerPage] = useState(6);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredEstimates, setFilteredEstimates] = useState(estimatesData);
+  const [estimates, setEstimates] = useState<RepairRequest[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -155,6 +207,33 @@ export default function EstimateDashboard() {
   // Change page
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
+  useEffect(() => {
+    const fetchEstimates = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/estimate/list-repair-requests/`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to fetch estimates");
+        const data = await response.json();
+        setEstimates(data);
+      } catch (error) {
+        console.error("Fetch error:", error);
+      }
+    };
+
+    fetchEstimates();
+  }, []);
+
+  console.log(estimates);
   return (
     <div className="min-h-screen bg-[#B8E1E9]">
       {/* Top Navigation */}
@@ -214,10 +293,8 @@ export default function EstimateDashboard() {
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="approved">Approved</SelectItem>
             <SelectItem value="expired">Expired</SelectItem>
-            <SelectItem value="customer">Customer</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
-            <SelectItem value="closed">Closed</SelectItem>
-            <SelectItem value="revised">Revised/Resent</SelectItem>
+
             <SelectItem value="all">All</SelectItem>
           </SelectContent>
         </Select>
@@ -256,21 +333,22 @@ export default function EstimateDashboard() {
 
       {/* Estimates List */}
       <div className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {currentEstimates.map((estimate) => (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {estimates.map((estimate) => (
             <div key={estimate.id} className="bg-white rounded-lg p-4 shadow">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge className={`bg-${estimate.statusColor}`}>
-                      {estimate.status}
+                    <Badge
+                      className={getRepairStatusColor(estimate.repair_status)}
+                    >
+                      {estimate.repair_status}
                     </Badge>
+
                     <span className="text-blue-600">
-                      ({estimate.number}) {estimate.title}
+                      (#{estimate.id}) {estimate.repair_details}
                     </span>
-                    <Button variant="ghost" size="sm">
-                      <Plus className="h-4 w-4" />
-                    </Button>
+
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm">
@@ -283,40 +361,45 @@ export default function EstimateDashboard() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                  <div className="text-sm text-gray-600 mb-2">
-                    Created: {estimate.createdDate}
+                  <div className="text-sm text-gray-800 font-normal mb-2">
+                    Created:{" "}
+                    {new Date(estimate.created_at).toLocaleDateString("en-CA", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                    })}
                     <br />
-                    Expiration: {estimate.expirationDate}
+                    Repair Date:{" "}
+                    {new Date(estimate.repair_date).toLocaleDateString(
+                      "en-CA",
+                      {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                      }
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
-                    <img
-                      src="/placeholder.svg"
-                      alt="Car"
-                      className="h-5 w-5 object-cover"
-                    />
-                    <span>{estimate.carModel}</span>
+                    <Car className="h-5 w-5" />
+                    <span>{estimate.vehicle_name}</span>
                   </div>
                   <div className="flex items-center gap-2 mt-1">
-                    <img
-                      src="/placeholder.svg"
-                      alt="User"
-                      className="h-5 w-5 rounded-full"
-                    />
-                    <span>{estimate.userName}</span>
+                    <User className="h-5 w-5" />
+
+                    <span>{estimate.username}</span>
+                  </div>
+                  <div className="flex justify-end">
+                    <Badge className={getEstimateStatusColor(estimate.status)}>
+                      {estimate.status}
+                    </Badge>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="sm">
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <FileEdit className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
                     <Printer className="h-4 w-4" />
                   </Button>
                   <span className="font-semibold">
-                    ${estimate.value.toFixed(2)}
+                    {/* ${estimate.value.toFixed(2)} */}
                   </span>
                 </div>
               </div>
