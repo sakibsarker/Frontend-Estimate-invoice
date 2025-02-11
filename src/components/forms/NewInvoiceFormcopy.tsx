@@ -25,7 +25,6 @@ import { CustomerForm } from "../sideforms/CustomerForm";
 import { ItemForm } from "../sideforms/ItemForm";
 import { TaxForm } from "../sideforms/TaxForm";
 import { PaymentTermForm } from "../sideforms/PaymentTermForm";
-import { useParams, useNavigate } from "react-router";
 
 interface InvoiceItem {
   id: number;
@@ -46,11 +45,8 @@ export default function NewInvoiceForm() {
   const [taxSearch, setTaxSearch] = useState("");
   const [showTaxForm, setShowTaxForm] = useState(false);
   const [showPaymentTermForm, setShowPaymentTermForm] = useState(false);
-  const [customerSearch, setCustomerSearch] = useState("");
-  const { estimateId } = useParams<{ estimateId: string }>();
-  const navigate = useNavigate();
 
-  console.log(estimateId);
+  const [customerSearch, setCustomerSearch] = useState("");
 
   const addNewRow = () => {
     const newId = items.length + 1;

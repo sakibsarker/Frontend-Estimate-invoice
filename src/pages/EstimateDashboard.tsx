@@ -225,7 +225,11 @@ export default function EstimateDashboard() {
       <div className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {estimates.map((estimate) => (
-            <div key={estimate.id} className="bg-white rounded-lg p-4 shadow">
+            <div
+              key={estimate.id}
+              className="bg-white rounded-lg p-4 shadow cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => navigate(`/estimate/${estimate.id}`)}
+            >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
