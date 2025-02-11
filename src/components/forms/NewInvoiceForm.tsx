@@ -5,7 +5,6 @@ import { X, MoreVertical, Trash2, Plus, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -25,7 +24,10 @@ import { CustomerForm } from "../sideforms/CustomerForm";
 import { ItemForm } from "../sideforms/ItemForm";
 import { TaxForm } from "../sideforms/TaxForm";
 import { PaymentTermForm } from "../sideforms/PaymentTermForm";
-import { useParams, useNavigate } from "react-router";
+import { useParams } from "react-router";
+import { DiscountForm } from "../sideforms/DiscountForm";
+import { LaborForm } from "../sideforms/LaborForm";
+import { OtherChargeForm } from "../sideforms/OtherChargeForm";
 
 interface InvoiceItem {
   id: number;
@@ -36,7 +38,6 @@ interface InvoiceItem {
 }
 
 export default function NewInvoiceForm() {
-  const [frequency, setFrequency] = useState("one-time");
   const [items, setItems] = useState<InvoiceItem[]>([
     { id: 1, description: "", quantity: 1, price: 0, hasTax: false },
   ]);
@@ -44,11 +45,16 @@ export default function NewInvoiceForm() {
   const [itemSearch, setItemSearch] = useState("");
   const [showItemForm, setShowItemForm] = useState(false);
   const [taxSearch, setTaxSearch] = useState("");
+  const [otherChargeSearch, setOtherChargeSearch] = useState("");
+  const [discountSearch, setDiscountSearch] = useState("");
+  const [laborSearch, setLaborSearch] = useState("");
   const [showTaxForm, setShowTaxForm] = useState(false);
+  const [showDiscountForm, setShowDiscountForm] = useState(false);
+  const [showLaborForm, setShowLaborForm] = useState(false);
+  const [showOtherChargeForm, setShowOtherChargeForm] = useState(false);
   const [showPaymentTermForm, setShowPaymentTermForm] = useState(false);
   const [customerSearch, setCustomerSearch] = useState("");
   const { estimateId } = useParams<{ estimateId: string }>();
-  const navigate = useNavigate();
 
   console.log(estimateId);
 
@@ -63,37 +69,6 @@ export default function NewInvoiceForm() {
   const removeRow = (id: number) => {
     setItems(items.filter((item) => item.id !== id));
   };
-
-  const RecurringFields = () => (
-    <div className="grid grid-cols-2 gap-4 mt-4">
-      <div className="space-y-2">
-        <Label>Billing interval</Label>
-        <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="Select interval" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="weekly">Weekly</SelectItem>
-            <SelectItem value="monthly">Monthly</SelectItem>
-            <SelectItem value="quarterly">Quarterly</SelectItem>
-            <SelectItem value="yearly">Yearly</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="space-y-2">
-        <Label>Start date</Label>
-        <Input type="date" />
-      </div>
-      <div className="space-y-2">
-        <Label>End date (optional)</Label>
-        <Input type="date" />
-      </div>
-      <div className="space-y-2">
-        <Label>Billing cycles (optional)</Label>
-        <Input type="number" placeholder="Unlimited if left blank" />
-      </div>
-    </div>
-  );
 
   return (
     <div className="flex min-h-screen">
@@ -136,35 +111,15 @@ export default function NewInvoiceForm() {
 
           {/* Invoice Details Section */}
           <div className="space-y-6">
-            <h2 className="text-lg font-semibold">Invoice details</h2>
+            <h2 className="text-lg font-semibold">Estimate details</h2>
 
-            <div className="space-y-2">
-              <Label>Invoice frequency</Label>
-              <RadioGroup
-                value={frequency}
-                onValueChange={setFrequency}
-                className="flex gap-4"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="one-time" id="one-time" />
-                  <Label htmlFor="one-time">One-time</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="recurring" id="recurring" />
-                  <Label htmlFor="recurring">Recurring</Label>
-                </div>
-              </RadioGroup>
-            </div>
-
-            {frequency === "recurring" && <RecurringFields />}
-
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2">
                 <div className="flex items-center">
                   <Label className="text-sm font-medium text-red-500 mr-2">
                     *
                   </Label>
-                  <Label>Invoice number</Label>
+                  <Label>Estimate number</Label>
                 </div>
                 <Input defaultValue="001" />
               </div>
@@ -173,70 +128,30 @@ export default function NewInvoiceForm() {
                   <Label className="text-sm font-medium text-red-500 mr-2">
                     *
                   </Label>
-                  <Label>
-                    {frequency === "recurring"
-                      ? "First invoice date"
-                      : "Invoice date"}
-                  </Label>
+                  <Label>Estimate date</Label>
                 </div>
                 <Input type="date" defaultValue="2025-01-07" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="paymentTerms"
-                  className="cursor-pointer hover:text-blue-600 transition-colors"
-                  onClick={() => setShowPaymentTermForm(true)}
-                >
-                  Payment terms
-                </Label>
-                <div className="flex flex-col gap-2">
-                  <Select
-                    value="paymentTerms"
-                    onValueChange={(value) => {
-                      if (value === "add") {
-                        setShowPaymentTermForm(true);
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Payment Term" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="net30">Net 30</SelectItem>
-                      <SelectItem value="net60">Net 60</SelectItem>
-                      <SelectItem value="add">Add Payment Term</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center">
                   <Label className="text-sm font-medium text-red-500 mr-2">
                     *
                   </Label>
-                  <Label>Due date</Label>
+                  <Label>Expiration date</Label>
                 </div>
                 <Input type="date" defaultValue="2025-01-07" />
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Sales rep</Label>
+                <div className="flex items-center">
+                  <Label className="text-sm font-medium text-red-500 mr-2">
+                    *
+                  </Label>
+                  <Label>Sales rep</Label>
+                </div>
                 <Input />
               </div>
-              <div className="space-y-2">
-                <Label>PO number</Label>
-                <Input />
-              </div>
             </div>
-
-            <Button variant="link" className="text-indigo-600 p-0">
-              Add custom field
-            </Button>
           </div>
 
           {/* Items Section */}
@@ -245,8 +160,8 @@ export default function NewInvoiceForm() {
             <div className="space-y-6">
               {items.map((item) => (
                 <div key={item.id} className="space-y-4">
+                  <div className="w-8 text-center font-bold">{item.id}</div>
                   <div className="flex items-center gap-4">
-                    <div className="w-8 text-center">{item.id}</div>
                     <div className="flex-1">
                       <div className="flex-1">
                         <Input
@@ -272,20 +187,10 @@ export default function NewInvoiceForm() {
                           </div>
                         )}
                       </div>
-                      {items.length > 1 && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-red-500"
-                          onClick={() => removeRow(item.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
                     </div>
                   </div>
                   <Input placeholder="Description" />
-                  <div className="grid grid-cols-4 gap-4">
+                  <div className="grid grid-cols-7 gap-4">
                     <div className="space-y-2">
                       <div className="flex items-center">
                         <Label className="text-sm font-medium text-red-500 mr-2">
@@ -304,8 +209,26 @@ export default function NewInvoiceForm() {
                       </div>
                       <Input type="number" defaultValue="0.00" />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <Label>Tax</Label>
+                      <div className="flex items-center">
+                        <Checkbox id={`tax-${item.id}`} />
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <Label>Labor</Label>
+                      <div className="flex items-center">
+                        <Checkbox id={`tax-${item.id}`} />
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <Label>Other Charge</Label>
+                      <div className="flex items-center">
+                        <Checkbox id={`tax-${item.id}`} />
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <Label>Discount</Label>
                       <div className="flex items-center">
                         <Checkbox id={`tax-${item.id}`} />
                       </div>
@@ -365,7 +288,72 @@ export default function NewInvoiceForm() {
                 </div>
                 <span>$0.00</span>
               </div>
-
+              <div className="flex justify-between items-center">
+                <span>Labor Charge</span>
+                <div className="w-[200px]">
+                  <Input
+                    placeholder="Search labor charge"
+                    value={laborSearch}
+                    onChange={(e) => setLaborSearch(e.target.value)}
+                  />
+                  {laborSearch && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2 flex items-center gap-2"
+                      onClick={() => setShowLaborForm(true)}
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add New Labor Charge
+                    </Button>
+                  )}
+                </div>
+                <span>$0.00</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Other Charge</span>
+                <div className="w-[200px]">
+                  <Input
+                    placeholder="Search other charge"
+                    value={otherChargeSearch}
+                    onChange={(e) => setOtherChargeSearch(e.target.value)}
+                  />
+                  {otherChargeSearch && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2 flex items-center gap-2"
+                      onClick={() => setShowOtherChargeForm(true)}
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add New Other Charge
+                    </Button>
+                  )}
+                </div>
+                <span>$0.00</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Discount</span>
+                <div className="w-[200px]">
+                  <Input
+                    placeholder="Search discount rates"
+                    value={discountSearch}
+                    onChange={(e) => setDiscountSearch(e.target.value)}
+                  />
+                  {discountSearch && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2 flex items-center gap-2"
+                      onClick={() => setShowDiscountForm(true)}
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add New Discount Rate
+                    </Button>
+                  )}
+                </div>
+                <span>$0.00</span>
+              </div>
               <div className="flex justify-between border-t pt-4">
                 <span>Total</span>
                 <span>$0.00</span>
@@ -447,91 +435,21 @@ export default function NewInvoiceForm() {
         </div>
       </div>
 
-      {/* Preview Section */}
-      <div className="w-[600px] bg-gray-50 p-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex justify-between mb-8">
-            <div>
-              <h2 className="text-xl font-bold">Auto Gig Shop</h2>
-              <p className="text-sm text-gray-500">Bill to</p>
-            </div>
-            <div className="text-right">
-              <div className="space-y-1">
-                <div className="flex items-center justify-end gap-4">
-                  <span className="text-sm text-gray-500">Invoice</span>
-                  <span>001</span>
-                </div>
-                <div className="flex items-center justify-end gap-4">
-                  <span className="text-sm text-gray-500">Date</span>
-                  <span>Jan 07, 2025</span>
-                </div>
-                <div className="flex items-center justify-end gap-4">
-                  <span className="text-sm text-gray-500">Terms</span>
-                  <Button variant="outline" size="sm" className="h-6 text-xs">
-                    + Add Payment Term
-                  </Button>
-                </div>
-                <div className="flex items-center justify-end gap-4">
-                  <span className="text-sm text-gray-500">Due date</span>
-                  <span>Jan 07, 2025</span>
-                </div>
-                <div className="flex items-center justify-end gap-4">
-                  <span className="text-sm text-gray-500">Amount due</span>
-                  <span>$0.00</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="py-2 px-4 text-left">Quantity</th>
-                <th className="py-2 px-4 text-right">Price</th>
-                <th className="py-2 px-4 text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="py-2 px-4">1</td>
-                <td className="py-2 px-4 text-right">$0.00</td>
-                <td className="py-2 px-4 text-right">$0.00</td>
-              </tr>
-            </tbody>
-            <tfoot>
-              <tr className="border-t">
-                <td colSpan={2} className="py-2 px-4 text-right">
-                  Subtotal
-                </td>
-                <td className="py-2 px-4 text-right">$0.00</td>
-              </tr>
-              <tr>
-                <td colSpan={2} className="py-2 px-4 text-right">
-                  Total
-                </td>
-                <td className="py-2 px-4 text-right">$0.00</td>
-              </tr>
-              <tr>
-                <td colSpan={2} className="py-2 px-4 text-right">
-                  Paid
-                </td>
-                <td className="py-2 px-4 text-right">$0.00</td>
-              </tr>
-            </tfoot>
-          </table>
-
-          <div className="mt-4 bg-black text-white p-4 flex justify-between items-center">
-            <span>Amount due</span>
-            <span>$0.00</span>
-          </div>
-        </div>
-      </div>
       <CustomerForm
         open={showCustomerForm}
         onClose={() => setShowCustomerForm(false)}
       />
       <ItemForm open={showItemForm} onClose={() => setShowItemForm(false)} />
       <TaxForm open={showTaxForm} onClose={() => setShowTaxForm(false)} />
+      <DiscountForm
+        open={showDiscountForm}
+        onClose={() => setShowDiscountForm(false)}
+      />
+      <LaborForm open={showLaborForm} onClose={() => setShowLaborForm(false)} />
+      <OtherChargeForm
+        open={showOtherChargeForm}
+        onClose={() => setShowOtherChargeForm(false)}
+      />
       <PaymentTermForm
         open={showPaymentTermForm}
         onClose={() => setShowPaymentTermForm(false)}

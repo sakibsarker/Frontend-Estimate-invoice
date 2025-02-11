@@ -1,19 +1,14 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { X } from "lucide-react";
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { X } from "lucide-react"
 
 interface TaxFormProps {
-  open: boolean;
-  onClose: () => void;
+  open: boolean
+  onClose: () => void
 }
 
 export function TaxForm({ open, onClose }: TaxFormProps) {
@@ -24,6 +19,9 @@ export function TaxForm({ open, onClose }: TaxFormProps) {
           <SheetHeader className="p-6 border-b">
             <div className="flex items-center justify-between">
               <SheetTitle>New Tax Rate</SheetTitle>
+              <Button variant="ghost" size="icon" onClick={onClose}>
+                <X className="h-4 w-4" />
+              </Button>
             </div>
           </SheetHeader>
           <div className="flex-1 overflow-y-auto">
@@ -41,13 +39,7 @@ export function TaxForm({ open, onClose }: TaxFormProps) {
                     <span className="text-destructive">*</span>
                     <Label htmlFor="taxRate">Tax rate (%)</Label>
                   </div>
-                  <Input
-                    id="taxRate"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="e.g., 8.25"
-                  />
+                  <Input id="taxRate" type="number" min="0" step="0.01" placeholder="e.g., 8.25" />
                 </div>
               </div>
             </div>
@@ -60,5 +52,6 @@ export function TaxForm({ open, onClose }: TaxFormProps) {
         </div>
       </SheetContent>
     </Sheet>
-  );
+  )
 }
+

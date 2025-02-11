@@ -16,14 +16,14 @@ interface TaxFormProps {
   onClose: () => void;
 }
 
-export function TaxForm({ open, onClose }: TaxFormProps) {
+export function OtherChargeForm({ open, onClose }: TaxFormProps) {
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent className="w-[400px] sm:w-[540px] p-0">
         <div className="h-full flex flex-col">
           <SheetHeader className="p-6 border-b">
             <div className="flex items-center justify-between">
-              <SheetTitle>New Tax Rate</SheetTitle>
+              <SheetTitle>New Other Charge</SheetTitle>
             </div>
           </SheetHeader>
           <div className="flex-1 overflow-y-auto">
