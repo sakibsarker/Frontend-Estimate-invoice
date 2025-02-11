@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { X, MoreVertical, Trash2, Plus, UserPlus } from "lucide-react";
+import {
+  X,
+  MoreVertical,
+  Trash2,
+  Plus,
+  UserPlus,
+  SquarePlus,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -163,30 +170,23 @@ export default function NewInvoiceForm() {
                   <div className="w-8 text-center font-bold">{item.id}</div>
                   <div className="flex items-center gap-4">
                     <div className="flex-1">
-                      <div className="flex-1">
-                        <Input
-                          placeholder="Search items"
-                          value={itemSearch}
-                          onChange={(e) => setItemSearch(e.target.value)}
-                          className="w-full"
-                        />
-                        {itemSearch && (
-                          <div className="mt-2 bg-white border rounded-lg p-4 shadow-sm">
-                            <div className="text-sm text-gray-500 mb-2">
-                              No items found
-                            </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="w-full flex items-center justify-center gap-2"
-                              onClick={() => setShowItemForm(true)}
-                            >
-                              <Plus className="h-4 w-4" />
-                              Add Item
-                            </Button>
-                          </div>
-                        )}
-                      </div>
+                      <Input
+                        placeholder="Search items"
+                        value={itemSearch}
+                        onChange={(e) => setItemSearch(e.target.value)}
+                        className="w-full"
+                      />
+                      {itemSearch && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-[110px] mt-2 flex items-center justify-start gap-2"
+                          onClick={() => setShowItemForm(true)}
+                        >
+                          <SquarePlus className="h-4 w-4" />
+                          Add Item
+                        </Button>
+                      )}
                     </div>
                   </div>
                   <Input placeholder="Description" />
@@ -260,19 +260,19 @@ export default function NewInvoiceForm() {
 
             <Button
               variant="outline"
-              className="bg-indigo-600 text-white hover:bg-indigo-700"
+              className="bg-indigo-600 text-white hover:text-gray-200 hover:bg-indigo-700"
               onClick={addNewRow}
             >
               Add Row
             </Button>
 
             <div className="space-y-4 mt-8">
-              <div className="flex justify-between">
+              <div className="flex justify-between font-semibold">
                 <span>Subtotal</span>
                 <span>$0.00</span>
               </div>
 
-              <div className="flex justify-between items-center">
+              <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
                 <span>Tax</span>
                 <div className="w-[200px]">
                   <Input
@@ -292,9 +292,9 @@ export default function NewInvoiceForm() {
                     </Button>
                   )}
                 </div>
-                <span>$0.00</span>
+                <span className="text-right">$0.00</span>
               </div>
-              <div className="flex justify-between items-center">
+              <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
                 <span>Labor Charge</span>
                 <div className="w-[200px]">
                   <Input
@@ -314,9 +314,9 @@ export default function NewInvoiceForm() {
                     </Button>
                   )}
                 </div>
-                <span>$0.00</span>
+                <span className="text-right">$0.00</span>
               </div>
-              <div className="flex justify-between items-center">
+              <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
                 <span>Other Charge</span>
                 <div className="w-[200px]">
                   <Input
@@ -336,9 +336,9 @@ export default function NewInvoiceForm() {
                     </Button>
                   )}
                 </div>
-                <span>$0.00</span>
+                <span className="text-right">$0.00</span>
               </div>
-              <div className="flex justify-between items-center">
+              <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
                 <span>Discount</span>
                 <div className="w-[200px]">
                   <Input
@@ -358,25 +358,11 @@ export default function NewInvoiceForm() {
                     </Button>
                   )}
                 </div>
-                <span>$0.00</span>
+                <span className="text-right">$0.00</span>
               </div>
-              <div className="flex justify-between border-t pt-4">
+              <div className="flex justify-between border-t pt-4 font-semibold">
                 <span>Total</span>
                 <span>$0.00</span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span>Credit</span>
-                <div className="text-right">
-                  <Input
-                    type="number"
-                    defaultValue="0.00"
-                    className="text-right w-[200px]"
-                  />
-                  <div className="text-sm text-gray-500 mt-1">
-                    Total available: $0.00
-                  </div>
-                </div>
               </div>
 
               <div className="flex justify-between border-t pt-4 font-semibold">
