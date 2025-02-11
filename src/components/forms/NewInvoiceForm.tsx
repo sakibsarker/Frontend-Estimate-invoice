@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   X,
   MoreVertical,
@@ -51,10 +51,6 @@ export default function NewInvoiceForm() {
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [itemSearch, setItemSearch] = useState("");
   const [showItemForm, setShowItemForm] = useState(false);
-  const [taxSearch, setTaxSearch] = useState("");
-  const [otherChargeSearch, setOtherChargeSearch] = useState("");
-  const [discountSearch, setDiscountSearch] = useState("");
-  const [laborSearch, setLaborSearch] = useState("");
   const [showTaxForm, setShowTaxForm] = useState(false);
   const [showDiscountForm, setShowDiscountForm] = useState(false);
   const [showLaborForm, setShowLaborForm] = useState(false);
@@ -62,8 +58,116 @@ export default function NewInvoiceForm() {
   const [showPaymentTermForm, setShowPaymentTermForm] = useState(false);
   const [customerSearch, setCustomerSearch] = useState("");
   const { estimateId } = useParams<{ estimateId: string }>();
+  const [taxes, setTaxes] = useState<
+    Array<{ id: number; tax_name: string; tax_rate: string }>
+  >([]);
+  const [selectedTax, setSelectedTax] = useState<number | null>(null);
+  const [laborCosts, setLaborCosts] = useState<
+    Array<{ id: number; labor_cost_name: string; labor_cost_rate: string }>
+  >([]);
+  const [selectedLabor, setSelectedLabor] = useState<number | null>(null);
+  const [otherCharges, setOtherCharges] = useState<
+    Array<{ id: number; othercharges_name: string; othercharges_rate: string }>
+  >([]);
+  const [selectedOtherCharge, setSelectedOtherCharge] = useState<number | null>(
+    null
+  );
+  const [discounts, setDiscounts] = useState<
+    Array<{ id: number; discount_name: string; discount_rate: string }>
+  >([]);
+  const [selectedDiscount, setSelectedDiscount] = useState<number | null>(null);
 
   console.log(estimateId);
+
+  useEffect(() => {
+    const fetchTaxes = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/estimate/taxes/`,
+          {
+            headers: {
+              "Authorization": `Bearer ${localStorage.getItem("token")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (!response.ok) throw new Error("Failed to fetch taxes");
+        const data = await response.json();
+        setTaxes(data);
+      } catch (error) {
+        console.error("Error fetching taxes:", error);
+      }
+    };
+
+    fetchTaxes();
+  }, []);
+
+  useEffect(() => {
+    const fetchLaborCosts = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/estimate/labor-costs/`,
+          {
+            headers: {
+              "Authorization": `Bearer ${localStorage.getItem("token")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (!response.ok) throw new Error("Failed to fetch labor costs");
+        const data = await response.json();
+        setLaborCosts(data);
+      } catch (error) {
+        console.error("Error fetching labor costs:", error);
+      }
+    };
+
+    fetchLaborCosts();
+  }, []);
+
+  useEffect(() => {
+    const fetchOtherCharges = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/estimate/other-charges/`,
+          {
+            headers: {
+              "Authorization": `Bearer ${localStorage.getItem("token")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (!response.ok) throw new Error("Failed to fetch other charges");
+        const data = await response.json();
+        setOtherCharges(data);
+      } catch (error) {
+        console.error("Error fetching other charges:", error);
+      }
+    };
+    fetchOtherCharges();
+  }, []);
+
+  useEffect(() => {
+    const fetchDiscounts = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/estimate/discounts/`,
+          {
+            headers: {
+              "Authorization": `Bearer ${localStorage.getItem("token")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (!response.ok) throw new Error("Failed to fetch discounts");
+        const data = await response.json();
+        setDiscounts(data);
+      } catch (error) {
+        console.error("Error fetching discounts:", error);
+      }
+    };
+    fetchDiscounts();
+  }, []);
 
   const addNewRow = () => {
     const newId = items.length + 1;
@@ -275,90 +379,168 @@ export default function NewInvoiceForm() {
               <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
                 <span>Tax</span>
                 <div className="w-[200px]">
-                  <Input
-                    placeholder="Search tax rates"
-                    value={taxSearch}
-                    onChange={(e) => setTaxSearch(e.target.value)}
-                  />
-                  {taxSearch && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-2 flex items-center gap-2"
-                      onClick={() => setShowTaxForm(true)}
-                    >
-                      <Plus className="h-4 w-4" />
-                      Add New Tax Rate
-                    </Button>
-                  )}
+                  <Select
+                    value={selectedTax?.toString() || ""}
+                    onValueChange={(value) => {
+                      if (value === "add-tax") {
+                        setShowTaxForm(true);
+                      } else {
+                        setSelectedTax(Number(value));
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select tax rate" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {taxes.map((tax) => (
+                        <SelectItem key={tax.id} value={tax.id.toString()}>
+                          {tax.tax_name} ({tax.tax_rate}%)
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="add-tax">
+                        <div className="flex items-center gap-2 text-indigo-600">
+                          <Plus className="h-4 w-4" />
+                          Add Tax Rate
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <span className="text-right">$0.00</span>
+                <span className="text-right">
+                  {selectedTax
+                    ? `$${
+                        taxes.find((t) => t.id === selectedTax)?.tax_rate || 0
+                      }%`
+                    : "$0.00"}
+                </span>
               </div>
               <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
                 <span>Labor Charge</span>
                 <div className="w-[200px]">
-                  <Input
-                    placeholder="Search labor charge"
-                    value={laborSearch}
-                    onChange={(e) => setLaborSearch(e.target.value)}
-                  />
-                  {laborSearch && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-2 flex items-center gap-2"
-                      onClick={() => setShowLaborForm(true)}
-                    >
-                      <Plus className="h-4 w-4" />
-                      Add New Labor Charge
-                    </Button>
-                  )}
+                  <Select
+                    value={selectedLabor?.toString() || ""}
+                    onValueChange={(value) => {
+                      if (value === "add-labor") {
+                        setShowLaborForm(true);
+                      } else {
+                        setSelectedLabor(Number(value));
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select labor charge" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {laborCosts.map((labor) => (
+                        <SelectItem key={labor.id} value={labor.id.toString()}>
+                          {labor.labor_cost_name} (${labor.labor_cost_rate}/hr)
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="add-labor">
+                        <div className="flex items-center gap-2 text-indigo-600">
+                          <Plus className="h-4 w-4" />
+                          Add Labor Charge
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <span className="text-right">$0.00</span>
+                <span className="text-right">
+                  {selectedLabor
+                    ? `$${
+                        laborCosts.find((l) => l.id === selectedLabor)
+                          ?.labor_cost_rate || 0
+                      }`
+                    : "$0.00"}
+                </span>
               </div>
               <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
                 <span>Other Charge</span>
                 <div className="w-[200px]">
-                  <Input
-                    placeholder="Search other charge"
-                    value={otherChargeSearch}
-                    onChange={(e) => setOtherChargeSearch(e.target.value)}
-                  />
-                  {otherChargeSearch && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-2 flex items-center gap-2"
-                      onClick={() => setShowOtherChargeForm(true)}
-                    >
-                      <Plus className="h-4 w-4" />
-                      Add New Other Charge
-                    </Button>
-                  )}
+                  <Select
+                    value={selectedOtherCharge?.toString() || ""}
+                    onValueChange={(value) => {
+                      if (value === "add-other-charge") {
+                        setShowOtherChargeForm(true);
+                      } else {
+                        setSelectedOtherCharge(Number(value));
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select other charge" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {otherCharges.map((charge) => (
+                        <SelectItem
+                          key={charge.id}
+                          value={charge.id.toString()}
+                        >
+                          {charge.othercharges_name} ($
+                          {charge.othercharges_rate})
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="add-other-charge">
+                        <div className="flex items-center gap-2 text-indigo-600">
+                          <Plus className="h-4 w-4" />
+                          Add Other Charge
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <span className="text-right">$0.00</span>
+                <span className="text-right">
+                  {selectedOtherCharge
+                    ? `$${
+                        otherCharges.find((oc) => oc.id === selectedOtherCharge)
+                          ?.othercharges_rate || 0
+                      }`
+                    : "$0.00"}
+                </span>
               </div>
               <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
                 <span>Discount</span>
                 <div className="w-[200px]">
-                  <Input
-                    placeholder="Search discount rates"
-                    value={discountSearch}
-                    onChange={(e) => setDiscountSearch(e.target.value)}
-                  />
-                  {discountSearch && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-2 flex items-center gap-2"
-                      onClick={() => setShowDiscountForm(true)}
-                    >
-                      <Plus className="h-4 w-4" />
-                      Add New Discount Rate
-                    </Button>
-                  )}
+                  <Select
+                    value={selectedDiscount?.toString() || ""}
+                    onValueChange={(value) => {
+                      if (value === "add-discount") {
+                        setShowDiscountForm(true);
+                      } else {
+                        setSelectedDiscount(Number(value));
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select discount" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {discounts.map((discount) => (
+                        <SelectItem
+                          key={discount.id}
+                          value={discount.id.toString()}
+                        >
+                          {discount.discount_name} ({discount.discount_rate}%)
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="add-discount">
+                        <div className="flex items-center gap-2 text-indigo-600">
+                          <Plus className="h-4 w-4" />
+                          Add Discount
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <span className="text-right">$0.00</span>
+                <span className="text-right">
+                  {selectedDiscount
+                    ? `${
+                        discounts.find((d) => d.id === selectedDiscount)
+                          ?.discount_rate || 0
+                      }%`
+                    : "$0.00"}
+                </span>
               </div>
               <div className="flex justify-between border-t pt-4 font-semibold">
                 <span>Total</span>
