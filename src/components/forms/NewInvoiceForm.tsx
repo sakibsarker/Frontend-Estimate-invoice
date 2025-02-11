@@ -8,6 +8,7 @@ import {
   Plus,
   UserPlus,
   SquarePlus,
+  Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,7 +57,7 @@ export default function NewInvoiceForm() {
   const [showLaborForm, setShowLaborForm] = useState(false);
   const [showOtherChargeForm, setShowOtherChargeForm] = useState(false);
   const [showPaymentTermForm, setShowPaymentTermForm] = useState(false);
-  const [customerSearch, setCustomerSearch] = useState("");
+
   const { estimateId } = useParams<{ estimateId: string }>();
   const [taxes, setTaxes] = useState<
     Array<{ id: number; tax_name: string; tax_rate: string }>
@@ -76,6 +77,10 @@ export default function NewInvoiceForm() {
     Array<{ id: number; discount_name: string; discount_rate: string }>
   >([]);
   const [selectedDiscount, setSelectedDiscount] = useState<number | null>(null);
+  const [customers, setCustomers] = useState<
+    Array<{ id: number; username: string; phone_number: string; email: string }>
+  >([]);
+  const [selectedCustomer, setSelectedCustomer] = useState<number | null>(null);
 
   console.log(estimateId);
 
@@ -169,6 +174,28 @@ export default function NewInvoiceForm() {
     fetchDiscounts();
   }, []);
 
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/estimate/list-repair-requests/`,
+          {
+            headers: {
+              "Authorization": `Bearer ${localStorage.getItem("token")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (!response.ok) throw new Error("Failed to fetch customers");
+        const data = await response.json();
+        setCustomers(data);
+      } catch (error) {
+        console.error("Error fetching customers:", error);
+      }
+    };
+    fetchCustomers();
+  }, []);
+
   const addNewRow = () => {
     const newId = items.length + 1;
     setItems([
@@ -199,26 +226,98 @@ export default function NewInvoiceForm() {
               <Label className="text-sm font-medium text-red-500 mr-2">*</Label>
               <Label>Customer</Label>
             </div>
-            <div className="flex flex-col gap-2">
-              <Input
-                placeholder="Search customers"
-                value={customerSearch}
-                onChange={(e) => setCustomerSearch(e.target.value)}
-                className="flex-1"
-              />
-              {customerSearch && (
+            <div className="flex gap-2 items-center">
+              <div className="flex-1">
+                <Select
+                  value={selectedCustomer?.toString() || ""}
+                  onValueChange={(value) => {
+                    if (value === "add-customer") {
+                      setShowCustomerForm(true);
+                    } else {
+                      setSelectedCustomer(Number(value));
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select customer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {customers.map((customer) => (
+                      <SelectItem
+                        key={customer.id}
+                        value={customer.id.toString()}
+                      >
+                        <div className="flex flex-col">
+                          <span>{customer.username}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="add-customer">
+                      <div className="flex items-center gap-2 text-indigo-600">
+                        <UserPlus className="h-4 w-4" />
+                        Add New Customer
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setShowCustomerForm(true)}
+                className="border-indigo-600 text-indigo-600 hover:bg-indigo-50 h-auto py-2 flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                <span className="text-xs whitespace-nowrap">
+                  Add New Customer
+                </span>
+              </Button>
+            </div>
+          </div>
+
+          {selectedCustomer && (
+            <div className="bg-gray-50 p-4 rounded-md border">
+              <div className="flex justify-between items-start">
+                <div className="grid grid-cols-3 gap-4 flex-1">
+                  <div>
+                    <Label className="text-sm text-gray-500">
+                      Customer Name
+                    </Label>
+                    <p className="font-medium">
+                      {customers.find((c) => c.id === selectedCustomer)
+                        ?.username || "N/A"}
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-gray-500">
+                      Phone Number
+                    </Label>
+                    <p className="font-medium">
+                      {customers.find((c) => c.id === selectedCustomer)
+                        ?.phone_number || "N/A"}
+                    </p>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-gray-500">
+                      Email Address
+                    </Label>
+                    <p className="font-medium">
+                      {customers.find((c) => c.id === selectedCustomer)
+                        ?.email || "N/A"}
+                    </p>
+                  </div>
+                </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="self-start flex items-center gap-2"
+                  className="mt-1 text-indigo-600 border-indigo-600 hover:bg-indigo-50"
                   onClick={() => setShowCustomerForm(true)}
                 >
-                  <UserPlus className="h-4 w-4" />
-                  Add New Customer
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Edit
                 </Button>
-              )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Invoice Details Section */}
           <div className="space-y-6">
