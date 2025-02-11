@@ -190,7 +190,7 @@ export default function NewInvoiceForm() {
                     </div>
                   </div>
                   <Input placeholder="Description" />
-                  <div className="grid grid-cols-7 gap-4">
+                  <div className="grid grid-cols-8 gap-4">
                     <div className="space-y-2">
                       <div className="flex items-center">
                         <Label className="text-sm font-medium text-red-500 mr-2">
@@ -208,6 +208,12 @@ export default function NewInvoiceForm() {
                         <Label>Price</Label>
                       </div>
                       <Input type="number" defaultValue="0.00" />
+                    </div>
+                    <div className="space-y-3">
+                      <Label>Paid</Label>
+                      <div className="flex items-center">
+                        <Checkbox id={`tax-${item.id}`} />
+                      </div>
                     </div>
                     <div className="space-y-3">
                       <Label>Tax</Label>
