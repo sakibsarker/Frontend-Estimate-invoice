@@ -26,6 +26,7 @@ import { OtherChargeForm } from "../sideforms/OtherChargeForm";
 
 interface InvoiceItem {
   id: number;
+  type: "item" | "labor" | "parts" | "other";
   selectedItemId: number | null;
   description: string;
   quantity: number;
@@ -37,6 +38,7 @@ export default function NewInvoiceForm() {
   const [items, setItems] = useState<InvoiceItem[]>([
     {
       id: 1,
+      type: "item",
       selectedItemId: null,
       description: "",
       quantity: 1,
@@ -217,12 +219,13 @@ export default function NewInvoiceForm() {
     fetchItems();
   }, []);
 
-  const addNewRow = () => {
+  const addNewRow = (type: "item" | "labor" | "parts" | "other" = "item") => {
     const newId = items.length + 1;
     setItems([
       ...items,
       {
         id: newId,
+        type,
         selectedItemId: null,
         description: "",
         quantity: 1,
@@ -418,7 +421,12 @@ export default function NewInvoiceForm() {
             <div className="space-y-6">
               {items.map((item) => (
                 <div key={item.id} className="space-y-4">
-                  <div className="w-8 text-center font-bold">{item.id}</div>
+                  <div className="w-8 text-center font-bold">
+                    {item.type === "item" && "Item"}
+                    {item.type === "labor" && "Labor"}
+                    {item.type === "parts" && "Parts"}
+                    {item.type === "other" && "Other"}
+                  </div>
                   <div className="flex items-center gap-4">
                     <div className="flex-1">
                       <Select
@@ -485,6 +493,7 @@ export default function NewInvoiceForm() {
                             )
                           )
                         }
+                        min="1"
                       />
                     </div>
                     <div className="space-y-2">
@@ -506,6 +515,7 @@ export default function NewInvoiceForm() {
                             )
                           )
                         }
+                        step="0.01"
                       />
                     </div>
                     <div className="space-y-3">
@@ -541,7 +551,7 @@ export default function NewInvoiceForm() {
                     <div className="space-y-2">
                       <Label>Total</Label>
                       <div className="flex items-center justify-between">
-                        <span>$0.00</span>
+                        <span>${(item.quantity * item.price).toFixed(2)}</span>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -557,13 +567,39 @@ export default function NewInvoiceForm() {
               ))}
             </div>
 
-            <Button
-              variant="outline"
-              className="bg-indigo-600 text-white hover:text-gray-200 hover:bg-indigo-700"
-              onClick={addNewRow}
-            >
-              Add Row
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="bg-indigo-600 text-white hover:text-gray-200 hover:bg-indigo-700 px-4 py-2 text-sm"
+                onClick={() => addNewRow("item")}
+              >
+                Add Row
+              </Button>
+              <Button
+                variant="outline"
+                className="bg-blue-600 text-white hover:text-gray-200 hover:bg-blue-700 px-4 py-2 text-sm"
+                onClick={() => addNewRow("labor")}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Labor
+              </Button>
+              <Button
+                variant="outline"
+                className="bg-green-600 text-white hover:text-gray-200 hover:bg-green-700 px-4 py-2 text-sm"
+                onClick={() => addNewRow("parts")}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Parts
+              </Button>
+              <Button
+                variant="outline"
+                className="bg-purple-600 text-white hover:text-gray-200 hover:bg-purple-700 px-4 py-2 text-sm"
+                onClick={() => addNewRow("other")}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Other
+              </Button>
+            </div>
 
             <div className="space-y-4 mt-8">
               <div className="flex justify-between font-semibold">
