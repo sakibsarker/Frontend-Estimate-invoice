@@ -26,6 +26,7 @@ import { OtherChargeForm } from "../sideforms/OtherChargeForm";
 
 interface InvoiceItem {
   id: number;
+  selectedItemId: number | null;
   description: string;
   quantity: number;
   price: number;
@@ -34,7 +35,14 @@ interface InvoiceItem {
 
 export default function NewInvoiceForm() {
   const [items, setItems] = useState<InvoiceItem[]>([
-    { id: 1, description: "", quantity: 1, price: 0, hasTax: false },
+    {
+      id: 1,
+      selectedItemId: null,
+      description: "",
+      quantity: 1,
+      price: 0,
+      hasTax: false,
+    },
   ]);
   const [showCustomerForm, setShowCustomerForm] = useState(false);
 
@@ -69,9 +77,8 @@ export default function NewInvoiceForm() {
   >([]);
   const [selectedCustomer, setSelectedCustomer] = useState<number | null>(null);
   const [itemsList, setItemsList] = useState<
-    Array<{ id: number; item_name: string; price: string }>
+    Array<{ id: number; item_name: string; price: string; description: string }>
   >([]);
-  const [selectedItem, setSelectedItem] = useState<number | null>(null);
 
   console.log(estimateId);
 
@@ -214,12 +221,39 @@ export default function NewInvoiceForm() {
     const newId = items.length + 1;
     setItems([
       ...items,
-      { id: newId, description: "", quantity: 1, price: 0, hasTax: false },
+      {
+        id: newId,
+        selectedItemId: null,
+        description: "",
+        quantity: 1,
+        price: 0,
+        hasTax: false,
+      },
     ]);
   };
 
   const removeRow = (id: number) => {
     setItems(items.filter((item) => item.id !== id));
+  };
+
+  const handleItemSelect = (itemId: number, selectedValue: string) => {
+    setItems(
+      items.map((item) => {
+        if (item.id === itemId) {
+          const selectedItem = itemsList.find(
+            (i) => i.id.toString() === selectedValue
+          );
+          return {
+            ...item,
+            selectedItemId:
+              selectedValue === "add-item" ? null : Number(selectedValue),
+            price: selectedItem ? parseFloat(selectedItem.price) : 0,
+            description: selectedItem?.description || "",
+          };
+        }
+        return item;
+      })
+    );
   };
 
   return (
@@ -388,27 +422,23 @@ export default function NewInvoiceForm() {
                   <div className="flex items-center gap-4">
                     <div className="flex-1">
                       <Select
-                        value={selectedItem?.toString() || ""}
-                        onValueChange={(value) => {
-                          if (value === "add-item") {
-                            setShowItemForm(true);
-                          } else {
-                            setSelectedItem(Number(value));
-                          }
-                        }}
+                        value={item.selectedItemId?.toString() || ""}
+                        onValueChange={(value) =>
+                          handleItemSelect(item.id, value)
+                        }
                       >
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Search items" />
                         </SelectTrigger>
                         <SelectContent>
-                          {itemsList.map((item) => (
+                          {itemsList.map((listItem) => (
                             <SelectItem
-                              key={item.id}
-                              value={item.id.toString()}
+                              key={listItem.id}
+                              value={listItem.id.toString()}
                             >
                               <div className="flex justify-between w-full">
-                                <span>{item.item_name}</span>
-                                <span>${item.price}</span>
+                                <span>{listItem.item_name}</span>
+                                <span>${listItem.price}</span>
                               </div>
                             </SelectItem>
                           ))}
@@ -422,7 +452,19 @@ export default function NewInvoiceForm() {
                       </Select>
                     </div>
                   </div>
-                  <Input placeholder="Description" />
+                  <Input
+                    placeholder="Description"
+                    value={item.description}
+                    onChange={(e) =>
+                      setItems(
+                        items.map((i) =>
+                          i.id === item.id
+                            ? { ...i, description: e.target.value }
+                            : i
+                        )
+                      )
+                    }
+                  />
                   <div className="grid grid-cols-8 gap-4">
                     <div className="space-y-2">
                       <div className="flex items-center">
@@ -431,7 +473,19 @@ export default function NewInvoiceForm() {
                         </Label>
                         <Label>Quantity</Label>
                       </div>
-                      <Input type="number" defaultValue="1" />
+                      <Input
+                        type="number"
+                        value={item.quantity}
+                        onChange={(e) =>
+                          setItems(
+                            items.map((i) =>
+                              i.id === item.id
+                                ? { ...i, quantity: Number(e.target.value) }
+                                : i
+                            )
+                          )
+                        }
+                      />
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center">
@@ -440,7 +494,19 @@ export default function NewInvoiceForm() {
                         </Label>
                         <Label>Price</Label>
                       </div>
-                      <Input type="number" defaultValue="0.00" />
+                      <Input
+                        type="number"
+                        value={item.price}
+                        onChange={(e) =>
+                          setItems(
+                            items.map((i) =>
+                              i.id === item.id
+                                ? { ...i, price: parseFloat(e.target.value) }
+                                : i
+                            )
+                          )
+                        }
+                      />
                     </div>
                     <div className="space-y-3">
                       <Label>Paid</Label>
