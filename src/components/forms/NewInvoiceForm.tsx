@@ -1,7 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Trash2, Plus, UserPlus, SquarePlus, Pencil } from "lucide-react";
+import {
+  X,
+  Trash2,
+  Plus,
+  UserPlus,
+  SquarePlus,
+  Pencil,
+  UserRoundPlus,
+  PackagePlus,
+  ShoppingBag,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +45,7 @@ interface InvoiceItem {
   hasLabor: boolean;
   hasOtherCharge: boolean;
   hasDiscount: boolean;
+  paid: boolean;
 }
 
 export default function NewInvoiceForm() {
@@ -50,6 +61,7 @@ export default function NewInvoiceForm() {
       hasLabor: false,
       hasOtherCharge: false,
       hasDiscount: false,
+      paid: true,
     },
   ]);
   const [showCustomerForm, setShowCustomerForm] = useState(false);
@@ -87,8 +99,6 @@ export default function NewInvoiceForm() {
   const [itemsList, setItemsList] = useState<
     Array<{ id: number; item_name: string; price: string; description: string }>
   >([]);
-
-  console.log(estimateId);
 
   useEffect(() => {
     const fetchTaxes = async () => {
@@ -217,7 +227,6 @@ export default function NewInvoiceForm() {
         if (!response.ok) throw new Error("Failed to fetch items");
         const data = await response.json();
         setItemsList(data);
-        console.log(data);
       } catch (error) {
         console.error("Error fetching items:", error);
       }
@@ -240,6 +249,7 @@ export default function NewInvoiceForm() {
         hasLabor: false,
         hasOtherCharge: false,
         hasDiscount: false,
+        paid: true,
       },
     ]);
   };
@@ -312,6 +322,15 @@ export default function NewInvoiceForm() {
     return items.reduce((total, item) => {
       const rowTotal = calculateRowTotal(item);
       return total + parseFloat(rowTotal);
+    }, 0);
+  };
+
+  const calculateAmountDue = () => {
+    return items.reduce((total, item) => {
+      if (!item.paid) {
+        return total + parseFloat(calculateRowTotal(item));
+      }
+      return total;
     }, 0);
   };
 
@@ -575,7 +594,16 @@ export default function NewInvoiceForm() {
                     <div className="space-y-3">
                       <Label>Paid</Label>
                       <div className="flex items-center">
-                        <Checkbox id={`tax-${item.id}`} />
+                        <Checkbox
+                          checked={item.paid}
+                          onCheckedChange={(checked) =>
+                            setItems(
+                              items.map((i) =>
+                                i.id === item.id ? { ...i, paid: !!checked } : i
+                              )
+                            )
+                          }
+                        />
                       </div>
                     </div>
                     <div className="space-y-3">
@@ -671,30 +699,31 @@ export default function NewInvoiceForm() {
                 className="bg-indigo-600 text-white hover:text-gray-200 hover:bg-indigo-700 px-4 py-2 text-sm"
                 onClick={() => addNewRow("item")}
               >
-                Add Row
+                <ShoppingBag className="h-4 w-4 mr-2" />
+                Add Item
               </Button>
               <Button
                 variant="outline"
-                className="bg-blue-600 text-white hover:text-gray-200 hover:bg-blue-700 px-4 py-2 text-sm"
+                className="bg-indigo-600 text-white hover:text-gray-200 hover:bg-indigo-700 px-4 py-2 text-sm"
                 onClick={() => addNewRow("labor")}
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <UserRoundPlus className="h-4 w-4 mr-2" />
                 Add Labor
               </Button>
               <Button
                 variant="outline"
-                className="bg-green-600 text-white hover:text-gray-200 hover:bg-green-700 px-4 py-2 text-sm"
+                className="bg-indigo-600 text-white hover:text-gray-200 hover:bg-indigo-700px-4 py-2 text-sm"
                 onClick={() => addNewRow("parts")}
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <PackagePlus className="h-4 w-4 mr-2" />
                 Add Parts
               </Button>
               <Button
                 variant="outline"
-                className="bg-purple-600 text-white hover:text-gray-200 hover:bg-purple-700 px-4 py-2 text-sm"
+                className="bg-indigo-600 text-white hover:text-gray-200 hover:bg-indigo-700 px-4 py-2 text-sm"
                 onClick={() => addNewRow("other")}
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <SquarePlus className="h-4 w-4 mr-2" />
                 Add Other
               </Button>
             </div>
@@ -878,7 +907,7 @@ export default function NewInvoiceForm() {
 
               <div className="flex justify-between border-t pt-4 font-semibold">
                 <span>Amount due</span>
-                <span>${calculateTotal().toFixed(2)}</span>
+                <span>${calculateAmountDue().toFixed(2)}</span>
               </div>
             </div>
 
@@ -914,7 +943,10 @@ export default function NewInvoiceForm() {
         <div className="fixed bottom-0 left-0 right-0 border-t bg-gray-100 p-5">
           <div className="flex items-center justify-between max-w-full">
             <div className="text-2xl font-semibold">
-              Amount due: <span className="text-2xl font-bold">$0.00</span>
+              Amount due:{" "}
+              <span className="text-2xl font-bold">
+                ${calculateAmountDue().toFixed(2)}
+              </span>
             </div>
             <div className="flex items-center gap-4">
               <Button variant="outline" className="text-2xl p-2">
