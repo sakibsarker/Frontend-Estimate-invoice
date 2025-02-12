@@ -259,6 +259,11 @@ export default function NewInvoiceForm() {
   };
 
   const handleItemSelect = (itemId: number, selectedValue: string) => {
+    if (selectedValue === "add-item") {
+      setShowItemForm(true);
+      return;
+    }
+
     setItems(
       items.map((item) => {
         if (item.id === itemId) {
@@ -267,8 +272,7 @@ export default function NewInvoiceForm() {
           );
           return {
             ...item,
-            selectedItemId:
-              selectedValue === "add-item" ? null : Number(selectedValue),
+            selectedItemId: Number(selectedValue),
             price: selectedItem ? parseFloat(selectedItem.price) : 0,
             description: selectedItem?.description || "",
           };
@@ -492,7 +496,7 @@ export default function NewInvoiceForm() {
 
           {/* Items Section */}
           <div className="space-y-6">
-            <h2 className="text-lg font-semibold">Items</h2>
+            <h2 className="text-lg font-semibold">Services</h2>
             <div className="space-y-6">
               {items.map((item) => (
                 <div key={item.id} className="space-y-4">
