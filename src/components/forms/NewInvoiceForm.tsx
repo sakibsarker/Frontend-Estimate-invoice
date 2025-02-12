@@ -32,6 +32,9 @@ interface InvoiceItem {
   quantity: number;
   price: number;
   hasTax: boolean;
+  hasLabor: boolean;
+  hasOtherCharge: boolean;
+  hasDiscount: boolean;
 }
 
 export default function NewInvoiceForm() {
@@ -44,6 +47,9 @@ export default function NewInvoiceForm() {
       quantity: 1,
       price: 0,
       hasTax: false,
+      hasLabor: false,
+      hasOtherCharge: false,
+      hasDiscount: false,
     },
   ]);
   const [showCustomerForm, setShowCustomerForm] = useState(false);
@@ -231,6 +237,9 @@ export default function NewInvoiceForm() {
         quantity: 1,
         price: 0,
         hasTax: false,
+        hasLabor: false,
+        hasOtherCharge: false,
+        hasDiscount: false,
       },
     ]);
   };
@@ -257,6 +266,42 @@ export default function NewInvoiceForm() {
         return item;
       })
     );
+  };
+
+  const calculateRowTotal = (item: InvoiceItem) => {
+    const subtotal = item.quantity * item.price;
+    let total = subtotal;
+
+    if (item.hasTax && selectedTax) {
+      const taxRate = parseFloat(
+        taxes.find((t) => t.id === selectedTax)?.tax_rate || "0"
+      );
+      total += subtotal * (taxRate / 100);
+    }
+
+    if (item.hasLabor && selectedLabor) {
+      const laborRate = parseFloat(
+        laborCosts.find((l) => l.id === selectedLabor)?.labor_cost_rate || "0"
+      );
+      total += laborRate;
+    }
+
+    if (item.hasOtherCharge && selectedOtherCharge) {
+      const otherRate = parseFloat(
+        otherCharges.find((oc) => oc.id === selectedOtherCharge)
+          ?.othercharges_rate || "0"
+      );
+      total += otherRate;
+    }
+
+    if (item.hasDiscount && selectedDiscount) {
+      const discountRate = parseFloat(
+        discounts.find((d) => d.id === selectedDiscount)?.discount_rate || "0"
+      );
+      total -= subtotal * (discountRate / 100);
+    }
+
+    return total.toFixed(2);
   };
 
   return (
@@ -382,7 +427,7 @@ export default function NewInvoiceForm() {
                   </Label>
                   <Label>Estimate number</Label>
                 </div>
-                <Input defaultValue="001" />
+                <Input defaultValue={estimateId} />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center">
@@ -493,7 +538,6 @@ export default function NewInvoiceForm() {
                             )
                           )
                         }
-                        min="1"
                       />
                     </div>
                     <div className="space-y-2">
@@ -515,7 +559,6 @@ export default function NewInvoiceForm() {
                             )
                           )
                         }
-                        step="0.01"
                       />
                     </div>
                     <div className="space-y-3">
@@ -527,31 +570,75 @@ export default function NewInvoiceForm() {
                     <div className="space-y-3">
                       <Label>Tax</Label>
                       <div className="flex items-center">
-                        <Checkbox id={`tax-${item.id}`} />
+                        <Checkbox
+                          checked={item.hasTax}
+                          onCheckedChange={(checked) =>
+                            setItems(
+                              items.map((i) =>
+                                i.id === item.id
+                                  ? { ...i, hasTax: !!checked }
+                                  : i
+                              )
+                            )
+                          }
+                        />
                       </div>
                     </div>
                     <div className="space-y-3">
                       <Label>Labor</Label>
                       <div className="flex items-center">
-                        <Checkbox id={`tax-${item.id}`} />
+                        <Checkbox
+                          checked={item.hasLabor}
+                          onCheckedChange={(checked) =>
+                            setItems(
+                              items.map((i) =>
+                                i.id === item.id
+                                  ? { ...i, hasLabor: !!checked }
+                                  : i
+                              )
+                            )
+                          }
+                        />
                       </div>
                     </div>
                     <div className="space-y-3">
                       <Label>Other Charge</Label>
                       <div className="flex items-center">
-                        <Checkbox id={`tax-${item.id}`} />
+                        <Checkbox
+                          checked={item.hasOtherCharge}
+                          onCheckedChange={(checked) =>
+                            setItems(
+                              items.map((i) =>
+                                i.id === item.id
+                                  ? { ...i, hasOtherCharge: !!checked }
+                                  : i
+                              )
+                            )
+                          }
+                        />
                       </div>
                     </div>
                     <div className="space-y-3">
                       <Label>Discount</Label>
                       <div className="flex items-center">
-                        <Checkbox id={`tax-${item.id}`} />
+                        <Checkbox
+                          checked={item.hasDiscount}
+                          onCheckedChange={(checked) =>
+                            setItems(
+                              items.map((i) =>
+                                i.id === item.id
+                                  ? { ...i, hasDiscount: !!checked }
+                                  : i
+                              )
+                            )
+                          }
+                        />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label>Total</Label>
                       <div className="flex items-center justify-between">
-                        <span>${(item.quantity * item.price).toFixed(2)}</span>
+                        <span>${calculateRowTotal(item)}</span>
                         <Button
                           variant="ghost"
                           size="icon"
