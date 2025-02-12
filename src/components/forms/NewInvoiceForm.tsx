@@ -1,15 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  X,
-  MoreVertical,
-  Trash2,
-  Plus,
-  UserPlus,
-  SquarePlus,
-  Pencil,
-} from "lucide-react";
+import { X, Trash2, Plus, UserPlus, SquarePlus, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,12 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CustomerForm } from "../sideforms/CustomerForm";
@@ -50,7 +37,7 @@ export default function NewInvoiceForm() {
     { id: 1, description: "", quantity: 1, price: 0, hasTax: false },
   ]);
   const [showCustomerForm, setShowCustomerForm] = useState(false);
-  const [itemSearch, setItemSearch] = useState("");
+
   const [showItemForm, setShowItemForm] = useState(false);
   const [showTaxForm, setShowTaxForm] = useState(false);
   const [showDiscountForm, setShowDiscountForm] = useState(false);
@@ -81,6 +68,10 @@ export default function NewInvoiceForm() {
     Array<{ id: number; username: string; phone_number: string; email: string }>
   >([]);
   const [selectedCustomer, setSelectedCustomer] = useState<number | null>(null);
+  const [itemsList, setItemsList] = useState<
+    Array<{ id: number; item_name: string; price: string }>
+  >([]);
+  const [selectedItem, setSelectedItem] = useState<number | null>(null);
 
   console.log(estimateId);
 
@@ -194,6 +185,29 @@ export default function NewInvoiceForm() {
       }
     };
     fetchCustomers();
+  }, []);
+
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/estimate/iteams/`,
+          {
+            headers: {
+              "Authorization": `Bearer ${localStorage.getItem("token")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (!response.ok) throw new Error("Failed to fetch items");
+        const data = await response.json();
+        setItemsList(data);
+        console.log(data);
+      } catch (error) {
+        console.error("Error fetching items:", error);
+      }
+    };
+    fetchItems();
   }, []);
 
   const addNewRow = () => {
@@ -373,23 +387,39 @@ export default function NewInvoiceForm() {
                   <div className="w-8 text-center font-bold">{item.id}</div>
                   <div className="flex items-center gap-4">
                     <div className="flex-1">
-                      <Input
-                        placeholder="Search items"
-                        value={itemSearch}
-                        onChange={(e) => setItemSearch(e.target.value)}
-                        className="w-full"
-                      />
-                      {itemSearch && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-[110px] mt-2 flex items-center justify-start gap-2"
-                          onClick={() => setShowItemForm(true)}
-                        >
-                          <SquarePlus className="h-4 w-4" />
-                          Add Item
-                        </Button>
-                      )}
+                      <Select
+                        value={selectedItem?.toString() || ""}
+                        onValueChange={(value) => {
+                          if (value === "add-item") {
+                            setShowItemForm(true);
+                          } else {
+                            setSelectedItem(Number(value));
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Search items" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {itemsList.map((item) => (
+                            <SelectItem
+                              key={item.id}
+                              value={item.id.toString()}
+                            >
+                              <div className="flex justify-between w-full">
+                                <span>{item.item_name}</span>
+                                <span>${item.price}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="add-item">
+                            <div className="flex items-center gap-2 text-indigo-600">
+                              <SquarePlus className="h-4 w-4" />
+                              Add New Item
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   <Input placeholder="Description" />
@@ -681,28 +711,18 @@ export default function NewInvoiceForm() {
         </div>
 
         {/* Bottom Section */}
-        <div className="fixed bottom-0 left-0 right-0 border-t bg-white p-4">
-          <div className="flex items-center justify-between max-w-[50%]">
-            <div className="text-lg font-semibold">
-              Amount due: <span className="text-xl">$0.00</span>
+        <div className="fixed bottom-0 left-0 right-0 border-t bg-gray-100 p-5">
+          <div className="flex items-center justify-between max-w-full">
+            <div className="text-2xl font-semibold">
+              Amount due: <span className="text-2xl font-bold">$0.00</span>
             </div>
             <div className="flex items-center gap-4">
-              <Button variant="ghost">Hide Preview</Button>
-              <Button variant="outline">Save Draft</Button>
-              <Button className="bg-indigo-600 hover:bg-indigo-700">
+              <Button variant="outline" className="text-2xl p-2">
+                Save Draft
+              </Button>
+              <Button className="bg-indigo-600 hover:bg-indigo-700 text-2xl p-2">
                 Review & Send
               </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>Delete</DropdownMenuItem>
-                  <DropdownMenuItem>Duplicate</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
           </div>
         </div>
