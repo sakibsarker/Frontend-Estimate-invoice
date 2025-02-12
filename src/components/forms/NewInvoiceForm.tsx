@@ -304,6 +304,17 @@ export default function NewInvoiceForm() {
     return total.toFixed(2);
   };
 
+  const calculateSubtotal = () => {
+    return items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+  };
+
+  const calculateTotal = () => {
+    return items.reduce((total, item) => {
+      const rowTotal = calculateRowTotal(item);
+      return total + parseFloat(rowTotal);
+    }, 0);
+  };
+
   return (
     <div className="flex min-h-screen">
       {/* Form Section */}
@@ -691,7 +702,7 @@ export default function NewInvoiceForm() {
             <div className="space-y-4 mt-8">
               <div className="flex justify-between font-semibold">
                 <span>Subtotal</span>
-                <span>$0.00</span>
+                <span>${calculateSubtotal().toFixed(2)}</span>
               </div>
 
               <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
@@ -862,12 +873,12 @@ export default function NewInvoiceForm() {
               </div>
               <div className="flex justify-between border-t pt-4 font-semibold">
                 <span>Total</span>
-                <span>$0.00</span>
+                <span>${calculateTotal().toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between border-t pt-4 font-semibold">
                 <span>Amount due</span>
-                <span>$0.00</span>
+                <span>${calculateTotal().toFixed(2)}</span>
               </div>
             </div>
 
