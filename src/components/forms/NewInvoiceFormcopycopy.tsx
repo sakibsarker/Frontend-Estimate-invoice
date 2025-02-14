@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Trash2, Plus, UserPlus, SquarePlus, Pencil } from "lucide-react";
+import {
+  X,
+  Trash2,
+  Plus,
+  UserPlus,
+  SquarePlus,
+  Pencil,
+  UserRoundPlus,
+  PackagePlus,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +36,7 @@ import { EditCustomerForm } from "../sideforms/EditCustomerForm";
 
 interface InvoiceItem {
   id: number;
-  type: "item";
+  type: "item" | "labor" | "parts" | "other";
   selectedItemId: number | null;
   description: string;
   quantity: number;
@@ -43,7 +52,7 @@ export default function NewInvoiceForm() {
   const [items, setItems] = useState<InvoiceItem[]>([
     {
       id: 1,
-      type: "item",
+      type: "labor",
       selectedItemId: null,
       description: "",
       quantity: 1,
@@ -56,7 +65,7 @@ export default function NewInvoiceForm() {
     },
     {
       id: 2,
-      type: "item",
+      type: "parts",
       selectedItemId: null,
       description: "",
       quantity: 1,
@@ -69,7 +78,7 @@ export default function NewInvoiceForm() {
     },
     {
       id: 3,
-      type: "item",
+      type: "other",
       selectedItemId: null,
       description: "",
       quantity: 1,
@@ -123,6 +132,10 @@ export default function NewInvoiceForm() {
   const [itemsList, setItemsList] = useState<
     Array<{ id: number; item_name: string; price: string; description: string }>
   >([]);
+
+  const [selectedTypes, setSelectedTypes] = useState<
+    ("labor" | "parts" | "other")[]
+  >(["labor", "parts", "other"]);
 
   const [editShowCustomer, setEditShowCustomer] = useState(false);
 
@@ -260,10 +273,10 @@ export default function NewInvoiceForm() {
     fetchItems();
   }, []);
 
-  const addNewRow = () => {
-    const newItem: InvoiceItem = {
-      id: items.length + 1,
-      type: "item",
+  const addNewRow = (types: ("labor" | "parts" | "other")[]) => {
+    const newItems = types.map((type, index) => ({
+      id: items.length + index + 1,
+      type,
       selectedItemId: null,
       description: "",
       quantity: 1,
@@ -273,9 +286,9 @@ export default function NewInvoiceForm() {
       hasOtherCharge: false,
       hasDiscount: false,
       paid: true,
-    };
+    }));
 
-    setItems([...items, newItem]);
+    setItems([...items, ...newItems]);
   };
 
   const removeRow = (id: number) => {
@@ -526,7 +539,11 @@ export default function NewInvoiceForm() {
             <div className="space-y-6">
               {items.map((item, index) => (
                 <div key={item.id} className="space-y-4">
-                  <div className="text-left font-bold">Item-{index + 1}</div>
+                  <div className="text-left font-bold">
+                    {`${
+                      item.type.charAt(0).toUpperCase() + item.type.slice(1)
+                    }-${index + 1}`}
+                  </div>
                   <div className="flex items-centr gap-4">
                     <div className="flex-1">
                       <Select
@@ -719,12 +736,79 @@ export default function NewInvoiceForm() {
             </div>
 
             <div className="flex gap-4 items-center">
+              <div className="flex gap-4">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    checked={selectedTypes.includes("labor")}
+                    onCheckedChange={(checked) =>
+                      setSelectedTypes((prev) =>
+                        checked
+                          ? [...prev, "labor"]
+                          : prev.filter((t) => t !== "labor")
+                      )
+                    }
+                  />
+                  <Button
+                    variant="ghost"
+                    className="flex items-center gap-2 text-indigo-600 hover:bg-indigo-50"
+                  >
+                    <UserRoundPlus className="h-4 w-4" />
+                    Labor
+                  </Button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    checked={selectedTypes.includes("parts")}
+                    onCheckedChange={(checked) =>
+                      setSelectedTypes((prev) =>
+                        checked
+                          ? [...prev, "parts"]
+                          : prev.filter((t) => t !== "parts")
+                      )
+                    }
+                  />
+                  <Button
+                    variant="ghost"
+                    className="flex items-center gap-2 text-indigo-600 hover:bg-indigo-50"
+                  >
+                    <PackagePlus className="h-4 w-4" />
+                    Parts
+                  </Button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    checked={selectedTypes.includes("other")}
+                    onCheckedChange={(checked) =>
+                      setSelectedTypes((prev) =>
+                        checked
+                          ? [...prev, "other"]
+                          : prev.filter((t) => t !== "other")
+                      )
+                    }
+                  />
+                  <Button
+                    variant="ghost"
+                    className="flex items-center gap-2 text-indigo-600 hover:bg-indigo-50"
+                  >
+                    <SquarePlus className="h-4 w-4" />
+                    Other
+                  </Button>
+                </div>
+              </div>
+
               <Button
-                onClick={addNewRow}
+                onClick={() => {
+                  if (selectedTypes.length > 0) {
+                    addNewRow(selectedTypes);
+                    setSelectedTypes([]);
+                  }
+                }}
                 className="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 text-sm"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Service
+                Add Service ({selectedTypes.length})
               </Button>
             </div>
 
