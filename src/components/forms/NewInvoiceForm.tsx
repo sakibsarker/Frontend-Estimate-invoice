@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CustomerForm } from "../sideforms/CustomerForm";
@@ -27,14 +26,12 @@ import { EditCustomerForm } from "../sideforms/EditCustomerForm";
 
 interface InvoiceItem {
   id: number;
-  type: "item";
+  type: "labor" | "parts" | "other";
   selectedItemId: number | null;
   description: string;
   quantity: number;
   price: number;
   hasTax: boolean;
-  hasLabor: boolean;
-  hasOtherCharge: boolean;
   hasDiscount: boolean;
   paid: boolean;
 }
@@ -43,41 +40,35 @@ export default function NewInvoiceForm() {
   const [items, setItems] = useState<InvoiceItem[]>([
     {
       id: 1,
-      type: "item",
+      type: "labor",
       selectedItemId: null,
       description: "",
       quantity: 1,
       price: 0,
       hasTax: true,
-      hasLabor: false,
-      hasOtherCharge: false,
-      hasDiscount: false,
+      hasDiscount: true,
       paid: true,
     },
     {
       id: 2,
-      type: "item",
+      type: "parts",
       selectedItemId: null,
       description: "",
       quantity: 1,
       price: 0,
       hasTax: true,
-      hasLabor: false,
-      hasOtherCharge: false,
-      hasDiscount: false,
+      hasDiscount: true,
       paid: true,
     },
     {
       id: 3,
-      type: "item",
+      type: "other",
       selectedItemId: null,
       description: "",
       quantity: 1,
       price: 0,
       hasTax: true,
-      hasLabor: false,
-      hasOtherCharge: false,
-      hasDiscount: false,
+      hasDiscount: true,
       paid: true,
     },
   ]);
@@ -95,16 +86,7 @@ export default function NewInvoiceForm() {
     Array<{ id: number; tax_name: string; tax_rate: string }>
   >([]);
   const [selectedTax, setSelectedTax] = useState<number | null>(null);
-  const [laborCosts, setLaborCosts] = useState<
-    Array<{ id: number; labor_cost_name: string; labor_cost_rate: string }>
-  >([]);
-  const [selectedLabor, setSelectedLabor] = useState<number | null>(null);
-  const [otherCharges, setOtherCharges] = useState<
-    Array<{ id: number; othercharges_name: string; othercharges_rate: string }>
-  >([]);
-  const [selectedOtherCharge, setSelectedOtherCharge] = useState<number | null>(
-    null
-  );
+
   const [discounts, setDiscounts] = useState<
     Array<{ id: number; discount_name: string; discount_rate: string }>
   >([]);
@@ -147,51 +129,6 @@ export default function NewInvoiceForm() {
     };
 
     fetchTaxes();
-  }, []);
-
-  useEffect(() => {
-    const fetchLaborCosts = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/estimate/labor-costs/`,
-          {
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (!response.ok) throw new Error("Failed to fetch labor costs");
-        const data = await response.json();
-        setLaborCosts(data);
-      } catch (error) {
-        console.error("Error fetching labor costs:", error);
-      }
-    };
-
-    fetchLaborCosts();
-  }, []);
-
-  useEffect(() => {
-    const fetchOtherCharges = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/estimate/other-charges/`,
-          {
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (!response.ok) throw new Error("Failed to fetch other charges");
-        const data = await response.json();
-        setOtherCharges(data);
-      } catch (error) {
-        console.error("Error fetching other charges:", error);
-      }
-    };
-    fetchOtherCharges();
   }, []);
 
   useEffect(() => {
@@ -263,15 +200,13 @@ export default function NewInvoiceForm() {
   const addNewRow = () => {
     const newItem: InvoiceItem = {
       id: items.length + 1,
-      type: "item",
+      type: "labor",
       selectedItemId: null,
       description: "",
       quantity: 1,
       price: 0,
       hasTax: true,
-      hasLabor: false,
-      hasOtherCharge: false,
-      hasDiscount: false,
+      hasDiscount: true,
       paid: true,
     };
 
@@ -315,21 +250,6 @@ export default function NewInvoiceForm() {
         taxes.find((t) => t.id === selectedTax)?.tax_rate || "0"
       );
       total += subtotal * (taxRate / 100);
-    }
-
-    if (item.hasLabor && selectedLabor) {
-      const laborRate = parseFloat(
-        laborCosts.find((l) => l.id === selectedLabor)?.labor_cost_rate || "0"
-      );
-      total += laborRate;
-    }
-
-    if (item.hasOtherCharge && selectedOtherCharge) {
-      const otherRate = parseFloat(
-        otherCharges.find((oc) => oc.id === selectedOtherCharge)
-          ?.othercharges_rate || "0"
-      );
-      total += otherRate;
     }
 
     if (item.hasDiscount && selectedDiscount) {
@@ -522,13 +442,43 @@ export default function NewInvoiceForm() {
 
           {/* Items Section */}
           <div className="space-y-6">
-            <h2 className="text-lg font-semibold">Services</h2>
+            <h2 className="text-lg font-semibold">Items</h2>
             <div className="space-y-6">
               {items.map((item, index) => (
                 <div key={item.id} className="space-y-4">
-                  <div className="text-left font-bold">Item-{index + 1}</div>
-                  <div className="flex items-centr gap-4">
+                  <div className="text-left font-semibold">
+                    Item-{index + 1}
+                  </div>
+                  <div className="flex gap-4 items-center">
+                    {/* Type Selector */}
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium block">Type</Label>
+                      <Select
+                        value={item.type}
+                        onValueChange={(value: "labor" | "parts" | "other") =>
+                          setItems(
+                            items.map((i) =>
+                              i.id === item.id ? { ...i, type: value } : i
+                            )
+                          )
+                        }
+                      >
+                        <SelectTrigger className="w-[120px]">
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="labor">Labor</SelectItem>
+                          <SelectItem value="parts">Parts</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Search Items */}
                     <div className="flex-1">
+                      <Label className="text-sm font-medium mb-1 block">
+                        Item
+                      </Label>
                       <Select
                         value={item.selectedItemId?.toString() || ""}
                         onValueChange={(value) =>
@@ -559,28 +509,31 @@ export default function NewInvoiceForm() {
                         </SelectContent>
                       </Select>
                     </div>
-                  </div>
-                  <Input
-                    placeholder="Description"
-                    value={item.description}
-                    onChange={(e) =>
-                      setItems(
-                        items.map((i) =>
-                          i.id === item.id
-                            ? { ...i, description: e.target.value }
-                            : i
-                        )
-                      )
-                    }
-                  />
-                  <div className="grid grid-cols-8 gap-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center">
-                        <Label className="text-sm font-medium text-red-500 mr-2">
-                          *
-                        </Label>
-                        <Label>Quantity</Label>
-                      </div>
+
+                    {/* Description */}
+                    <div className="flex-1">
+                      <Label className="text-sm font-medium mb-1 block">
+                        Description
+                      </Label>
+                      <Input
+                        value={item.description}
+                        onChange={(e) =>
+                          setItems(
+                            items.map((i) =>
+                              i.id === item.id
+                                ? { ...i, description: e.target.value }
+                                : i
+                            )
+                          )
+                        }
+                      />
+                    </div>
+
+                    {/* Quantity */}
+                    <div>
+                      <Label className="text-sm font-medium mb-1 block">
+                        Quantity
+                      </Label>
                       <Input
                         type="number"
                         value={item.quantity}
@@ -593,15 +546,15 @@ export default function NewInvoiceForm() {
                             )
                           )
                         }
+                        className="w-20"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center">
-                        <Label className="text-sm font-medium text-red-500 mr-2">
-                          *
-                        </Label>
-                        <Label>Price</Label>
-                      </div>
+
+                    {/* Price */}
+                    <div>
+                      <Label className="text-sm font-medium mb-1 block">
+                        Price
+                      </Label>
                       <Input
                         type="number"
                         value={item.price}
@@ -614,95 +567,67 @@ export default function NewInvoiceForm() {
                             )
                           )
                         }
+                        className="w-32"
                       />
                     </div>
-                    <div className="space-y-3">
-                      <Label>Paid</Label>
-                      <div className="flex items-center">
-                        <Checkbox
-                          checked={item.paid}
-                          onCheckedChange={(checked) =>
-                            setItems(
-                              items.map((i) =>
-                                i.id === item.id ? { ...i, paid: !!checked } : i
-                              )
+
+                    {/* Checkboxes */}
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium block">Paid</Label>
+                      <Checkbox
+                        checked={item.paid}
+                        onCheckedChange={(checked) =>
+                          setItems(
+                            items.map((i) =>
+                              i.id === item.id ? { ...i, paid: !!checked } : i
                             )
-                          }
-                        />
-                      </div>
+                          )
+                        }
+                        className="h-5 w-5 rounded-md border-2 border-gray-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+                      />
                     </div>
-                    <div className="space-y-3">
-                      <Label>Tax</Label>
-                      <div className="flex items-center">
-                        <Checkbox
-                          checked={item.hasTax}
-                          onCheckedChange={(checked) =>
-                            setItems(
-                              items.map((i) =>
-                                i.id === item.id
-                                  ? { ...i, hasTax: !!checked }
-                                  : i
-                              )
+
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium block">Tax</Label>
+                      <Checkbox
+                        checked={item.hasTax}
+                        onCheckedChange={(checked) =>
+                          setItems(
+                            items.map((i) =>
+                              i.id === item.id ? { ...i, hasTax: !!checked } : i
                             )
-                          }
-                        />
-                      </div>
+                          )
+                        }
+                        className="h-5 w-5 rounded-md border-2 border-gray-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+                      />
                     </div>
-                    <div className="space-y-3">
-                      <Label>Labor</Label>
-                      <div className="flex items-center">
-                        <Checkbox
-                          checked={item.hasLabor}
-                          onCheckedChange={(checked) =>
-                            setItems(
-                              items.map((i) =>
-                                i.id === item.id
-                                  ? { ...i, hasLabor: !!checked }
-                                  : i
-                              )
+
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium block">
+                        Discount
+                      </Label>
+                      <Checkbox
+                        checked={item.hasDiscount}
+                        onCheckedChange={(checked) =>
+                          setItems(
+                            items.map((i) =>
+                              i.id === item.id
+                                ? { ...i, hasDiscount: !!checked }
+                                : i
                             )
-                          }
-                        />
-                      </div>
+                          )
+                        }
+                        className="h-5 w-5 rounded-md border-2 border-gray-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+                      />
                     </div>
-                    <div className="space-y-3">
-                      <Label>Other Charge</Label>
-                      <div className="flex items-center">
-                        <Checkbox
-                          checked={item.hasOtherCharge}
-                          onCheckedChange={(checked) =>
-                            setItems(
-                              items.map((i) =>
-                                i.id === item.id
-                                  ? { ...i, hasOtherCharge: !!checked }
-                                  : i
-                              )
-                            )
-                          }
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <Label>Discount</Label>
-                      <div className="flex items-center">
-                        <Checkbox
-                          checked={item.hasDiscount}
-                          onCheckedChange={(checked) =>
-                            setItems(
-                              items.map((i) =>
-                                i.id === item.id
-                                  ? { ...i, hasDiscount: !!checked }
-                                  : i
-                              )
-                            )
-                          }
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Total</Label>
-                      <div className="flex items-center justify-between">
-                        <span>${calculateRowTotal(item)}</span>
+
+                    {/* Total & Delete */}
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium block">Total</Label>
+                      <div className="flex items-center gap-2 w-[140px]">
+                        <div className="flex-1">
+                          <Label>${calculateRowTotal(item)}</Label>
+                        </div>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -773,90 +698,7 @@ export default function NewInvoiceForm() {
                     : "$0.00"}
                 </span>
               </div>
-              <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
-                <span>Labor Charge</span>
-                <div className="w-[200px]">
-                  <Select
-                    value={selectedLabor?.toString() || ""}
-                    onValueChange={(value) => {
-                      if (value === "add-labor") {
-                        setShowLaborForm(true);
-                      } else {
-                        setSelectedLabor(Number(value));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select labor charge" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {laborCosts.map((labor) => (
-                        <SelectItem key={labor.id} value={labor.id.toString()}>
-                          {labor.labor_cost_name} (${labor.labor_cost_rate}/hr)
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="add-labor">
-                        <div className="flex items-center gap-2 text-indigo-600">
-                          <Plus className="h-4 w-4" />
-                          Add Labor Charge
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <span className="text-right">
-                  {selectedLabor
-                    ? `$${
-                        laborCosts.find((l) => l.id === selectedLabor)
-                          ?.labor_cost_rate || 0
-                      }`
-                    : "$0.00"}
-                </span>
-              </div>
-              <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
-                <span>Other Charge</span>
-                <div className="w-[200px]">
-                  <Select
-                    value={selectedOtherCharge?.toString() || ""}
-                    onValueChange={(value) => {
-                      if (value === "add-other-charge") {
-                        setShowOtherChargeForm(true);
-                      } else {
-                        setSelectedOtherCharge(Number(value));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select other charge" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {otherCharges.map((charge) => (
-                        <SelectItem
-                          key={charge.id}
-                          value={charge.id.toString()}
-                        >
-                          {charge.othercharges_name} ($
-                          {charge.othercharges_rate})
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="add-other-charge">
-                        <div className="flex items-center gap-2 text-indigo-600">
-                          <Plus className="h-4 w-4" />
-                          Add Other Charge
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <span className="text-right">
-                  {selectedOtherCharge
-                    ? `$${
-                        otherCharges.find((oc) => oc.id === selectedOtherCharge)
-                          ?.othercharges_rate || 0
-                      }`
-                    : "$0.00"}
-                </span>
-              </div>
+
               <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
                 <span>Discount</span>
                 <div className="w-[200px]">
