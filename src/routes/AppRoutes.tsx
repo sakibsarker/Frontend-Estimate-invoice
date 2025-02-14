@@ -10,6 +10,8 @@ import Profile from "@/pages/profile";
 import CreateEstimate from "@/components/estimate/CreateEstimate";
 import AdminCreateEstimate from "@/components/estimate/AdminCreateEstimate";
 import NewInvoiceForm from "@/components/forms/NewInvoiceForm";
+import ManualInvoiceDashboard from "@/pages/ManualInvoiceDashboard";
+import NewManualInvoiceForm from "@/components/forms/NewManualInvoiceForm";
 export const AppRoutes = () => {
   return (
     <Routes>
@@ -20,6 +22,8 @@ export const AppRoutes = () => {
 
       <Route element={<LayoutPage />}>
         <Route path="/" element={<EstimateDashboard />} />
+        <Route path="/invoice" element={<ManualInvoiceDashboard />} />
+        <Route path="/invoice/new" element={<NewManualInvoiceForm />} />
         <Route path="/estimate" element={<CreateEstimate />} />
         <Route path="/estimate/:estimateId" element={<EstimateRequestPage />} />
         <Route path="/admin/estimate" element={<AdminCreateEstimate />} />

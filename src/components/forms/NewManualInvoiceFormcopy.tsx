@@ -34,7 +34,7 @@ interface InvoiceItem {
   hasTax: boolean;
 }
 
-export default function NewInvoiceForm() {
+export default function NewManualInvoiceForm() {
   const [frequency, setFrequency] = useState("one-time");
   const [items, setItems] = useState<InvoiceItem[]>([
     { id: 1, description: "", quantity: 1, price: 0, hasTax: false },
