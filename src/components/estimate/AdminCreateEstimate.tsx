@@ -24,6 +24,9 @@ import {
 } from "@/components/ui/popover";
 import Vehicle_Database from "@/lib/Vehicle_Database.json";
 import { CustomerForm } from "../sideforms/CustomerForm";
+import toast, { Toaster } from "react-hot-toast";
+import Loader from "../Loader";
+import { useNavigate } from "react-router";
 
 // Add this type definition
 type User = {
@@ -40,18 +43,22 @@ export default function AdminCreateEstimate() {
   const [phone, setPhone] = useState("");
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<string>("");
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [showCustomerForm, setShowCustomerForm] = useState(false);
+
+  const navigate = useNavigate();
 
   // Fetch users from API
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) throw new Error("No authentication token found");
+        if (!token) {
+          toast.error("No authentication token found");
+          return;
+        }
 
         const response = await fetch(
           `${import.meta.env.VITE_API_URL}/estimate/customers/`,
@@ -62,7 +69,9 @@ export default function AdminCreateEstimate() {
           }
         );
 
-        if (!response.ok) throw new Error("Failed to fetch users");
+        if (!response.ok) {
+          throw new Error("Failed to fetch users");
+        }
 
         const data = await response.json();
         setUsers(
@@ -81,7 +90,7 @@ export default function AdminCreateEstimate() {
           )
         );
       } catch (err: any) {
-        setError(err.message);
+        toast.error(err.message || "Failed to load customers");
       } finally {
         setLoading(false);
       }
@@ -106,40 +115,42 @@ export default function AdminCreateEstimate() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setLoading(true);
     const token = localStorage.getItem("token");
     const formData = new FormData();
     const vehicleName = `${selectedYear} ${selectedMake} ${selectedModel}`;
-
-    // Append form fields
-    formData.append("username", username);
-    formData.append("email", email);
-    formData.append("phone_number", phone);
-    formData.append("vehicle_name", vehicleName);
-    formData.append(
-      "repair_details",
-      (
-        event.currentTarget.elements.namedItem(
-          "repair_details"
-        ) as HTMLTextAreaElement
-      )?.value
-    );
-
-    // Append files
-    const fileInput = event.currentTarget.elements.namedItem(
-      "estimate_attachments"
-    ) as HTMLInputElement;
-    if (fileInput.files) {
-      Array.from(fileInput.files).forEach((file) => {
-        formData.append("estimate_attachments", file);
-      });
-    }
-
-    // Append date if exists
-    if (repairDate) {
-      formData.append("repair_date", repairDate.toISOString().split("T")[0]);
-    }
+    const form = event.currentTarget;
 
     try {
+      // Append form fields
+      formData.append("username", username);
+      formData.append("email", email);
+      formData.append("phone_number", phone);
+      formData.append("vehicle_name", vehicleName);
+      formData.append(
+        "repair_details",
+        (
+          event.currentTarget.elements.namedItem(
+            "repair_details"
+          ) as HTMLTextAreaElement
+        )?.value
+      );
+
+      // Append files
+      const fileInput = event.currentTarget.elements.namedItem(
+        "estimate_attachments"
+      ) as HTMLInputElement;
+      if (fileInput.files) {
+        Array.from(fileInput.files).forEach((file) => {
+          formData.append("estimate_attachments", file);
+        });
+      }
+
+      // Append date
+      if (repairDate) {
+        formData.append("repair_date", repairDate.toISOString().split("T")[0]);
+      }
+
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/estimate/repair-requests/create/`,
         {
@@ -158,17 +169,18 @@ export default function AdminCreateEstimate() {
 
       const result = await response.json();
       console.log("Estimate created:", result);
-      alert("Repair request created successfully!");
 
-      // Reset form
-      event.currentTarget.reset();
+      toast.success("Repair request created successfully!");
+      form.reset();
       setUsername("");
       setEmail("");
       setPhone("");
       setRepairDate(undefined);
     } catch (error: any) {
       console.error("Submission error:", error);
-      alert(error.message || "Failed to create repair request");
+      toast.error(error.message || "Failed to create repair request");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -202,6 +214,9 @@ export default function AdminCreateEstimate() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
+      <Toaster position="top-center" />
+      {/* {loading && <Loader />} */}
+
       <Card className="mx-auto max-w-4xl">
         <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
           <CardTitle className="text-2xl font-normal">
@@ -386,18 +401,19 @@ export default function AdminCreateEstimate() {
 
             <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
               <Button
+                variant="secondary"
+                className="bg-green-500 text-white hover:bg-green-600"
+                onClick={() => navigate("/estimate")}
+              >
+                Back to home page
+              </Button>
+              <Button
                 type="submit"
                 className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600"
               >
-                Submit Estimate Request
+                Submit Estimate
               </Button>
-              <Button
-                type="button"
-                variant="destructive"
-                className="w-full sm:w-auto bg-blue-800 hover:bg-blue-900"
-              >
-                Close
-              </Button>
+
               <Button
                 onClick={() => setShowCustomerForm(true)}
                 type="button"

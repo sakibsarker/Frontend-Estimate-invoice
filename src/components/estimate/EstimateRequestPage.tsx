@@ -14,7 +14,8 @@ import {
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
-
+import toast, { Toaster } from "react-hot-toast";
+import Loader from "../Loader";
 interface EstimateData {
   id: number;
   username: string;
@@ -35,6 +36,7 @@ export default function EstimateRequestPage() {
   const navigate = useNavigate();
   const [estimateData, setEstimateData] = useState<EstimateData | null>(null);
   const token = localStorage.getItem("token");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchEstimateData = async () => {
@@ -73,6 +75,7 @@ export default function EstimateRequestPage() {
   };
 
   const updateStatus = async (status: "ACCEPTED" | "REJECTED") => {
+    setLoading(true);
     try {
       const response = await fetch(
         `${
@@ -93,18 +96,32 @@ export default function EstimateRequestPage() {
       const data = await response.json();
       setEstimateData(data);
 
+      toast.success(`Request ${status.toLowerCase()} successfully!`, {
+        duration: 4000,
+        position: "top-center",
+      });
+
       if (status === "ACCEPTED") {
         navigate(`/estimate/${estimateId}/invoice/new`);
       }
     } catch (error) {
       console.error("Error updating status:", error);
+      toast.error(`Failed to ${status.toLowerCase()} request`, {
+        duration: 5000,
+        position: "top-center",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!estimateData) return <div>Loading...</div>;
+  if (!estimateData) return <Loader />;
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
+      <Toaster />
+      {loading && <Loader />}
+
       <Card className="mx-auto max-w-4xl">
         <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
           <CardTitle className="text-2xl font-normal">
@@ -257,7 +274,7 @@ export default function EstimateRequestPage() {
               <Button
                 variant="secondary"
                 className="bg-green-500 text-white hover:bg-green-600"
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/estimate")}
               >
                 Back to home page
               </Button>
