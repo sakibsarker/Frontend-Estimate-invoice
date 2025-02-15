@@ -103,7 +103,13 @@ export default function NewInvoiceForm() {
   >([]);
   const [selectedCustomer, setSelectedCustomer] = useState<number | null>(null);
   const [itemsList, setItemsList] = useState<
-    Array<{ id: number; item_name: string; price: string; description: string }>
+    Array<{
+      type: string;
+      id: number;
+      item_name: string;
+      price: string;
+      description: string;
+    }>
   >([]);
 
   const [editShowCustomer, setEditShowCustomer] = useState(false);
@@ -179,7 +185,7 @@ export default function NewInvoiceForm() {
     const fetchItems = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/estimate/iteams/`,
+          `${import.meta.env.VITE_API_URL}/estimate/new-item/`,
           {
             headers: {
               "Authorization": `Bearer ${localStorage.getItem("token")}`,
@@ -287,7 +293,7 @@ export default function NewInvoiceForm() {
       {/* Form Section */}
       <div className="flex-1 p-8 border-r overflow-y-auto pb-20">
         <div className="flex items-start justify-between mb-8">
-          <h1 className="text-2xl font-semibold">New invoice</h1>
+          <h1 className="text-2xl font-semibold">New Estimate Invoice</h1>
           <Button variant="ghost" size="icon">
             <X className="h-5 w-5" />
           </Button>
@@ -489,17 +495,22 @@ export default function NewInvoiceForm() {
                           <SelectValue placeholder="Search items" />
                         </SelectTrigger>
                         <SelectContent>
-                          {itemsList.map((listItem) => (
-                            <SelectItem
-                              key={listItem.id}
-                              value={listItem.id.toString()}
-                            >
-                              <div className="flex justify-between w-full">
-                                <span>{listItem.item_name}</span>
-                                <span>${listItem.price}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
+                          {itemsList
+                            .filter(
+                              (listItem) =>
+                                listItem.type === item.type.toUpperCase()
+                            )
+                            .map((listItem) => (
+                              <SelectItem
+                                key={listItem.id}
+                                value={listItem.id.toString()}
+                              >
+                                <div className="flex justify-between w-full">
+                                  <span>{listItem.item_name}</span>
+                                  <span>${listItem.price}</span>
+                                </div>
+                              </SelectItem>
+                            ))}
                           <SelectItem value="add-item">
                             <div className="flex items-center gap-2 text-indigo-600">
                               <SquarePlus className="h-4 w-4" />

@@ -102,7 +102,13 @@ export default function NewManualInvoiceForm() {
   >([]);
   const [selectedCustomer, setSelectedCustomer] = useState<number | null>(null);
   const [itemsList, setItemsList] = useState<
-    Array<{ id: number; item_name: string; price: string; description: string }>
+    Array<{
+      type: string;
+      id: number;
+      item_name: string;
+      price: string;
+      description: string;
+    }>
   >([]);
 
   const [editShowCustomer, setEditShowCustomer] = useState(false);
@@ -475,17 +481,22 @@ export default function NewManualInvoiceForm() {
                           <SelectValue placeholder="Search items" />
                         </SelectTrigger>
                         <SelectContent>
-                          {itemsList.map((listItem) => (
-                            <SelectItem
-                              key={listItem.id}
-                              value={listItem.id.toString()}
-                            >
-                              <div className="flex justify-between w-full">
-                                <span>{listItem.item_name}</span>
-                                <span>${listItem.price}</span>
-                              </div>
-                            </SelectItem>
-                          ))}
+                          {itemsList
+                            .filter(
+                              (listItem) =>
+                                listItem.type === item.type.toUpperCase()
+                            )
+                            .map((listItem) => (
+                              <SelectItem
+                                key={listItem.id}
+                                value={listItem.id.toString()}
+                              >
+                                <div className="flex justify-between w-full">
+                                  <span>{listItem.item_name}</span>
+                                  <span>${listItem.price}</span>
+                                </div>
+                              </SelectItem>
+                            ))}
                           <SelectItem value="add-item">
                             <div className="flex items-center gap-2 text-indigo-600">
                               <SquarePlus className="h-4 w-4" />
