@@ -18,7 +18,7 @@ import { CustomerForm } from "../sideforms/CustomerForm";
 import { ItemForm } from "../sideforms/ItemForm";
 import { TaxForm } from "../sideforms/TaxForm";
 import { PaymentTermForm } from "../sideforms/PaymentTermForm";
-import { useParams, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { DiscountForm } from "../sideforms/DiscountForm";
 import { LaborForm } from "../sideforms/LaborForm";
 import { OtherChargeForm } from "../sideforms/OtherChargeForm";
@@ -81,7 +81,6 @@ export default function NewManualInvoiceForm() {
   const [showOtherChargeForm, setShowOtherChargeForm] = useState(false);
   const [showPaymentTermForm, setShowPaymentTermForm] = useState(false);
 
-  const { estimateId } = useParams<{ estimateId: string }>();
   const [taxes, setTaxes] = useState<
     Array<{ id: number; tax_name: string; tax_rate: string }>
   >([]);
@@ -181,7 +180,7 @@ export default function NewManualInvoiceForm() {
     const fetchItems = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/estimate/iteams/`,
+          `${import.meta.env.VITE_API_URL}/estimate/new-item/`,
           {
             headers: {
               "Authorization": `Bearer ${localStorage.getItem("token")}`,

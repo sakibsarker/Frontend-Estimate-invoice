@@ -18,25 +18,19 @@ interface ItemFormProps {
 
 export function ItemForm({ open, onClose }: ItemFormProps) {
   const [itemName, setItemName] = useState("");
-  const [description, setDescription] = useState("");
-  const [quantity, setQuantity] = useState("");
   const [price, setPrice] = useState("");
   const [taxApplied, setTaxApplied] = useState(false);
   const [taxId, setTaxId] = useState("");
-  const [laborCostApplied, setLaborCostApplied] = useState(false);
-  const [laborCostId, setLaborCostId] = useState("");
   const [discountApplied, setDiscountApplied] = useState(false);
   const [discountId, setDiscountId] = useState("");
-  const [otherChargeApplied, setOtherChargeApplied] = useState(false);
-  const [otherChargeId, setOtherChargeId] = useState("");
-  const [paid, setPaid] = useState(false);
+  const [type, setType] = useState<"LABOR" | "PARTS" | "OTHER">("PARTS");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/estimate/iteams/create/`,
+        `${import.meta.env.VITE_API_URL}/estimate/new-item/create/`,
         {
           method: "POST",
           headers: {
@@ -45,18 +39,12 @@ export function ItemForm({ open, onClose }: ItemFormProps) {
           },
           body: JSON.stringify({
             item_name: itemName,
-            description: description,
-            quantity: parseInt(quantity),
             price: parseFloat(price),
             tax_applied: taxApplied,
             tax: taxApplied ? parseInt(taxId) : null,
-            labor_cost_applied: laborCostApplied,
-            labor_cost: laborCostApplied ? parseInt(laborCostId) : null,
             discount_applied: discountApplied,
             discount: discountApplied ? parseInt(discountId) : null,
-            other_charge_applied: otherChargeApplied,
-            other_charge: otherChargeApplied ? parseInt(otherChargeId) : null,
-            paid: paid,
+            type: type,
           }),
         }
       );
@@ -65,18 +53,12 @@ export function ItemForm({ open, onClose }: ItemFormProps) {
         toast.success("Item created successfully!");
         // Reset all fields
         setItemName("");
-        setDescription("");
-        setQuantity("");
         setPrice("");
         setTaxApplied(false);
         setTaxId("");
-        setLaborCostApplied(false);
-        setLaborCostId("");
         setDiscountApplied(false);
         setDiscountId("");
-        setOtherChargeApplied(false);
-        setOtherChargeId("");
-        setPaid(false);
+        setType("PARTS");
         onClose();
       } else {
         throw new Error("Failed to create item");
@@ -100,49 +82,41 @@ export function ItemForm({ open, onClose }: ItemFormProps) {
             <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div className="space-y-4">
-                  {/* Basic Information */}
+                  <div className="space-y-2">
+                    <Label htmlFor="type">Item Type *</Label>
+                    <select
+                      id="type"
+                      value={type}
+                      onChange={(e) =>
+                        setType(e.target.value as "LABOR" | "PARTS" | "OTHER")
+                      }
+                      className="w-full p-2 border rounded-md"
+                    >
+                      <option value="PARTS">Parts</option>
+                      <option value="LABOR">Labor</option>
+                      <option value="OTHER">Other</option>
+                    </select>
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="itemName">Item Name *</Label>
                     <Input
                       id="itemName"
                       value={itemName}
                       onChange={(e) => setItemName(e.target.value)}
-                      placeholder="e.g., Professional Service"
+                      placeholder="e.g., Premium Windshield Wiper"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
+                    <Label htmlFor="price">Price ($) *</Label>
                     <Input
-                      id="description"
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Item description"
+                      id="price"
+                      type="number"
+                      step="0.01"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      placeholder="e.g., 24.99"
                     />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="quantity">Quantity *</Label>
-                      <Input
-                        id="quantity"
-                        type="number"
-                        value={quantity}
-                        onChange={(e) => setQuantity(e.target.value)}
-                        placeholder="e.g., 2"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="price">Unit Price ($) *</Label>
-                      <Input
-                        id="price"
-                        type="number"
-                        step="0.01"
-                        value={price}
-                        onChange={(e) => setPrice(e.target.value)}
-                        placeholder="e.g., 110.00"
-                      />
-                    </div>
                   </div>
 
                   {/* Tax Section */}
@@ -161,29 +135,6 @@ export function ItemForm({ open, onClose }: ItemFormProps) {
                         placeholder="Tax ID"
                         value={taxId}
                         onChange={(e) => setTaxId(e.target.value)}
-                        className="mt-1"
-                      />
-                    )}
-                  </div>
-
-                  {/* Labor Cost Section */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={laborCostApplied}
-                        onChange={(e) => setLaborCostApplied(e.target.checked)}
-                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                      <Label className="text-sm font-medium">
-                        Apply Labor Cost
-                      </Label>
-                    </div>
-                    {laborCostApplied && (
-                      <Input
-                        placeholder="Labor Cost ID"
-                        value={laborCostId}
-                        onChange={(e) => setLaborCostId(e.target.value)}
                         className="mt-1"
                       />
                     )}
@@ -210,42 +161,6 @@ export function ItemForm({ open, onClose }: ItemFormProps) {
                         className="mt-1"
                       />
                     )}
-                  </div>
-
-                  {/* Other Charges Section */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={otherChargeApplied}
-                        onChange={(e) =>
-                          setOtherChargeApplied(e.target.checked)
-                        }
-                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                      <Label className="text-sm font-medium">
-                        Apply Other Charges
-                      </Label>
-                    </div>
-                    {otherChargeApplied && (
-                      <Input
-                        placeholder="Other Charge ID"
-                        value={otherChargeId}
-                        onChange={(e) => setOtherChargeId(e.target.value)}
-                        className="mt-1"
-                      />
-                    )}
-                  </div>
-
-                  {/* Payment Status */}
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={paid}
-                      onChange={(e) => setPaid(e.target.checked)}
-                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                    />
-                    <Label className="text-sm font-medium">Mark as Paid</Label>
                   </div>
                 </div>
               </div>
