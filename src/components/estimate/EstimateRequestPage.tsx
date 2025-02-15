@@ -94,7 +94,7 @@ export default function EstimateRequestPage() {
       setEstimateData(data);
 
       if (status === "ACCEPTED") {
-        navigate(`/${estimateId}/invoice`);
+        navigate(`/estimate/${estimateId}/invoice/new`);
       }
     } catch (error) {
       console.error("Error updating status:", error);

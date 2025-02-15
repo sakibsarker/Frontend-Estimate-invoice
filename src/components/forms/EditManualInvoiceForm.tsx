@@ -18,7 +18,7 @@ import { CustomerForm } from "../sideforms/CustomerForm";
 import { ItemForm } from "../sideforms/ItemForm";
 import { TaxForm } from "../sideforms/TaxForm";
 import { PaymentTermForm } from "../sideforms/PaymentTermForm";
-import { useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { DiscountForm } from "../sideforms/DiscountForm";
 import { LaborForm } from "../sideforms/LaborForm";
 import { OtherChargeForm } from "../sideforms/OtherChargeForm";
@@ -36,7 +36,7 @@ interface InvoiceItem {
   paid: boolean;
 }
 
-export default function NewInvoiceForm() {
+export default function EditManualInvoiceForm() {
   const [items, setItems] = useState<InvoiceItem[]>([
     {
       id: 1,
@@ -73,6 +73,7 @@ export default function NewInvoiceForm() {
     },
   ]);
   const [showCustomerForm, setShowCustomerForm] = useState(false);
+
   const [showItemForm, setShowItemForm] = useState(false);
   const [showTaxForm, setShowTaxForm] = useState(false);
   const [showDiscountForm, setShowDiscountForm] = useState(false);
@@ -80,7 +81,6 @@ export default function NewInvoiceForm() {
   const [showOtherChargeForm, setShowOtherChargeForm] = useState(false);
   const [showPaymentTermForm, setShowPaymentTermForm] = useState(false);
 
-  const { estimateId } = useParams<{ estimateId: string }>();
   const [taxes, setTaxes] = useState<
     Array<{ id: number; tax_name: string; tax_rate: string }>
   >([]);
@@ -112,6 +112,8 @@ export default function NewInvoiceForm() {
   >([]);
 
   const [editShowCustomer, setEditShowCustomer] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTaxes = async () => {
@@ -292,8 +294,12 @@ export default function NewInvoiceForm() {
       {/* Form Section */}
       <div className="flex-1 p-8 border-r overflow-y-auto pb-20">
         <div className="flex items-start justify-between mb-8">
-          <h1 className="text-2xl font-semibold">New Estimate Invoice</h1>
-          <Button variant="ghost" size="icon">
+          <h1 className="text-2xl font-semibold">New invoice</h1>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/invoice")}
+          >
             <X className="h-5 w-5" />
           </Button>
         </div>
@@ -402,37 +408,18 @@ export default function NewInvoiceForm() {
 
           {/* Invoice Details Section */}
           <div className="space-y-6">
-            <h2 className="text-lg font-semibold">Estimate details</h2>
+            <h2 className="text-lg font-semibold">Invoice details</h2>
 
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <div className="flex items-center">
                   <Label className="text-sm font-medium text-red-500 mr-2">
                     *
                   </Label>
-                  <Label>Estimate number</Label>
+                  <Label>PS Number</Label>
                 </div>
-                <Input defaultValue={estimateId} />
+                <Input />
               </div>
-              <div className="space-y-2">
-                <div className="flex items-center">
-                  <Label className="text-sm font-medium text-red-500 mr-2">
-                    *
-                  </Label>
-                  <Label>Estimate date</Label>
-                </div>
-                <Input type="date" defaultValue="2025-01-07" />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center">
-                  <Label className="text-sm font-medium text-red-500 mr-2">
-                    *
-                  </Label>
-                  <Label>Expiration date</Label>
-                </div>
-                <Input type="date" defaultValue="2025-01-07" />
-              </div>
-
               <div className="space-y-2">
                 <div className="flex items-center">
                   <Label className="text-sm font-medium text-red-500 mr-2">
@@ -808,6 +795,85 @@ export default function NewInvoiceForm() {
                 Review & Send
               </Button>
             </div>
+          </div>
+        </div>
+      </div>
+      {/* Preview Section */}
+      <div className="w-[600px] bg-gray-50 p-8">
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <div className="flex justify-between mb-8">
+            <div>
+              <h2 className="text-xl font-bold">Auto Gig Shop</h2>
+              <p className="text-sm text-gray-500">Bill to</p>
+            </div>
+            <div className="text-right">
+              <div className="space-y-1">
+                <div className="flex items-center justify-end gap-4">
+                  <span className="text-sm text-gray-500">Invoice</span>
+                  <span>001</span>
+                </div>
+                <div className="flex items-center justify-end gap-4">
+                  <span className="text-sm text-gray-500">Date</span>
+                  <span>Jan 07, 2025</span>
+                </div>
+                <div className="flex items-center justify-end gap-4">
+                  <span className="text-sm text-gray-500">Terms</span>
+                  <Button variant="outline" size="sm" className="h-6 text-xs">
+                    + Add Payment Term
+                  </Button>
+                </div>
+                <div className="flex items-center justify-end gap-4">
+                  <span className="text-sm text-gray-500">Due date</span>
+                  <span>Jan 07, 2025</span>
+                </div>
+                <div className="flex items-center justify-end gap-4">
+                  <span className="text-sm text-gray-500">Amount due</span>
+                  <span>$0.00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="py-2 px-4 text-left">Quantity</th>
+                <th className="py-2 px-4 text-right">Price</th>
+                <th className="py-2 px-4 text-right">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="py-2 px-4">1</td>
+                <td className="py-2 px-4 text-right">$0.00</td>
+                <td className="py-2 px-4 text-right">$0.00</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr className="border-t">
+                <td colSpan={2} className="py-2 px-4 text-right">
+                  Subtotal
+                </td>
+                <td className="py-2 px-4 text-right">$0.00</td>
+              </tr>
+              <tr>
+                <td colSpan={2} className="py-2 px-4 text-right">
+                  Total
+                </td>
+                <td className="py-2 px-4 text-right">$0.00</td>
+              </tr>
+              <tr>
+                <td colSpan={2} className="py-2 px-4 text-right">
+                  Paid
+                </td>
+                <td className="py-2 px-4 text-right">$0.00</td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div className="mt-4 bg-black text-white p-4 flex justify-between items-center">
+            <span>Amount due</span>
+            <span>$0.00</span>
           </div>
         </div>
       </div>

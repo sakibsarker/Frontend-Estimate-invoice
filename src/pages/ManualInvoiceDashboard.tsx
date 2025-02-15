@@ -80,6 +80,7 @@ export default function ManualInvoiceDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [timeframeFilter, setTimeframeFilter] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("en");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -124,6 +125,23 @@ export default function ManualInvoiceDashboard() {
           <Home className="h-6 w-6" />
           <span className="ml-2">Back to Home</span>
         </Button>
+
+        {/* Language Selector */}
+        <div className="ml-auto flex items-center gap-2">
+          <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+            <SelectTrigger className="w-[150px] bg-[#1a237e] text-white">
+              <SelectValue placeholder="Select language" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">
+                <span className="flex items-center gap-2">🇺🇸 English</span>
+              </SelectItem>
+              <SelectItem value="es">
+                <span className="flex items-center gap-2">🇪🇸 Español</span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Header Stats */}
@@ -200,9 +218,9 @@ export default function ManualInvoiceDashboard() {
 
         <Button
           className="bg-orange-500 hover:bg-orange-600"
-          onClick={() => navigate("/admin/estimate")}
+          onClick={() => navigate("/invoice/new")}
         >
-          Create Estimate
+          Create Invoice
         </Button>
       </div>
 
@@ -213,7 +231,7 @@ export default function ManualInvoiceDashboard() {
             <div
               key={estimate.id}
               className="bg-white rounded-lg p-4 shadow cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => navigate(`/invoice/new`)}
+              onClick={() => navigate(`/invoice/${estimate.id}`)}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">

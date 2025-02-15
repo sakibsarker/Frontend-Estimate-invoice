@@ -93,6 +93,7 @@ export default function EstimateDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [timeframeFilter, setTimeframeFilter] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("en");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -137,6 +138,23 @@ export default function EstimateDashboard() {
           <Home className="h-6 w-6" />
           <span className="ml-2">Back to Home</span>
         </Button>
+
+        {/* Language Selector */}
+        <div className="ml-auto flex items-center gap-2">
+          <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+            <SelectTrigger className="w-[150px] bg-[#1a237e] text-white">
+              <SelectValue placeholder="Select language" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">
+                <span className="flex items-center gap-2">🇺🇸 English</span>
+              </SelectItem>
+              <SelectItem value="es">
+                <span className="flex items-center gap-2">🇪🇸 Español</span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Header Stats */}

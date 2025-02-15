@@ -23,6 +23,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import Vehicle_Database from "@/lib/Vehicle_Database.json";
+import { CustomerForm } from "../sideforms/CustomerForm";
 
 // Add this type definition
 type User = {
@@ -43,6 +44,7 @@ export default function AdminCreateEstimate() {
   const [selectedYear, setSelectedYear] = useState<string>("");
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
+  const [showCustomerForm, setShowCustomerForm] = useState(false);
 
   // Fetch users from API
   useEffect(() => {
@@ -52,7 +54,7 @@ export default function AdminCreateEstimate() {
         if (!token) throw new Error("No authentication token found");
 
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/estimate/list-repair-requests/`,
+          `${import.meta.env.VITE_API_URL}/estimate/customers/`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -63,7 +65,21 @@ export default function AdminCreateEstimate() {
         if (!response.ok) throw new Error("Failed to fetch users");
 
         const data = await response.json();
-        setUsers(data);
+        setUsers(
+          data.map(
+            (user: {
+              id: any;
+              customer_display_name: any;
+              email_address: any;
+              phone_number: any;
+            }) => ({
+              id: user.id,
+              username: user.customer_display_name,
+              email: user.email_address,
+              phone_number: user.phone_number,
+            })
+          )
+        );
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -352,7 +368,7 @@ export default function AdminCreateEstimate() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="repair_date">Repair Date and Time:</Label>
+                <Label htmlFor="repair_date">Expire date :</Label>
                 <DateTimePicker date={repairDate} setDate={setRepairDate} />
               </div>
             </div>
@@ -383,6 +399,7 @@ export default function AdminCreateEstimate() {
                 Close
               </Button>
               <Button
+                onClick={() => setShowCustomerForm(true)}
                 type="button"
                 className="w-full sm:w-auto bg-blue-600 hover:bg-blue-800"
               >
@@ -392,6 +409,10 @@ export default function AdminCreateEstimate() {
           </form>
         </CardContent>
       </Card>
+      <CustomerForm
+        open={showCustomerForm}
+        onClose={() => setShowCustomerForm(false)}
+      />
     </div>
   );
 }
