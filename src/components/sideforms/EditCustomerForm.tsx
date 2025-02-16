@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,34 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import toast, { Toaster } from "react-hot-toast";
+import {
+  useGetCustomerByIdQuery,
+  useUpdateCustomerMutation,
+} from "@/features/server/customerSlice";
+
+interface Customer {
+  id: number;
+  customer_display_name: string;
+  company_name: string;
+  contact_first_name: string;
+  contact_last_name: string;
+  email_address: string;
+  phone_number: string;
+  billing_country: string;
+  billing_address_line1: string;
+  billing_address_line2: string;
+  billing_city: string;
+  billing_state: string;
+  billing_zip_code: string;
+  shipping_country: string;
+  shipping_address_line1: string;
+  shipping_address_line2: string;
+  shipping_city: string;
+  shipping_state: string;
+  shipping_zip_code: string;
+  notes: string;
+  account_number: string;
+}
 
 interface EditCustomerFormProps {
   open: boolean;
@@ -29,7 +57,18 @@ export function EditCustomerForm({
   onClose,
   customerId,
 }: EditCustomerFormProps) {
-  const [formData, setFormData] = useState({
+  const {
+    data: customer,
+
+    refetch,
+  } = useGetCustomerByIdQuery(customerId ?? 0, {
+    skip: !customerId,
+  });
+
+  const [updateCustomer, { isLoading: isUpdating }] =
+    useUpdateCustomerMutation();
+
+  const [formData, setFormData] = useState<Omit<Customer, "id">>({
     customer_display_name: "",
     company_name: "",
     contact_first_name: "",
@@ -50,58 +89,49 @@ export function EditCustomerForm({
     shipping_zip_code: "",
     notes: "",
     account_number: "",
-    company_type: "",
-    payment_terms: "Net 30",
   });
+
+  useEffect(() => {
+    if (customer) {
+      setFormData({
+        customer_display_name: customer.customer_display_name,
+        company_name: customer.company_name,
+        contact_first_name: customer.contact_first_name,
+        contact_last_name: customer.contact_last_name,
+        email_address: customer.email_address,
+        phone_number: customer.phone_number,
+        billing_country: customer.billing_country,
+        billing_address_line1: customer.billing_address_line1,
+        billing_address_line2: customer.billing_address_line2,
+        billing_city: customer.billing_city,
+        billing_state: customer.billing_state,
+        billing_zip_code: customer.billing_zip_code,
+        shipping_country: customer.shipping_country,
+        shipping_address_line1: customer.shipping_address_line1,
+        shipping_address_line2: customer.shipping_address_line2,
+        shipping_city: customer.shipping_city,
+        shipping_state: customer.shipping_state,
+        shipping_zip_code: customer.shipping_zip_code,
+        notes: customer.notes,
+        account_number: customer.account_number,
+      });
+    }
+  }, [customer]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!customerId) return;
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/estimate/customers/create/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      await updateCustomer({ id: customerId, ...formData }).unwrap();
+      toast.success("Customer updated successfully!");
 
-      if (response.ok) {
-        toast.success("Customer created successfully!");
-        setFormData({
-          customer_display_name: "",
-          company_name: "",
-          contact_first_name: "",
-          contact_last_name: "",
-          email_address: "",
-          phone_number: "",
-          billing_country: "US",
-          billing_address_line1: "",
-          billing_address_line2: "",
-          billing_city: "",
-          billing_state: "",
-          billing_zip_code: "",
-          shipping_country: "US",
-          shipping_address_line1: "",
-          shipping_address_line2: "",
-          shipping_city: "",
-          shipping_state: "",
-          shipping_zip_code: "",
-          notes: "",
-          account_number: "",
-          company_type: "",
-          payment_terms: "Net 30",
-        });
-        onClose();
-      } else {
-        throw new Error("Failed to create customer");
-      }
-    } catch (error) {
-      toast.error("Error creating customer");
+      // Trigger refetch of customer data
+      await refetch();
+
+      onClose();
+    } catch (error: any) {
+      toast.error(error.data?.message || "Failed to update customer");
     }
   };
 
@@ -422,46 +452,7 @@ export function EditCustomerForm({
                       }
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label>Company Type</Label>
-                    <Select
-                      value={formData.company_type}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, company_type: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="corporation">Corporation</SelectItem>
-                        <SelectItem value="llc">LLC</SelectItem>
-                        <SelectItem value="sole_proprietorship">
-                          Sole Proprietorship
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Payment Terms</Label>
-                    <Select
-                      value={formData.payment_terms}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, payment_terms: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select terms" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Net 30">Net 30 days</SelectItem>
-                        <SelectItem value="Net 60">Net 60 days</SelectItem>
-                        <SelectItem value="Due on receipt">
-                          Due on receipt
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="notes">Notes</Label>
                     <textarea
@@ -482,8 +473,9 @@ export function EditCustomerForm({
                 variant="outline"
                 className="w-full bg-indigo-600 text-white hover:text-gray-300 hover:bg-indigo-800"
                 size="lg"
+                disabled={isUpdating}
               >
-                Add New Customer
+                {isUpdating ? "Updating..." : "Update Customer"}
               </Button>
             </div>
           </form>

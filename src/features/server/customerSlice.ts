@@ -10,17 +10,17 @@ interface Customer {
   phone_number: string;
   billing_country: string;
   billing_address_line1: string;
-  billing_address_line2?: string;
+  billing_address_line2: string;
   billing_city: string;
   billing_state: string;
   billing_zip_code: string;
   shipping_country: string;
   shipping_address_line1: string;
-  shipping_address_line2?: string;
+  shipping_address_line2: string;
   shipping_city: string;
   shipping_state: string;
   shipping_zip_code: string;
-  notes?: string;
+  notes: string;
   account_number: string;
 }
 
@@ -43,7 +43,7 @@ export const customerApi = createApi({
     }),
 
     // Get single customer by ID
-    getCustomer: builder.query<Customer, number>({
+    getCustomerById: builder.query<Customer, number>({
       query: (id) => `estimate/customers/${id}/`,
     }),
 
@@ -57,11 +57,14 @@ export const customerApi = createApi({
     }),
 
     // Update customer
-    updateCustomer: builder.mutation<Customer, Customer>({
-      query: (data) => ({
-        url: `estimate/customers/${data.id}/`,
-        method: "PATCH",
-        body: data,
+    updateCustomer: builder.mutation<
+      Customer,
+      Partial<Customer> & { id: number }
+    >({
+      query: ({ id, ...patch }) => ({
+        url: `/estimate/customers/${id}/update/`,
+        method: "PUT",
+        body: patch,
       }),
     }),
 
@@ -77,7 +80,7 @@ export const customerApi = createApi({
 
 export const {
   useGetCustomersQuery,
-  useGetCustomerQuery,
+  useGetCustomerByIdQuery,
   useCreateCustomerMutation,
   useUpdateCustomerMutation,
   useDeleteCustomerMutation,
