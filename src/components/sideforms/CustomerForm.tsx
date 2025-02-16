@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import toast, { Toaster } from "react-hot-toast";
+import { useCreateCustomerMutation } from "@/features/server/customerSlice";
 
 interface CustomerFormProps {
   open: boolean;
@@ -45,58 +46,44 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
     shipping_zip_code: "",
     notes: "",
     account_number: "",
-    company_type: "",
-    payment_terms: "Net 30",
   });
+
+  const [createCustomer, { isLoading }] = useCreateCustomerMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/estimate/customers/create/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      await createCustomer(formData).unwrap();
 
-      if (response.ok) {
-        toast.success("Customer created successfully!");
-        setFormData({
-          customer_display_name: "",
-          company_name: "",
-          contact_first_name: "",
-          contact_last_name: "",
-          email_address: "",
-          phone_number: "",
-          billing_country: "US",
-          billing_address_line1: "",
-          billing_address_line2: "",
-          billing_city: "",
-          billing_state: "",
-          billing_zip_code: "",
-          shipping_country: "US",
-          shipping_address_line1: "",
-          shipping_address_line2: "",
-          shipping_city: "",
-          shipping_state: "",
-          shipping_zip_code: "",
-          notes: "",
-          account_number: "",
-          company_type: "",
-          payment_terms: "Net 30",
-        });
-        onClose();
-      } else {
-        throw new Error("Failed to create customer");
-      }
-    } catch (error) {
-      toast.error("Error creating customer");
+      toast.success("Customer created successfully!");
+
+      setFormData({
+        customer_display_name: "",
+        company_name: "",
+        contact_first_name: "",
+        contact_last_name: "",
+        email_address: "",
+        phone_number: "",
+        billing_country: "US",
+        billing_address_line1: "",
+        billing_address_line2: "",
+        billing_city: "",
+        billing_state: "",
+        billing_zip_code: "",
+        shipping_country: "US",
+        shipping_address_line1: "",
+        shipping_address_line2: "",
+        shipping_city: "",
+        shipping_state: "",
+        shipping_zip_code: "",
+        notes: "",
+        account_number: "",
+      });
+      onClose();
+    } catch (error: any) {
+      console.error("Error creating customer:", error);
+      toast.error(error.data?.message || "Error creating customer");
     }
   };
 
@@ -416,46 +403,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                       }
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label>Company Type</Label>
-                    <Select
-                      value={formData.company_type}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, company_type: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="corporation">Corporation</SelectItem>
-                        <SelectItem value="llc">LLC</SelectItem>
-                        <SelectItem value="sole_proprietorship">
-                          Sole Proprietorship
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Payment Terms</Label>
-                    <Select
-                      value={formData.payment_terms}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, payment_terms: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select terms" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Net 30">Net 30 days</SelectItem>
-                        <SelectItem value="Net 60">Net 60 days</SelectItem>
-                        <SelectItem value="Due on receipt">
-                          Due on receipt
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="notes">Notes</Label>
                     <textarea
@@ -476,8 +424,9 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                 variant="outline"
                 className="w-full bg-indigo-600 text-white hover:text-gray-300 hover:bg-indigo-800"
                 size="lg"
+                disabled={isLoading}
               >
-                Add New Customer
+                {isLoading ? "Adding..." : "Add New Customer"}
               </Button>
             </div>
           </form>

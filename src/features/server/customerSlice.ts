@@ -22,8 +22,6 @@ interface Customer {
   shipping_zip_code: string;
   notes?: string;
   account_number: string;
-  company_type: string;
-  payment_terms: string;
 }
 
 export const customerApi = createApi({
@@ -52,7 +50,7 @@ export const customerApi = createApi({
     // Create new customer
     createCustomer: builder.mutation<Customer, Omit<Customer, "id">>({
       query: (newCustomer) => ({
-        url: "estimate/customers/",
+        url: "estimate/customers/create/",
         method: "POST",
         body: newCustomer,
       }),

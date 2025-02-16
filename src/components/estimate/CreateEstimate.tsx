@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import Vehicle_Database from "@/lib/Vehicle_Database.json";
+import { useCreateRepairRequestMutation } from "@/features/server/repairRequestSlice";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function CreateEstimate() {
   const [repairDate, setRepairDate] = useState<Date | undefined>(undefined);
@@ -29,49 +31,41 @@ export default function CreateEstimate() {
     return acc;
   }, {} as Record<string, Record<string, string[]>>);
 
+  const [createRepairRequest, { isLoading }] = useCreateRepairRequestMutation();
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-
-    // Combine vehicle details into one string
     const vehicleName = `${selectedYear} ${selectedMake} ${selectedModel}`;
+
     formData.append("vehicle_name", vehicleName);
 
-    // Append date separately
     if (repairDate) {
       formData.append("repair_date", repairDate.toISOString().split("T")[0]);
     }
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/estimate/repair-requests/create/`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      await createRepairRequest(formData).unwrap();
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Estimate creation failed");
-      }
-
-      // Handle successful response
-      const result = await response.json();
-      console.log("Estimate created:", result);
-      alert("Estimate request submitted successfully!");
+      toast.success("Estimate request submitted successfully!");
 
       // Reset form
       event.currentTarget.reset();
       setRepairDate(undefined);
+      setSelectedYear("");
+      setSelectedMake("");
+      setSelectedModel("");
     } catch (error: any) {
       console.error("Submission error:", error);
-      alert(error.message || "Failed to submit estimate request");
+      // Show detailed error message from server if available
+      toast.error(error.data?.message || "Failed to submit estimate request");
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
+      <Toaster position="top-center" />
+
       <Card className="mx-auto max-w-4xl">
         <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
           <CardTitle className="text-2xl font-normal">
@@ -216,8 +210,9 @@ export default function CreateEstimate() {
               <Button
                 type="submit"
                 className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600"
+                disabled={isLoading}
               >
-                Submit Estimate Request
+                {isLoading ? "Submitting..." : "Submit Estimate Request"}
               </Button>
               <Button
                 type="button"
