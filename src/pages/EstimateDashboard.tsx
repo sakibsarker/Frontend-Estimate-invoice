@@ -33,6 +33,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useNavigate } from "react-router";
+import Loader from "@/components/Loader";
 
 interface RepairRequest {
   id: number;
@@ -94,11 +95,13 @@ export default function EstimateDashboard() {
   const [statusFilter, setStatusFilter] = useState("");
   const [timeframeFilter, setTimeframeFilter] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("en");
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEstimates = async () => {
       try {
+        setIsLoading(true);
         const token = localStorage.getItem("token");
         const queryParams = new URLSearchParams({
           search: searchTerm,
@@ -124,6 +127,8 @@ export default function EstimateDashboard() {
         setTotalPages(responseData.total_pages || 1);
       } catch (error) {
         console.error("Fetch error:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -157,200 +162,224 @@ export default function EstimateDashboard() {
         </div>
       </div>
 
-      {/* Header Stats */}
-      <div className="bg-[#E8F4F7] p-6 rounded-lg mx-4">
-        <div className="text-2xl font-bold mb-4">Estimate</div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <div className="text-gray-600">Total Estimates Created: 32</div>
-            <div className="text-gray-600">Total Estimate Value: $12,312</div>
-          </div>
-          <div>
-            <div className="text-gray-600">Approval Rates: 15%</div>
-            <div className="text-gray-600">
-              Approved Estimates Value: $2,005
-            </div>
-          </div>
-          <div>
-            <div className="text-gray-600">Expired Estimates: 10</div>
-            <div className="text-gray-600">New Estimates: 5</div>
-          </div>
+      {isLoading ? (
+        <div className="flex justify-center items-center h-[calc(100vh-80px)]">
+          <Loader />
         </div>
-        <div className="text-red-500 mt-4">Changes based on the time frame</div>
-      </div>
-
-      {/* Filter Controls */}
-      <div className="flex flex-wrap items-center gap-4 p-4">
-        <div className="w-[200px]">
-          <Select value={timeframeFilter} onValueChange={setTimeframeFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Timeframe" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7d">This Week</SelectItem>
-              <SelectItem value="30d">This Month</SelectItem>
-              <SelectItem value="180d">Last Six Months</SelectItem>
-              <SelectItem value="custom">Specific Date</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[200px] bg-[#1a237e] text-white">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="new">New</SelectItem>
-            <SelectItem value="viewed">Viewed</SelectItem>
-            <SelectItem value="expired">Expired</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <div className="flex-grow">
-          <Input
-            type="text"
-            placeholder="Search estimates..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full"
-          />
-        </div>
-
-        <Button className="bg-[#1a237e]">
-          <Search className="h-4 w-4 mr-2" />
-          Search
-        </Button>
-
-        <Button
-          variant="secondary"
-          className="bg-[#1a237e] text-white"
-          onClick={() => setSearchTerm("")}
-        >
-          Clear Filter
-          <X className="h-4 w-4 ml-2" />
-        </Button>
-
-        <Button
-          className="bg-orange-500 hover:bg-orange-600"
-          onClick={() => navigate("/admin/estimate")}
-        >
-          Create Estimate
-        </Button>
-      </div>
-
-      {/* Estimates List */}
-      <div className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {estimates.map((estimate) => (
-            <div
-              key={estimate.id}
-              className="bg-white rounded-lg p-4 shadow cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => navigate(`/estimate/${estimate.id}`)}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge
-                      className={getRepairStatusColor(estimate.repair_status)}
-                    >
-                      {estimate.repair_status}
-                    </Badge>
-
-                    <span className="text-blue-600">
-                      (#{estimate.id}) {estimate.repair_details}
-                    </span>
-
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                  <div className="text-sm text-gray-800 font-normal mb-2">
-                    Created:{" "}
-                    {new Date(estimate.created_at).toLocaleDateString("en-CA", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                    })}
-                    <br />
-                    Repair Date:{" "}
-                    {new Date(estimate.repair_date).toLocaleDateString(
-                      "en-CA",
-                      {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                      }
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Car className="h-5 w-5" />
-                    <span>{estimate.vehicle_name}</span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <User className="h-5 w-5" />
-
-                    <span>{estimate.username}</span>
-                  </div>
-                  <div className="flex justify-end">
-                    <Badge className={getEstimateStatusColor(estimate.status)}>
-                      {estimate.status}
-                    </Badge>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm">
-                    <Printer className="h-4 w-4" />
-                  </Button>
-                  <span className="font-semibold">
-                    {/* ${estimate.value.toFixed(2)} */}
-                  </span>
+      ) : (
+        <>
+          {/* Header Stats */}
+          <div className="bg-[#E8F4F7] p-6 rounded-lg mx-4">
+            <div className="text-2xl font-bold mb-4">Estimate</div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <div className="text-gray-600">Total Estimates Created: 32</div>
+                <div className="text-gray-600">
+                  Total Estimate Value: $12,312
                 </div>
               </div>
+              <div>
+                <div className="text-gray-600">Approval Rates: 15%</div>
+                <div className="text-gray-600">
+                  Approved Estimates Value: $2,005
+                </div>
+              </div>
+              <div>
+                <div className="text-gray-600">Expired Estimates: 10</div>
+                <div className="text-gray-600">New Estimates: 5</div>
+              </div>
             </div>
-          ))}
-        </div>
+            <div className="text-red-500 mt-4">
+              Changes based on the time frame
+            </div>
+          </div>
 
-        {/* Pagination */}
-        <div className="flex justify-center mt-6">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  aria-disabled={currentPage === 1}
-                />
-              </PaginationItem>
-              {Array.from({ length: totalPages }, (_, index) => (
-                <PaginationItem key={index}>
-                  <PaginationLink
-                    onClick={() => setCurrentPage(index + 1)}
-                    isActive={currentPage === index + 1}
-                  >
-                    {index + 1}
-                  </PaginationLink>
-                </PaginationItem>
+          {/* Filter Controls */}
+          <div className="flex flex-wrap items-center gap-4 p-4">
+            <div className="w-[200px]">
+              <Select
+                value={timeframeFilter}
+                onValueChange={setTimeframeFilter}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Timeframe" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="7d">This Week</SelectItem>
+                  <SelectItem value="30d">This Month</SelectItem>
+                  <SelectItem value="180d">Last Six Months</SelectItem>
+                  <SelectItem value="custom">Specific Date</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[200px] bg-[#1a237e] text-white">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="new">New</SelectItem>
+                <SelectItem value="viewed">Viewed</SelectItem>
+                <SelectItem value="expired">Expired</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <div className="flex-grow">
+              <Input
+                type="text"
+                placeholder="Search estimates..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full"
+              />
+            </div>
+
+            <Button className="bg-[#1a237e]">
+              <Search className="h-4 w-4 mr-2" />
+              Search
+            </Button>
+
+            <Button
+              variant="secondary"
+              className="bg-[#1a237e] text-white"
+              onClick={() => setSearchTerm("")}
+            >
+              Clear Filter
+              <X className="h-4 w-4 ml-2" />
+            </Button>
+
+            <Button
+              className="bg-orange-500 hover:bg-orange-600"
+              onClick={() => navigate("/admin/estimate")}
+            >
+              Create Estimate
+            </Button>
+          </div>
+
+          {/* Estimates List */}
+          <div className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {estimates.map((estimate) => (
+                <div
+                  key={estimate.id}
+                  className="bg-white rounded-lg p-4 shadow cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => navigate(`/estimate/${estimate.id}/view`)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge
+                          className={getRepairStatusColor(
+                            estimate.repair_status
+                          )}
+                        >
+                          {estimate.repair_status}
+                        </Badge>
+
+                        <span className="text-blue-600">
+                          (#{estimate.id}) {estimate.repair_details}
+                        </span>
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                            <DropdownMenuItem>Delete</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                      <div className="text-sm text-gray-800 font-normal mb-2">
+                        Created:{" "}
+                        {new Date(estimate.created_at).toLocaleDateString(
+                          "en-CA",
+                          {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                          }
+                        )}
+                        <br />
+                        Repair Date:{" "}
+                        {new Date(estimate.repair_date).toLocaleDateString(
+                          "en-CA",
+                          {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                          }
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Car className="h-5 w-5" />
+                        <span>{estimate.vehicle_name}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <User className="h-5 w-5" />
+
+                        <span>{estimate.username}</span>
+                      </div>
+                      <div className="flex justify-end">
+                        <Badge
+                          className={getEstimateStatusColor(estimate.status)}
+                        >
+                          {estimate.status}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm">
+                        <Printer className="h-4 w-4" />
+                      </Button>
+                      <span className="font-semibold">
+                        {/* ${estimate.value.toFixed(2)} */}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               ))}
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() =>
-                    setCurrentPage(Math.min(totalPages, currentPage + 1))
-                  }
-                  aria-disabled={currentPage === totalPages}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      </div>
+            </div>
+
+            {/* Pagination */}
+            <div className="flex justify-center mt-6">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() =>
+                        setCurrentPage(Math.max(1, currentPage - 1))
+                      }
+                      aria-disabled={currentPage === 1}
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }, (_, index) => (
+                    <PaginationItem key={index}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(index + 1)}
+                        isActive={currentPage === index + 1}
+                      >
+                        {index + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() =>
+                        setCurrentPage(Math.min(totalPages, currentPage + 1))
+                      }
+                      aria-disabled={currentPage === totalPages}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

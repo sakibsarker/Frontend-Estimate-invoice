@@ -1,10 +1,19 @@
 import { configureStore } from "@reduxjs/toolkit";
-import counterReducer from "./features/counter/counterSlice";
+
+import { repairRequestApi } from "./features/server/repairRequestSlice";
+import { customerApi } from "./features/server/customerSlice";
 
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
+    [repairRequestApi.reducerPath]: repairRequestApi.reducer,
+    [customerApi.reducerPath]: customerApi.reducer,
   },
+  // Adding the api middleware enables caching, invalidation, polling,
+  // and other useful features of RTK Query.
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware()
+      .concat(repairRequestApi.middleware)
+      .concat(customerApi.middleware),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
