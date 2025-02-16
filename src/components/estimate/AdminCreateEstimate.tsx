@@ -25,8 +25,10 @@ import {
 import Vehicle_Database from "@/lib/Vehicle_Database.json";
 import { CustomerForm } from "../sideforms/CustomerForm";
 import toast, { Toaster } from "react-hot-toast";
-import Loader from "../Loader";
+
 import { useNavigate } from "react-router";
+import { useGetCustomersQuery } from "@/features/server/customerSlice";
+import { useCreateRepairRequestMutation } from "@/features/server/repairRequestSlice";
 
 // Add this type definition
 type User = {
@@ -42,7 +44,6 @@ export default function AdminCreateEstimate() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState<string>("");
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
@@ -50,73 +51,36 @@ export default function AdminCreateEstimate() {
 
   const navigate = useNavigate();
 
-  // Fetch users from API
+  // Replace useEffect with RTK Query
+  const {
+    data: customers,
+    isLoading,
+    error: customersError,
+  } = useGetCustomersQuery();
+
+  const [createRepairRequest] = useCreateRepairRequestMutation();
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          toast.error("No authentication token found");
-          return;
-        }
-
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/estimate/customers/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch users");
-        }
-
-        const data = await response.json();
-        setUsers(
-          data.map(
-            (user: {
-              id: any;
-              customer_display_name: any;
-              email_address: any;
-              phone_number: any;
-            }) => ({
-              id: user.id,
-              username: user.customer_display_name,
-              email: user.email_address,
-              phone_number: user.phone_number,
-            })
-          )
-        );
-      } catch (err: any) {
-        toast.error(err.message || "Failed to load customers");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, []);
-
-  // Uncomment and update this useEffect
-  useEffect(() => {
-    const foundUser = users.find(
-      (user) => user.username.toLowerCase() === username.toLowerCase()
-    );
-    if (foundUser) {
-      setEmail(foundUser.email);
-      setPhone(foundUser.phone_number);
-    } else {
-      setEmail("");
-      setPhone("");
+    if (customers) {
+      setUsers(
+        customers.map((customer) => ({
+          id: customer.id,
+          username: customer.customer_display_name,
+          email: customer.email_address,
+          phone_number: customer.phone_number,
+        }))
+      );
     }
-  }, [username, users]);
+  }, [customers]);
+
+  useEffect(() => {
+    if (customersError) {
+      toast.error("Failed to load customers");
+    }
+  }, [customersError]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setLoading(true);
-    const token = localStorage.getItem("token");
     const formData = new FormData();
     const vehicleName = `${selectedYear} ${selectedMake} ${selectedModel}`;
     const form = event.currentTarget;
@@ -129,15 +93,14 @@ export default function AdminCreateEstimate() {
       formData.append("vehicle_name", vehicleName);
       formData.append(
         "repair_details",
-        (
-          event.currentTarget.elements.namedItem(
-            "repair_details"
-          ) as HTMLTextAreaElement
-        )?.value
+        (form.elements.namedItem("repair_details") as HTMLTextAreaElement)
+          ?.value
       );
 
+      formData.append("status", "ACCEPTED");
+
       // Append files
-      const fileInput = event.currentTarget.elements.namedItem(
+      const fileInput = form.elements.namedItem(
         "estimate_attachments"
       ) as HTMLInputElement;
       if (fileInput.files) {
@@ -151,36 +114,21 @@ export default function AdminCreateEstimate() {
         formData.append("repair_date", repairDate.toISOString().split("T")[0]);
       }
 
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/estimate/repair-requests/create/`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Estimate creation failed");
-      }
-
-      const result = await response.json();
-      console.log("Estimate created:", result);
+      // Use RTK Query mutation
+      const result = await createRepairRequest(formData).unwrap();
 
       toast.success("Repair request created successfully!");
+
+      navigate(`/estimate/${result.id}/invoice/new/`);
+
+      // Reset form
       form.reset();
       setUsername("");
       setEmail("");
       setPhone("");
       setRepairDate(undefined);
     } catch (error: any) {
-      console.error("Submission error:", error);
-      toast.error(error.message || "Failed to create repair request");
-    } finally {
-      setLoading(false);
+      toast.error(error.data?.message || "Failed to create repair request");
     }
   };
 
@@ -215,7 +163,6 @@ export default function AdminCreateEstimate() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <Toaster position="top-center" />
-      {/* {loading && <Loader />} */}
 
       <Card className="mx-auto max-w-4xl">
         <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
@@ -243,7 +190,11 @@ export default function AdminCreateEstimate() {
                     <Command>
                       <CommandInput placeholder="Search name..." />
                       <CommandList>
-                        <CommandEmpty>No name found.</CommandEmpty>
+                        {isLoading ? (
+                          <CommandEmpty>Loading customers...</CommandEmpty>
+                        ) : (
+                          <CommandEmpty>No name found.</CommandEmpty>
+                        )}
                         <CommandGroup>
                           {uniqueUsers.map((user) => (
                             <CommandItem

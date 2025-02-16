@@ -33,6 +33,14 @@ export const repairRequestApi = createApi({
     },
   }),
   endpoints: (builder) => ({
+    // POST - Create new repair request
+    createRepairRequest: builder.mutation<RepairRequest, FormData>({
+      query: (formData) => ({
+        url: "estimate/repair-requests/create/",
+        method: "POST",
+        body: formData,
+      }),
+    }),
     // GET - Fetch a single repair request by ID
     getRepairRequest: builder.query<RepairRequest, number>({
       query: (id) => `estimate/repair-requests/${id}/`,
@@ -50,5 +58,8 @@ export const repairRequestApi = createApi({
 });
 
 // Export hooks for usage in components
-export const { useGetRepairRequestQuery, useUpdateRepairRequestMutation } =
-  repairRequestApi;
+export const {
+  useCreateRepairRequestMutation,
+  useGetRepairRequestQuery,
+  useUpdateRepairRequestMutation,
+} = repairRequestApi;

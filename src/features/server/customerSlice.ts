@@ -41,7 +41,7 @@ export const customerApi = createApi({
   endpoints: (builder) => ({
     // Get all customers
     getCustomers: builder.query<Customer[], void>({
-      query: () => "estimate/customers/",
+      query: () => "/estimate/customers/",
     }),
 
     // Get single customer by ID
