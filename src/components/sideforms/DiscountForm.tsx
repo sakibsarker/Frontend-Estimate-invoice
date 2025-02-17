@@ -10,6 +10,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import toast, { Toaster } from "react-hot-toast";
+import { useCreateDiscountMutation } from "@/features/server/discountSlice";
 
 interface DiscountFormProps {
   open: boolean;
@@ -19,36 +20,24 @@ interface DiscountFormProps {
 export function DiscountForm({ open, onClose }: DiscountFormProps) {
   const [discountName, setDiscountName] = useState("");
   const [discountRate, setDiscountRate] = useState("");
+  const [createDiscount, { isLoading }] = useCreateDiscountMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/estimate/discounts/create/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            discount_name: discountName,
-            discount_rate: parseFloat(discountRate),
-          }),
-        }
-      );
+      const formData = new FormData();
+      formData.append("discount_name", discountName);
+      formData.append("discount_rate", discountRate);
 
-      if (response.ok) {
-        toast.success("Discount created successfully!");
-        setDiscountName("");
-        setDiscountRate("");
-        onClose();
-      } else {
-        throw new Error("Failed to create discount");
-      }
-    } catch (error) {
-      toast.error("Error creating discount");
+      await createDiscount(formData).unwrap();
+
+      toast.success("Discount created successfully!");
+      setDiscountName("");
+      setDiscountRate("");
+      onClose();
+    } catch (error: any) {
+      toast.error(error.data?.message || "Error creating discount");
     }
   };
 
@@ -101,8 +90,9 @@ export function DiscountForm({ open, onClose }: DiscountFormProps) {
                   variant="outline"
                   className="w-full bg-indigo-600 text-white hover:text-gray-300 hover:bg-indigo-800"
                   size="lg"
+                  disabled={isLoading}
                 >
-                  Create Discount
+                  {isLoading ? "Creating..." : "Create Discount"}
                 </Button>
               </div>
             </form>

@@ -1,22 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 // Define the interface for the repair request data
-interface RepairRequest {
+interface Discount {
   id: number;
-  username: string;
-  email: string;
-  phone_number: string;
-  repair_details: string;
-  repair_status: "NEW" | "VIEWED" | "EXPIRED";
-  previous_visits: number;
-  status: "PENDING" | "ACCEPTED" | "REJECTED";
-  vehicle_name: string;
-  estimate_attachments: string;
-  repair_date: string;
-  sms_sent_3_days: boolean;
-  sms_sent_7_days: boolean;
-  created_at: string;
-  updated_at: string;
+  discount_name: string;
+  discount_rate: number;
 }
 
 export const discountApi = createApi({
@@ -33,23 +21,27 @@ export const discountApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    // POST - Create new repair request
-    createRepairRequest: builder.mutation<RepairRequest, FormData>({
+    // POST - Create new Discounts
+    createDiscount: builder.mutation<Discount, FormData>({
       query: (formData) => ({
-        url: "estimate/repair-requests/create/",
+        url: "estimate/discounts/create/",
         method: "POST",
         body: formData,
       }),
     }),
-    // GET - Fetch a single repair request by ID
-    getRepairRequest: builder.query<RepairRequest, number>({
-      query: (id) => `estimate/repair-requests/${id}/`,
+    // Get all Discounts
+    getDiscounts: builder.query<Discount[], void>({
+      query: () => "estimate/discounts/",
+    }),
+    // GET - Fetch a single Discounts by ID
+    getDiscountById: builder.query<Discount, number>({
+      query: (id) => `estimate/discounts/${id}/`,
     }),
 
-    // PATCH - Update a repair request
-    updateRepairRequest: builder.mutation<RepairRequest, RepairRequest>({
+    // PATCH - Update a Discounts
+    updateDiscounts: builder.mutation<Discount, Discount>({
       query: (data) => ({
-        url: `estimate/repair-requests/${data.id}/update/`,
+        url: `estimate/discounts/${data.id}/update/`,
         method: "PATCH",
         body: data,
       }),
@@ -59,7 +51,8 @@ export const discountApi = createApi({
 
 // Export hooks for usage in components
 export const {
-  useCreateRepairRequestMutation,
-  useGetRepairRequestQuery,
-  useUpdateRepairRequestMutation,
+  useCreateDiscountMutation,
+  useGetDiscountsQuery,
+  useGetDiscountByIdQuery,
+  useUpdateDiscountsMutation,
 } = discountApi;

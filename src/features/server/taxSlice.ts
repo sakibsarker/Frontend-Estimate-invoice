@@ -1,22 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 // Define the interface for the repair request data
-interface RepairRequest {
+interface Tax {
   id: number;
-  username: string;
-  email: string;
-  phone_number: string;
-  repair_details: string;
-  repair_status: "NEW" | "VIEWED" | "EXPIRED";
-  previous_visits: number;
-  status: "PENDING" | "ACCEPTED" | "REJECTED";
-  vehicle_name: string;
-  estimate_attachments: string;
-  repair_date: string;
-  sms_sent_3_days: boolean;
-  sms_sent_7_days: boolean;
-  created_at: string;
-  updated_at: string;
+  tax_name: string;
+  tax_rate: number;
 }
 
 export const taxApi = createApi({
@@ -33,23 +21,27 @@ export const taxApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    // POST - Create new repair request
-    createRepairRequest: builder.mutation<RepairRequest, FormData>({
+    // POST - Create new tax
+    createTax: builder.mutation<Tax, FormData>({
       query: (formData) => ({
-        url: "estimate/repair-requests/create/",
+        url: "estimate/taxes/create/",
         method: "POST",
         body: formData,
       }),
     }),
-    // GET - Fetch a single repair request by ID
-    getRepairRequest: builder.query<RepairRequest, number>({
-      query: (id) => `estimate/repair-requests/${id}/`,
+    // Get all tax
+    getTaxs: builder.query<Tax[], void>({
+      query: () => "estimate/taxes/",
+    }),
+    // GET - Fetch a single tax by ID
+    getTaxById: builder.query<Tax, number>({
+      query: (id) => `estimate/taxes/${id}/`,
     }),
 
-    // PATCH - Update a repair request
-    updateRepairRequest: builder.mutation<RepairRequest, RepairRequest>({
+    // PATCH - Update a tax
+    updateTax: builder.mutation<Tax, Tax>({
       query: (data) => ({
-        url: `estimate/repair-requests/${data.id}/update/`,
+        url: `estimate/taxes/${data.id}/update/`,
         method: "PATCH",
         body: data,
       }),
@@ -59,7 +51,8 @@ export const taxApi = createApi({
 
 // Export hooks for usage in components
 export const {
-  useCreateRepairRequestMutation,
-  useGetRepairRequestQuery,
-  useUpdateRepairRequestMutation,
+  useCreateTaxMutation,
+  useGetTaxsQuery,
+  useGetTaxByIdQuery,
+  useUpdateTaxMutation,
 } = taxApi;

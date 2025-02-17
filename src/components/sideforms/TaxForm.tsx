@@ -10,6 +10,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import toast, { Toaster } from "react-hot-toast";
+import { useCreateTaxMutation } from "@/features/server/taxSlice";
 
 interface TaxFormProps {
   open: boolean;
@@ -20,35 +21,24 @@ export function TaxForm({ open, onClose }: TaxFormProps) {
   const [taxName, setTaxName] = useState("");
   const [taxRate, setTaxRate] = useState("");
 
+  const [createTax, { isLoading }] = useCreateTaxMutation();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/estimate/taxes/create/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            tax_name: taxName,
-            tax_rate: parseFloat(taxRate),
-          }),
-        }
-      );
+      const formData = new FormData();
+      formData.append("tax_name", taxName);
+      formData.append("tax_rate", taxRate);
 
-      if (response.ok) {
-        toast.success("Tax created successfully!");
-        setTaxName("");
-        setTaxRate("");
-        onClose();
-      } else {
-        throw new Error("Failed to create tax");
-      }
-    } catch (error) {
-      toast.error("Error creating tax");
+      await createTax(formData).unwrap();
+
+      toast.success("Tax created successfully!");
+      setTaxName("");
+      setTaxRate("");
+      onClose();
+    } catch (error: any) {
+      toast.error(error.data?.message || "Error creating tax");
     }
   };
 
@@ -101,8 +91,9 @@ export function TaxForm({ open, onClose }: TaxFormProps) {
                   variant="outline"
                   className="w-full bg-indigo-600 text-white hover:text-gray-300 hover:bg-indigo-800"
                   size="lg"
+                  disabled={isLoading}
                 >
-                  Create Tax
+                  {isLoading ? "Creating..." : "Create Tax"}
                 </Button>
               </div>
             </form>
