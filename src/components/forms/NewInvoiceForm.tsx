@@ -121,6 +121,8 @@ export default function NewInvoiceForm() {
   const [taxSearch, setTaxSearch] = useState("");
   const [discountSearch, setDiscountSearch] = useState("");
   const [itemSearch, setItemSearch] = useState("");
+  const [message, setMessage] = useState("");
+  const [attachments, setAttachments] = useState<File[]>([]);
 
   const addNewRow = () => {
     const newItem: InvoiceItem = {
@@ -202,6 +204,32 @@ export default function NewInvoiceForm() {
       }
       return total;
     }, 0);
+  };
+
+  const handleSaveDraft = () => {
+    console.log({
+      customerId: selectedCustomer,
+      items: items.map((item) => ({
+        itemId: item.id,
+        selectedItemId: item.selectedItemId,
+        price: item.price,
+        total: calculateRowTotal(item),
+        paid: item.paid ? "Yes" : "No",
+        hasTax: item.hasTax,
+        hasDiscount: item.hasDiscount,
+      })),
+      taxId: selectedTax,
+      discountId: selectedDiscount,
+      subtotal: calculateSubtotal().toFixed(2),
+      total: calculateTotal().toFixed(2),
+      amountDue: calculateAmountDue().toFixed(2),
+      message: message,
+      attachments: attachments.map((file) => ({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      })),
+    });
   };
 
   return (
@@ -823,12 +851,35 @@ export default function NewInvoiceForm() {
                 <Textarea
                   placeholder="Enter a message that will be displayed on the invoice"
                   rows={6}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label>Attachments</Label>
-                <div className="border-2 border-dashed rounded-lg p-6 text-center h-[160px] flex flex-col items-center justify-center">
+                <div
+                  className="border-2 border-dashed rounded-lg p-6 text-center h-[160px] flex flex-col items-center justify-center relative"
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const files = Array.from(e.dataTransfer.files);
+                    setAttachments((prev) => [...prev, ...files]);
+                  }}
+                  onDragOver={(e) => e.preventDefault()}
+                >
+                  <input
+                    type="file"
+                    multiple
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        const files = Array.from(e.target.files);
+                        setAttachments((prev) => [
+                          ...new Set([...prev, ...files]),
+                        ]);
+                      }
+                    }}
+                  />
                   <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center mb-4">
                     <Plus className="h-6 w-6 text-indigo-600" />
                   </div>
@@ -839,6 +890,11 @@ export default function NewInvoiceForm() {
                     PDF, JPG, PNG, CSV, XLS, XLSX
                   </div>
                 </div>
+                {attachments.length > 0 && (
+                  <div className="text-sm mt-2">
+                    Attached files: {attachments.map((f) => f.name).join(", ")}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -854,7 +910,11 @@ export default function NewInvoiceForm() {
               </span>
             </div>
             <div className="flex items-center gap-4">
-              <Button variant="outline" className="text-2xl p-2">
+              <Button
+                variant="outline"
+                className="text-2xl p-2"
+                onClick={handleSaveDraft}
+              >
                 Save Draft
               </Button>
               <Button className="bg-indigo-600 hover:bg-indigo-700 text-2xl p-2">
