@@ -23,6 +23,9 @@ import { DiscountForm } from "../sideforms/DiscountForm";
 import { LaborForm } from "../sideforms/LaborForm";
 import { OtherChargeForm } from "../sideforms/OtherChargeForm";
 import { EditCustomerForm } from "../sideforms/EditCustomerForm";
+import { useGetCustomersQuery } from "@/features/server/customerSlice";
+import { useGetTaxsQuery } from "@/features/server/taxSlice";
+import { useGetDiscountsQuery } from "@/features/server/discountSlice";
 
 interface InvoiceItem {
   id: number;
@@ -81,26 +84,12 @@ export default function NewInvoiceForm() {
   const [showPaymentTermForm, setShowPaymentTermForm] = useState(false);
 
   const { estimateId } = useParams<{ estimateId: string }>();
-  const [taxes, setTaxes] = useState<
-    Array<{ id: number; tax_name: string; tax_rate: string }>
-  >([]);
+  const { data: taxes = [] } = useGetTaxsQuery();
   const [selectedTax, setSelectedTax] = useState<number | null>(null);
 
-  const [discounts, setDiscounts] = useState<
-    Array<{ id: number; discount_name: string; discount_rate: string }>
-  >([]);
+  const { data: discounts = [] } = useGetDiscountsQuery();
   const [selectedDiscount, setSelectedDiscount] = useState<number | null>(null);
-  const [customers, setCustomers] = useState<
-    Array<{
-      id: number;
-      customer_display_name: string;
-      contact_first_name: string;
-      contact_last_name: string;
-      phone_number: string;
-      email_address: string;
-    }>
-  >([]);
-  const [selectedCustomer, setSelectedCustomer] = useState<number | null>(null);
+  const { data: customers = [] } = useGetCustomersQuery();
   const [itemsList, setItemsList] = useState<
     Array<{
       type: string;
@@ -112,73 +101,7 @@ export default function NewInvoiceForm() {
   >([]);
 
   const [editShowCustomer, setEditShowCustomer] = useState(false);
-
-  useEffect(() => {
-    const fetchTaxes = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/estimate/taxes/`,
-          {
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (!response.ok) throw new Error("Failed to fetch taxes");
-        const data = await response.json();
-        setTaxes(data);
-      } catch (error) {
-        console.error("Error fetching taxes:", error);
-      }
-    };
-
-    fetchTaxes();
-  }, []);
-
-  useEffect(() => {
-    const fetchDiscounts = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/estimate/discounts/`,
-          {
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (!response.ok) throw new Error("Failed to fetch discounts");
-        const data = await response.json();
-        setDiscounts(data);
-      } catch (error) {
-        console.error("Error fetching discounts:", error);
-      }
-    };
-    fetchDiscounts();
-  }, []);
-
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/estimate/customers/`,
-          {
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (!response.ok) throw new Error("Failed to fetch customers");
-        const data = await response.json();
-        setCustomers(data);
-      } catch (error) {
-        console.error("Error fetching customers:", error);
-      }
-    };
-    fetchCustomers();
-  }, []);
+  const [selectedCustomer, setSelectedCustomer] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -251,16 +174,13 @@ export default function NewInvoiceForm() {
     let total = subtotal;
 
     if (item.hasTax && selectedTax) {
-      const taxRate = parseFloat(
-        taxes.find((t) => t.id === selectedTax)?.tax_rate || "0"
-      );
+      const taxRate = taxes.find((t) => t.id === selectedTax)?.tax_rate || 0;
       total += subtotal * (taxRate / 100);
     }
 
     if (item.hasDiscount && selectedDiscount) {
-      const discountRate = parseFloat(
-        discounts.find((d) => d.id === selectedDiscount)?.discount_rate || "0"
-      );
+      const discountRate =
+        discounts.find((d) => d.id === selectedDiscount)?.discount_rate || 0;
       total -= subtotal * (discountRate / 100);
     }
 

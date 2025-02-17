@@ -135,7 +135,6 @@ export function EditCustomerForm({
     }
   };
 
-  console.log(customerId);
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <Toaster />
