@@ -10,6 +10,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import toast, { Toaster } from "react-hot-toast";
+import { useCreateItemMutation } from "@/features/server/itemSlice";
 
 interface ItemFormProps {
   open: boolean;
@@ -18,53 +19,36 @@ interface ItemFormProps {
 
 export function ItemForm({ open, onClose }: ItemFormProps) {
   const [itemName, setItemName] = useState("");
+  const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [taxApplied, setTaxApplied] = useState(false);
-  const [taxId, setTaxId] = useState("");
-  const [discountApplied, setDiscountApplied] = useState(false);
-  const [discountId, setDiscountId] = useState("");
+
   const [type, setType] = useState<"LABOR" | "PARTS" | "OTHER">("PARTS");
+
+  const [createItem, { isLoading }] = useCreateItemMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/estimate/new-item/create/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            item_name: itemName,
-            price: parseFloat(price),
-            tax_applied: taxApplied,
-            tax: taxApplied ? parseInt(taxId) : null,
-            discount_applied: discountApplied,
-            discount: discountApplied ? parseInt(discountId) : null,
-            type: type,
-          }),
-        }
-      );
+      const formData = new FormData();
+      formData.append("item_name", itemName);
+      formData.append("description", description);
+      formData.append("price", price);
+      formData.append("type", type);
 
-      if (response.ok) {
-        toast.success("Item created successfully!");
-        // Reset all fields
-        setItemName("");
-        setPrice("");
-        setTaxApplied(false);
-        setTaxId("");
-        setDiscountApplied(false);
-        setDiscountId("");
-        setType("PARTS");
-        onClose();
-      } else {
-        throw new Error("Failed to create item");
-      }
-    } catch (error) {
-      toast.error("Error creating item");
+      await createItem(formData).unwrap();
+
+      toast.success("Item created successfully!");
+      // Reset all fields
+      setItemName("");
+      setDescription("");
+      setPrice("");
+
+      setType("PARTS");
+      onClose();
+    } catch (error: any) {
+      console.error("Error creating item:", error);
+      toast.error(error.data?.message || "Error creating item");
     }
   };
 
@@ -76,7 +60,7 @@ export function ItemForm({ open, onClose }: ItemFormProps) {
           <div className="h-full flex flex-col">
             <SheetHeader className="p-6 border-b">
               <div className="flex items-center justify-between">
-                <SheetTitle>New Inventory Item</SheetTitle>
+                <SheetTitle>New Item</SheetTitle>
               </div>
             </SheetHeader>
             <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
@@ -106,7 +90,17 @@ export function ItemForm({ open, onClose }: ItemFormProps) {
                       placeholder="e.g., Premium Windshield Wiper"
                     />
                   </div>
-
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <textarea
+                      id="description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Item description"
+                      className="flex h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      rows={3}
+                    />
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="price">Price ($) *</Label>
                     <Input
@@ -118,50 +112,6 @@ export function ItemForm({ open, onClose }: ItemFormProps) {
                       placeholder="e.g., 24.99"
                     />
                   </div>
-
-                  {/* Tax Section */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={taxApplied}
-                        onChange={(e) => setTaxApplied(e.target.checked)}
-                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                      <Label className="text-sm font-medium">Apply Tax</Label>
-                    </div>
-                    {taxApplied && (
-                      <Input
-                        placeholder="Tax ID"
-                        value={taxId}
-                        onChange={(e) => setTaxId(e.target.value)}
-                        className="mt-1"
-                      />
-                    )}
-                  </div>
-
-                  {/* Discount Section */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={discountApplied}
-                        onChange={(e) => setDiscountApplied(e.target.checked)}
-                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                      <Label className="text-sm font-medium">
-                        Apply Discount
-                      </Label>
-                    </div>
-                    {discountApplied && (
-                      <Input
-                        placeholder="Discount ID"
-                        value={discountId}
-                        onChange={(e) => setDiscountId(e.target.value)}
-                        className="mt-1"
-                      />
-                    )}
-                  </div>
                 </div>
               </div>
               <div className="border-t p-6 mt-auto">
@@ -170,8 +120,9 @@ export function ItemForm({ open, onClose }: ItemFormProps) {
                   variant="outline"
                   className="w-full bg-indigo-600 text-white hover:text-gray-300 hover:bg-indigo-800"
                   size="lg"
+                  disabled={isLoading}
                 >
-                  Create Item
+                  {isLoading ? "Creating..." : "Create Item"}
                 </Button>
               </div>
             </form>

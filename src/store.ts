@@ -4,10 +4,12 @@ import { repairRequestApi } from "./features/server/repairRequestSlice";
 import { customerApi } from "./features/server/customerSlice";
 import { taxApi } from "./features/server/taxSlice";
 import { discountApi } from "./features/server/discountSlice";
+import { itemApi } from "./features/server/itemSlice";
 
 export const store = configureStore({
   reducer: {
     [repairRequestApi.reducerPath]: repairRequestApi.reducer,
+    [itemApi.reducerPath]: itemApi.reducer,
     [customerApi.reducerPath]: customerApi.reducer,
     [discountApi.reducerPath]: discountApi.reducer,
     [taxApi.reducerPath]: taxApi.reducer,
@@ -17,6 +19,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(repairRequestApi.middleware)
+      .concat(itemApi.middleware)
       .concat(customerApi.middleware)
       .concat(taxApi.middleware)
       .concat(discountApi.middleware),
