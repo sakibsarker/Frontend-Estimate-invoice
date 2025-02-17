@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { X, Trash2, Plus, UserPlus, SquarePlus, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,7 @@ import { EditCustomerForm } from "../sideforms/EditCustomerForm";
 import { useGetCustomersQuery } from "@/features/server/customerSlice";
 import { useGetTaxsQuery } from "@/features/server/taxSlice";
 import { useGetDiscountsQuery } from "@/features/server/discountSlice";
+import { useGetItemsQuery } from "@/features/server/itemSlice";
 
 interface InvoiceItem {
   id: number;
@@ -75,6 +76,7 @@ export default function NewInvoiceForm() {
       paid: true,
     },
   ]);
+  const { estimateId } = useParams<{ estimateId: string }>();
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [showItemForm, setShowItemForm] = useState(false);
   const [showTaxForm, setShowTaxForm] = useState(false);
@@ -82,48 +84,16 @@ export default function NewInvoiceForm() {
   const [showLaborForm, setShowLaborForm] = useState(false);
   const [showOtherChargeForm, setShowOtherChargeForm] = useState(false);
   const [showPaymentTermForm, setShowPaymentTermForm] = useState(false);
-
-  const { estimateId } = useParams<{ estimateId: string }>();
-  const { data: taxes = [] } = useGetTaxsQuery();
-  const [selectedTax, setSelectedTax] = useState<number | null>(null);
-
-  const { data: discounts = [] } = useGetDiscountsQuery();
-  const [selectedDiscount, setSelectedDiscount] = useState<number | null>(null);
+  // redux query for data fetch
   const { data: customers = [] } = useGetCustomersQuery();
-  const [itemsList, setItemsList] = useState<
-    Array<{
-      type: string;
-      id: number;
-      item_name: string;
-      price: string;
-      description: string;
-    }>
-  >([]);
+  const { data: itemsList = [] } = useGetItemsQuery();
+  const { data: taxes = [] } = useGetTaxsQuery();
+  const { data: discounts = [] } = useGetDiscountsQuery();
 
+  const [selectedTax, setSelectedTax] = useState<number | null>(null);
+  const [selectedDiscount, setSelectedDiscount] = useState<number | null>(null);
   const [editShowCustomer, setEditShowCustomer] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<number | null>(null);
-
-  useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/estimate/new-item/`,
-          {
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (!response.ok) throw new Error("Failed to fetch items");
-        const data = await response.json();
-        setItemsList(data);
-      } catch (error) {
-        console.error("Error fetching items:", error);
-      }
-    };
-    fetchItems();
-  }, []);
 
   const addNewRow = () => {
     const newItem: InvoiceItem = {
@@ -160,7 +130,7 @@ export default function NewInvoiceForm() {
           return {
             ...item,
             selectedItemId: Number(selectedValue),
-            price: selectedItem ? parseFloat(selectedItem.price) : 0,
+            price: selectedItem ? selectedItem.price : 0,
             description: selectedItem?.description || "",
           };
         }
