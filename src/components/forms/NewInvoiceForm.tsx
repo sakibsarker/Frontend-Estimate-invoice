@@ -123,6 +123,7 @@ export default function NewInvoiceForm() {
   const [itemSearch, setItemSearch] = useState("");
   const [message, setMessage] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
+  const [salesRep, setSalesRep] = useState("");
 
   const addNewRow = () => {
     const newItem: InvoiceItem = {
@@ -209,12 +210,14 @@ export default function NewInvoiceForm() {
   const handleSaveDraft = () => {
     console.log({
       customerId: selectedCustomer,
+      estimateNumber: estimateId,
       items: items.map((item) => ({
         itemId: item.id,
         selectedItemId: item.selectedItemId,
+        quantity: item.quantity,
         price: item.price,
         total: calculateRowTotal(item),
-        paid: item.paid ? "Yes" : "No",
+        paid: item.paid,
         hasTax: item.hasTax,
         hasDiscount: item.hasDiscount,
       })),
@@ -224,6 +227,7 @@ export default function NewInvoiceForm() {
       total: calculateTotal().toFixed(2),
       amountDue: calculateAmountDue().toFixed(2),
       message: message,
+      salesRep: salesRep,
       attachments: attachments.map((file) => ({
         name: file.name,
         size: file.size,
@@ -390,7 +394,11 @@ export default function NewInvoiceForm() {
                   </Label>
                   <Label>Estimate number</Label>
                 </div>
-                <Input defaultValue={estimateId} />
+                <Input
+                  value={estimateId}
+                  readOnly
+                  className="bg-gray-100 cursor-not-allowed"
+                />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center">
@@ -418,7 +426,10 @@ export default function NewInvoiceForm() {
                   </Label>
                   <Label>Sales rep</Label>
                 </div>
-                <Input />
+                <Input
+                  value={salesRep}
+                  onChange={(e) => setSalesRep(e.target.value)}
+                />
               </div>
             </div>
           </div>
