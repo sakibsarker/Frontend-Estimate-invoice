@@ -118,6 +118,9 @@ export default function NewInvoiceForm() {
   const [editShowCustomer, setEditShowCustomer] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<number | null>(null);
   const [customerSearch, setCustomerSearch] = useState("");
+  const [taxSearch, setTaxSearch] = useState("");
+  const [discountSearch, setDiscountSearch] = useState("");
+  const [itemSearch, setItemSearch] = useState("");
 
   const addNewRow = () => {
     const newItem: InvoiceItem = {
@@ -431,40 +434,78 @@ export default function NewInvoiceForm() {
                       <Label className="text-sm font-medium mb-1 block">
                         Item
                       </Label>
-                      <Select
-                        value={item.selectedItemId?.toString() || ""}
-                        onValueChange={(value) =>
-                          handleItemSelect(item.id, value)
-                        }
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Search items" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {itemsList
-                            .filter(
-                              (listItem) =>
-                                listItem.type === item.type.toUpperCase()
-                            )
-                            .map((listItem) => (
-                              <SelectItem
-                                key={listItem.id}
-                                value={listItem.id.toString()}
-                              >
-                                <div className="flex justify-between w-full">
-                                  <span>{listItem.item_name}</span>
-                                  <span>${listItem.price}</span>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          <SelectItem value="add-item">
-                            <div className="flex items-center gap-2 text-indigo-600">
-                              <SquarePlus className="h-4 w-4" />
-                              Add New Item
-                            </div>
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full justify-between"
+                          >
+                            {item.selectedItemId
+                              ? itemsList.find(
+                                  (i) => i.id === item.selectedItemId
+                                )?.item_name
+                              : "Search items..."}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0">
+                          <Command>
+                            <CommandInput
+                              placeholder="Search items..."
+                              value={itemSearch}
+                              onValueChange={setItemSearch}
+                            />
+                            <CommandList>
+                              <CommandEmpty>No items found.</CommandEmpty>
+                              <CommandGroup>
+                                {itemsList
+                                  .filter(
+                                    (listItem) =>
+                                      listItem.type ===
+                                        item.type.toUpperCase() &&
+                                      listItem.item_name
+                                        .toLowerCase()
+                                        .includes(itemSearch.toLowerCase())
+                                  )
+                                  .map((listItem) => (
+                                    <CommandItem
+                                      key={listItem.id}
+                                      value={listItem.item_name}
+                                      onSelect={() =>
+                                        handleItemSelect(
+                                          item.id,
+                                          listItem.id.toString()
+                                        )
+                                      }
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          item.selectedItemId === listItem.id
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                      <div className="flex justify-between w-full">
+                                        <span>{listItem.item_name}</span>
+                                        <span>${listItem.price}</span>
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                                <CommandItem
+                                  value="add-item"
+                                  onSelect={() => setShowItemForm(true)}
+                                  className="text-indigo-600"
+                                >
+                                  <SquarePlus className="mr-2 h-4 w-4" />
+                                  Add New Item
+                                </CommandItem>
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </div>
 
                     {/* Description */}
@@ -619,76 +660,141 @@ export default function NewInvoiceForm() {
               <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
                 <span>Tax</span>
                 <div className="w-[200px]">
-                  <Select
-                    value={selectedTax?.toString() || ""}
-                    onValueChange={(value) => {
-                      if (value === "add-tax") {
-                        setShowTaxForm(true);
-                      } else {
-                        setSelectedTax(Number(value));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select tax rate" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {taxes.map((tax) => (
-                        <SelectItem key={tax.id} value={tax.id.toString()}>
-                          {tax.tax_name} ({tax.tax_rate}%)
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="add-tax">
-                        <div className="flex items-center gap-2 text-indigo-600">
-                          <Plus className="h-4 w-4" />
-                          Add Tax Rate
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between"
+                      >
+                        {selectedTax
+                          ? taxes.find((t) => t.id === selectedTax)?.tax_name
+                          : "Select tax..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandInput
+                          placeholder="Search taxes..."
+                          value={taxSearch}
+                          onValueChange={setTaxSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>No taxes found.</CommandEmpty>
+                          <CommandGroup>
+                            {taxes
+                              .filter((tax) =>
+                                tax.tax_name
+                                  .toLowerCase()
+                                  .includes(taxSearch.toLowerCase())
+                              )
+                              .map((tax) => (
+                                <CommandItem
+                                  key={tax.id}
+                                  value={tax.tax_name}
+                                  onSelect={() => setSelectedTax(tax.id)}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      selectedTax === tax.id
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {tax.tax_name} ({tax.tax_rate}%)
+                                </CommandItem>
+                              ))}
+                            <CommandItem
+                              value="add-tax"
+                              onSelect={() => setShowTaxForm(true)}
+                              className="text-indigo-600"
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Add Tax Rate
+                            </CommandItem>
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <span className="text-right">
                   {selectedTax
-                    ? `$${
+                    ? `${
                         taxes.find((t) => t.id === selectedTax)?.tax_rate || 0
                       }%`
-                    : "$0.00"}
+                    : "0%"}
                 </span>
               </div>
 
               <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
                 <span>Discount</span>
                 <div className="w-[200px]">
-                  <Select
-                    value={selectedDiscount?.toString() || ""}
-                    onValueChange={(value) => {
-                      if (value === "add-discount") {
-                        setShowDiscountForm(true);
-                      } else {
-                        setSelectedDiscount(Number(value));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select discount" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {discounts.map((discount) => (
-                        <SelectItem
-                          key={discount.id}
-                          value={discount.id.toString()}
-                        >
-                          {discount.discount_name} ({discount.discount_rate}%)
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="add-discount">
-                        <div className="flex items-center gap-2 text-indigo-600">
-                          <Plus className="h-4 w-4" />
-                          Add Discount
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between"
+                      >
+                        {selectedDiscount
+                          ? discounts.find((d) => d.id === selectedDiscount)
+                              ?.discount_name
+                          : "Select discount..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandInput
+                          placeholder="Search discounts..."
+                          value={discountSearch}
+                          onValueChange={setDiscountSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>No discounts found.</CommandEmpty>
+                          <CommandGroup>
+                            {discounts
+                              .filter((discount) =>
+                                discount.discount_name
+                                  .toLowerCase()
+                                  .includes(discountSearch.toLowerCase())
+                              )
+                              .map((discount) => (
+                                <CommandItem
+                                  key={discount.id}
+                                  value={discount.discount_name}
+                                  onSelect={() =>
+                                    setSelectedDiscount(discount.id)
+                                  }
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      selectedDiscount === discount.id
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {discount.discount_name} (
+                                  {discount.discount_rate}%)
+                                </CommandItem>
+                              ))}
+                            <CommandItem
+                              value="add-discount"
+                              onSelect={() => setShowDiscountForm(true)}
+                              className="text-indigo-600"
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Add Discount
+                            </CommandItem>
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <span className="text-right">
                   {selectedDiscount
@@ -696,7 +802,7 @@ export default function NewInvoiceForm() {
                         discounts.find((d) => d.id === selectedDiscount)
                           ?.discount_rate || 0
                       }%`
-                    : "$0.00"}
+                    : "0%"}
                 </span>
               </div>
               <div className="flex justify-between border-t pt-4 font-semibold">
