@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { X, Trash2, Plus, UserPlus, SquarePlus, Pencil } from "lucide-react";
+import {
+  X,
+  Trash2,
+  Plus,
+  UserPlus,
+  SquarePlus,
+  Pencil,
+  ChevronsUpDown,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +35,21 @@ import { useGetCustomersQuery } from "@/features/server/customerSlice";
 import { useGetTaxsQuery } from "@/features/server/taxSlice";
 import { useGetDiscountsQuery } from "@/features/server/discountSlice";
 import { useGetItemsQuery } from "@/features/server/itemSlice";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface InvoiceItem {
   id: number;
@@ -94,6 +117,7 @@ export default function NewInvoiceForm() {
   const [selectedDiscount, setSelectedDiscount] = useState<number | null>(null);
   const [editShowCustomer, setEditShowCustomer] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<number | null>(null);
+  const [customerSearch, setCustomerSearch] = useState("");
 
   const addNewRow = () => {
     const newItem: InvoiceItem = {
@@ -197,38 +221,71 @@ export default function NewInvoiceForm() {
             </div>
             <div className="flex gap-2 items-center">
               <div className="flex-1">
-                <Select
-                  value={selectedCustomer?.toString() || ""}
-                  onValueChange={(value) => {
-                    if (value === "add-customer") {
-                      setShowCustomerForm(true);
-                    } else {
-                      setSelectedCustomer(Number(value));
-                    }
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select customer" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {customers.map((customer) => (
-                      <SelectItem
-                        key={customer.id}
-                        value={customer.id.toString()}
-                      >
-                        <div className="flex flex-col">
-                          <span>{customer.customer_display_name}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                    <SelectItem value="add-customer">
-                      <div className="flex items-center gap-2 text-indigo-600">
-                        <UserPlus className="h-4 w-4" />
-                        Add New Customer
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="w-full justify-between"
+                    >
+                      {selectedCustomer
+                        ? customers.find((c) => c.id === selectedCustomer)
+                            ?.customer_display_name
+                        : "Select customer..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Command>
+                      <CommandInput
+                        placeholder="Search customers..."
+                        value={customerSearch}
+                        onValueChange={setCustomerSearch}
+                      />
+                      <CommandList>
+                        <CommandEmpty>No customers found.</CommandEmpty>
+                        <CommandGroup>
+                          {customers
+                            .filter((customer) =>
+                              customer.customer_display_name
+                                ?.toLowerCase()
+                                .includes(customerSearch.toLowerCase())
+                            )
+                            .map((customer) => (
+                              <CommandItem
+                                key={customer.id}
+                                value={customer.customer_display_name}
+                                onSelect={() =>
+                                  setSelectedCustomer(customer.id)
+                                }
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedCustomer === customer.id
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {customer.customer_display_name}
+                                <span className="text-xs text-muted-foreground">
+                                  #{customer.email_address}
+                                </span>
+                              </CommandItem>
+                            ))}
+                          <CommandItem
+                            value="add-customer"
+                            onSelect={() => setShowCustomerForm(true)}
+                            className="text-indigo-600"
+                          >
+                            <UserPlus className="mr-2 h-4 w-4" />
+                            Add New Customer
+                          </CommandItem>
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
               <Button
                 variant="outline"
