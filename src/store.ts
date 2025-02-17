@@ -5,6 +5,7 @@ import { customerApi } from "./features/server/customerSlice";
 import { taxApi } from "./features/server/taxSlice";
 import { discountApi } from "./features/server/discountSlice";
 import { itemApi } from "./features/server/itemSlice";
+import { invoiceApi } from "./features/server/invoiceSlice";
 
 export const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ export const store = configureStore({
     [customerApi.reducerPath]: customerApi.reducer,
     [discountApi.reducerPath]: discountApi.reducer,
     [taxApi.reducerPath]: taxApi.reducer,
+    [invoiceApi.reducerPath]: invoiceApi.reducer,
   },
   // Adding the api middleware enables caching, invalidation, polling,
   // and other useful features of RTK Query.
@@ -22,7 +24,8 @@ export const store = configureStore({
       .concat(itemApi.middleware)
       .concat(customerApi.middleware)
       .concat(taxApi.middleware)
-      .concat(discountApi.middleware),
+      .concat(discountApi.middleware)
+      .concat(invoiceApi.middleware),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
