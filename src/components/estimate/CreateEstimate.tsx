@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import Vehicle_Database from "@/lib/Vehicle_Database.json";
 import { useCreateRepairRequestMutation } from "@/features/server/repairRequestSlice";
+import { useNavigate } from "react-router";
 import toast, { Toaster } from "react-hot-toast";
 
 export default function CreateEstimate() {
@@ -16,6 +17,8 @@ export default function CreateEstimate() {
   const [selectedYear, setSelectedYear] = useState<string>("");
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
+
+  const navigate = useNavigate();
 
   // Parse the vehicle database to create a structured object
   const vehicleOptions = Vehicle_Database.reduce((acc, vehicle) => {
@@ -48,15 +51,9 @@ export default function CreateEstimate() {
       await createRepairRequest(formData).unwrap();
 
       toast.success("Estimate request submitted successfully!");
-
-      // Reset form
-      event.currentTarget.reset();
-      setRepairDate(undefined);
-      setSelectedYear("");
-      setSelectedMake("");
-      setSelectedModel("");
+      // Refresh the page after success
+      window.location.reload();
     } catch (error: any) {
-      console.error("Submission error:", error);
       // Show detailed error message from server if available
       toast.error(error.data?.message || "Failed to submit estimate request");
     }
@@ -68,8 +65,8 @@ export default function CreateEstimate() {
 
       <Card className="mx-auto max-w-4xl">
         <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
-          <CardTitle className="text-2xl font-normal">
-            Estimate Request Form:
+          <CardTitle className="text-2xl font-semibold">
+            Estimate Request Form
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
@@ -212,12 +209,12 @@ export default function CreateEstimate() {
                 className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600"
                 disabled={isLoading}
               >
-                {isLoading ? "Submitting..." : "Submit Estimate Request"}
+                {isLoading ? "Submitting..." : "Submit Your Estimate"}
               </Button>
               <Button
-                type="button"
                 variant="destructive"
-                className="w-full sm:w-auto bg-blue-800 hover:bg-blue-900"
+                className="bg-red-600 hover:bg-red-500"
+                onClick={() => navigate("/estimate")}
               >
                 Close
               </Button>

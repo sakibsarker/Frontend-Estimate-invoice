@@ -51,6 +51,9 @@ import {
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCreateInvoiceMutation } from "@/features/server/invoiceSlice";
+import { useGetRepairRequestByIDQuery } from "@/features/server/repairRequestSlice";
+
+import { toast } from "react-hot-toast";
 
 interface InvoiceItem {
   id: number;
@@ -63,6 +66,14 @@ interface InvoiceItem {
   hasDiscount: boolean;
   paid: boolean;
 }
+
+const formatDate = (isoString: string) => {
+  const date = new Date(isoString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 export default function NewInvoiceForm() {
   const [items, setItems] = useState<InvoiceItem[]>([
@@ -101,6 +112,7 @@ export default function NewInvoiceForm() {
     },
   ]);
   const { estimateId } = useParams<{ estimateId: string }>();
+  const [createInvoice, { isLoading }] = useCreateInvoiceMutation();
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [showItemForm, setShowItemForm] = useState(false);
   const [showTaxForm, setShowTaxForm] = useState(false);
@@ -113,6 +125,9 @@ export default function NewInvoiceForm() {
   const { data: itemsList = [] } = useGetItemsQuery();
   const { data: taxes = [] } = useGetTaxsQuery();
   const { data: discounts = [] } = useGetDiscountsQuery();
+  const { data: estimateData } = useGetRepairRequestByIDQuery(
+    Number(estimateId)
+  );
 
   const [selectedTax, setSelectedTax] = useState<number | null>(null);
   const [selectedDiscount, setSelectedDiscount] = useState<number | null>(null);
@@ -208,33 +223,53 @@ export default function NewInvoiceForm() {
     }, 0);
   };
 
-  const handleSaveDraft = () => {
-    console.log({
-      customerId: selectedCustomer,
-      estimateNumber: estimateId,
-      items: items.map((item) => ({
-        itemId: item.id,
-        selectedItemId: item.selectedItemId,
+  const handleSaveDraft = async () => {
+    const toastId = toast.loading("Saving draft...");
+    try {
+      if (!selectedCustomer) throw new Error("Customer selection is required");
+      if (items.length === 0) throw new Error("At least one item is required");
+
+      const formData = new FormData();
+
+      // 1. Create nested JSON structure for invoice_items
+      const invoiceItems = items.map((item) => ({
+        item_id: item.selectedItemId,
         quantity: item.quantity,
-        price: item.price,
-        total: calculateRowTotal(item),
+        price: Number(Number(item.price).toFixed(2)),
+        has_tax: item.hasTax,
+        has_discount: item.hasDiscount,
         paid: item.paid,
-        hasTax: item.hasTax,
-        hasDiscount: item.hasDiscount,
-      })),
-      taxId: selectedTax,
-      discountId: selectedDiscount,
-      subtotal: calculateSubtotal().toFixed(2),
-      total: calculateTotal().toFixed(2),
-      amountDue: calculateAmountDue().toFixed(2),
-      message: message,
-      salesRep: salesRep,
-      attachments: attachments.map((file) => ({
-        name: file.name,
-        size: file.size,
-        type: file.type,
-      })),
-    });
+      }));
+
+      // 2. Append as JSON string
+      formData.append("invoice_items", JSON.stringify(invoiceItems));
+
+      // 3. Append other fields
+      formData.append("customerId", selectedCustomer.toString());
+      formData.append("invoice_status", "DRAFT");
+      formData.append("payment_method", "CREDIT_CARD");
+      formData.append("po_number", "PO-12345");
+
+      // Optional fields
+      if (estimateId) formData.append("repair_request", estimateId);
+      if (selectedDiscount)
+        formData.append("discount", selectedDiscount.toString());
+      if (selectedTax) formData.append("tax", selectedTax.toString());
+      if (salesRep) formData.append("sales_rep", salesRep);
+      if (message) formData.append("message_on_invoice", message);
+
+      // 4. Add attachments
+      attachments.forEach((file) => {
+        formData.append("attachments", file);
+      });
+
+      await createInvoice(formData).unwrap();
+      toast.success("Draft saved successfully!", { id: toastId });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to save draft";
+      toast.error(errorMessage, { id: toastId });
+    }
   };
 
   return (
@@ -408,7 +443,15 @@ export default function NewInvoiceForm() {
                   </Label>
                   <Label>Estimate date</Label>
                 </div>
-                <Input type="date" defaultValue="2025-01-07" />
+                <Input
+                  type="date"
+                  defaultValue={
+                    estimateData?.created_at
+                      ? formatDate(estimateData.created_at)
+                      : ""
+                  }
+                  readOnly
+                />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center">
@@ -417,7 +460,16 @@ export default function NewInvoiceForm() {
                   </Label>
                   <Label>Expiration date</Label>
                 </div>
-                <Input type="date" defaultValue="2025-01-07" />
+
+                <Input
+                  type="date"
+                  defaultValue={
+                    estimateData?.created_at
+                      ? formatDate(estimateData.repair_date)
+                      : ""
+                  }
+                  readOnly
+                />
               </div>
 
               <div className="space-y-2">
@@ -926,8 +978,9 @@ export default function NewInvoiceForm() {
                 variant="outline"
                 className="text-2xl p-2"
                 onClick={handleSaveDraft}
+                disabled={isLoading}
               >
-                Save Draft
+                {isLoading ? "Saving" : "Save Draft"}
               </Button>
               <Button className="bg-indigo-600 hover:bg-indigo-700 text-2xl p-2">
                 Review & Send

@@ -51,14 +51,15 @@ export default function AdminCreateEstimate() {
 
   const navigate = useNavigate();
 
-  // Replace useEffect with RTK Query
+  //  RTK Query
   const {
     data: customers,
     isLoading,
     error: customersError,
   } = useGetCustomersQuery();
 
-  const [createRepairRequest] = useCreateRepairRequestMutation();
+  const [createRepairRequest, { isLoading: isLoadingRepairRequest }] =
+    useCreateRepairRequestMutation();
 
   useEffect(() => {
     if (customers) {
@@ -166,8 +167,8 @@ export default function AdminCreateEstimate() {
 
       <Card className="mx-auto max-w-4xl">
         <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
-          <CardTitle className="text-2xl font-normal">
-            Estimate Request Form:
+          <CardTitle className="text-2xl font-semibold">
+            Create Estimate
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
@@ -353,16 +354,18 @@ export default function AdminCreateEstimate() {
             <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
               <Button
                 variant="secondary"
-                className="bg-green-500 text-white hover:bg-green-600"
+                className="bg-black/80 text-white hover:bg-black/90"
                 onClick={() => navigate("/estimate")}
               >
-                Back to home page
+                Go Back
               </Button>
+
               <Button
                 type="submit"
                 className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600"
+                disabled={isLoadingRepairRequest}
               >
-                Submit Estimate
+                {isLoadingRepairRequest ? "Submitting..." : "Submit Estimate"}
               </Button>
 
               <Button

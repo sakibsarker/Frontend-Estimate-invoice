@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Printer,
-  MessageSquare,
   Phone,
   Mail,
   FileText,
@@ -12,7 +10,7 @@ import {
   Eye,
   Download,
 } from "lucide-react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, Link } from "react-router";
 import toast, { Toaster } from "react-hot-toast";
 import Loader from "../Loader";
 import {
@@ -74,12 +72,9 @@ export default function ViewEstimateRequest() {
       {!isLoading && (
         <Card className="mx-auto max-w-4xl">
           <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
-            <CardTitle className="text-2xl font-normal">
-              Estimate Request:
+            <CardTitle className="text-2xl font-semibold">
+              Estimate Request {estimateData?.id}
             </CardTitle>
-            <Button variant="ghost" size="icon" className="text-gray-500">
-              <Printer className="h-5 w-5" />
-            </Button>
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-6">
@@ -134,13 +129,6 @@ export default function ViewEstimateRequest() {
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-500">Total Spending:</div>
                     <div>$0</div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-500 flex items-center gap-1">
-                      Message Customer
-                      <MessageSquare className="h-4 w-4" />
-                    </div>
                   </div>
                 </div>
               </div>
@@ -230,22 +218,30 @@ export default function ViewEstimateRequest() {
               <div className="relative flex items-center gap-4 pt-4">
                 <Button
                   variant="secondary"
-                  className="bg-green-500 text-white hover:bg-green-600"
+                  className="bg-black/80 text-white hover:bg-black/90"
                   onClick={() => navigate("/estimate")}
                 >
-                  Back to home page
+                  Go Back
                 </Button>
                 <div className="relative">
-                  <Button
-                    className="bg-orange-500 hover:bg-orange-600"
-                    onClick={() => updateStatus("ACCEPTED")}
-                  >
-                    Prepare an Estimate
-                  </Button>
+                  {estimateData?.status === "ACCEPTED" ? (
+                    <Link to={`/estimate/${estimateId}/invoice/new`}>
+                      <Button className="bg-orange-500 hover:bg-orange-600">
+                        View Invoice
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button
+                      className="bg-green-500 hover:bg-green-500/90"
+                      onClick={() => updateStatus("ACCEPTED")}
+                    >
+                      Prepare an Estimate
+                    </Button>
+                  )}
                 </div>
                 <Button
                   variant="destructive"
-                  className="bg-blue-600 hover:bg-blue-900"
+                  className="bg-red-600 hover:bg-red-500"
                   onClick={() => updateStatus("REJECTED")}
                 >
                   Reject

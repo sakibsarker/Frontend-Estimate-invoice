@@ -144,7 +144,7 @@ export default function NewInvoiceForm() {
   const addNewRow = () => {
     const newItem: InvoiceItem = {
       id: items.length + 1,
-      type: "labor",
+      type: "parts",
       selectedItemId: null,
       description: "",
       quantity: 1,
@@ -658,22 +658,6 @@ export default function NewInvoiceForm() {
                           )
                         }
                         className="w-32"
-                      />
-                    </div>
-
-                    {/* Checkboxes */}
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium block">Paid</Label>
-                      <Checkbox
-                        checked={item.paid}
-                        onCheckedChange={(checked) =>
-                          setItems(
-                            items.map((i) =>
-                              i.id === item.id ? { ...i, paid: !!checked } : i
-                            )
-                          )
-                        }
-                        className="h-5 w-5 rounded-md border-2 border-gray-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
                       />
                     </div>
 
