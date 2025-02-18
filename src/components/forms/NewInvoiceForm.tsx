@@ -50,6 +50,7 @@ import {
 } from "@/components/ui/command";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCreateInvoiceMutation } from "@/features/server/invoiceSlice";
 
 interface InvoiceItem {
   id: number;
@@ -100,6 +101,8 @@ export default function NewInvoiceForm() {
     },
   ]);
   const { estimateId } = useParams<{ estimateId: string }>();
+  const [createInvoice, { isLoading, isError, isSuccess }] =
+    useCreateInvoiceMutation();
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [showItemForm, setShowItemForm] = useState(false);
   const [showTaxForm, setShowTaxForm] = useState(false);
@@ -207,33 +210,35 @@ export default function NewInvoiceForm() {
     }, 0);
   };
 
-  const handleSaveDraft = () => {
-    console.log({
-      customerId: selectedCustomer,
-      estimateNumber: estimateId,
-      items: items.map((item) => ({
-        itemId: item.id,
-        selectedItemId: item.selectedItemId,
-        quantity: item.quantity,
-        price: item.price,
-        total: calculateRowTotal(item),
-        paid: item.paid,
-        hasTax: item.hasTax,
-        hasDiscount: item.hasDiscount,
-      })),
-      taxId: selectedTax,
-      discountId: selectedDiscount,
-      subtotal: calculateSubtotal().toFixed(2),
-      total: calculateTotal().toFixed(2),
-      amountDue: calculateAmountDue().toFixed(2),
-      message: message,
-      salesRep: salesRep,
-      attachments: attachments.map((file) => ({
-        name: file.name,
-        size: file.size,
-        type: file.type,
-      })),
-    });
+  const handleSaveDraft = async () => {
+    try {
+      const payload = {
+        customerId: selectedCustomer,
+        repair_request: estimateId,
+        discount: selectedDiscount,
+        tax: selectedTax,
+        invoice_status: "DRAFT",
+        payment_method: "CREDIT_CARD",
+        sales_rep: salesRep || undefined,
+        po_number: "PO-12345",
+        message_on_invoice: message || undefined,
+        invoice_items: items.map((item) => ({
+          item: item.selectedItemId,
+          quantity: item.quantity,
+          price: item.price,
+          has_tax: item.hasTax,
+          has_discount: item.hasDiscount,
+          paid: item.paid,
+        })),
+      };
+
+      const response = await createInvoice(payload).unwrap();
+      console.log("Draft saved successfully:", response);
+      alert("Draft saved successfully!");
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      alert("Failed to save draft. Check console for details.");
+    }
   };
 
   return (

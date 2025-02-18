@@ -45,6 +45,32 @@ export interface InvoiceResponse {
   // ... other response fields
 }
 
+interface CreateInvoicePayload {
+  customerId: number;
+  repair_request?: number | null;
+  discount: number;
+  tax: number;
+  invoice_status:
+    | "DRAFT"
+    | "SENT"
+    | "PAID"
+    | "UNPAID"
+    | "OVERDUE"
+    | "CANCELLED";
+  payment_method: "CASH" | "CREDIT_CARD" | "ONLINE";
+  sales_rep: string;
+  po_number?: string;
+  message_on_invoice: string;
+  invoice_items: Array<{
+    item: number;
+    quantity: number;
+    price: number;
+    has_tax: boolean;
+    has_discount: boolean;
+    paid: boolean;
+  }>;
+}
+
 export const invoiceApi = createApi({
   reducerPath: "invoiceApi",
   baseQuery: fetchBaseQuery({
@@ -59,40 +85,42 @@ export const invoiceApi = createApi({
   }),
   endpoints: (builder) => ({
     // Get all customers
-    getCustomers: builder.query<Invoice[], void>({
-      query: () => "estimate/customers/",
+    getInvoice: builder.query<Invoice[], void>({
+      query: () => "estimate/newinvoices/",
     }),
 
     // Get single customer by ID
-    getCustomerById: builder.query<Invoice, number>({
-      query: (id) => `estimate/customers/${id}/`,
+    getInvoiceById: builder.query<Invoice, number>({
+      query: (id) => `estimate/newinvoices/${id}/`,
     }),
 
     // Create new customer
-    createCustomer: builder.mutation<Invoice, Omit<Invoice, "id">>({
-      query: (newInvoice) => ({
+    createInvoice: builder.mutation<Invoice, any>({
+      query: (payload) => ({
         url: "estimate/newinvoices/create/",
         method: "POST",
-        body: newInvoice,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       }),
     }),
 
     // Update customer
-    updateCustomer: builder.mutation<
-      Invoice,
-      Partial<Invoice> & { id: number }
-    >({
-      query: ({ id, ...patch }) => ({
-        url: `/estimate/customers/${id}/update/`,
-        method: "PUT",
-        body: patch,
-      }),
-    }),
+    updateInvoice: builder.mutation<Invoice, Partial<Invoice> & { id: number }>(
+      {
+        query: ({ id, ...patch }) => ({
+          url: `/estimate/newinvoices/${id}/update/`,
+          method: "PUT",
+          body: patch,
+        }),
+      }
+    ),
 
     // Delete customer
-    deleteCustomer: builder.mutation<void, number>({
+    deleteInvoice: builder.mutation<void, number>({
       query: (id) => ({
-        url: `estimate/customers/${id}/`,
+        url: `estimate/newinvoices/${id}/`,
         method: "DELETE",
       }),
     }),
@@ -100,9 +128,9 @@ export const invoiceApi = createApi({
 });
 
 export const {
-  useGetCustomersQuery,
-  useGetCustomerByIdQuery,
-  useCreateCustomerMutation,
-  useUpdateCustomerMutation,
-  useDeleteCustomerMutation,
+  useGetInvoiceQuery,
+  useLazyGetInvoiceByIdQuery,
+  useCreateInvoiceMutation,
+  useUpdateInvoiceMutation,
+  useDeleteInvoiceMutation,
 } = invoiceApi;

@@ -1,7 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { X, Trash2, Plus, UserPlus, SquarePlus, Pencil } from "lucide-react";
+import { useState } from "react";
+import {
+  X,
+  Trash2,
+  Plus,
+  UserPlus,
+  SquarePlus,
+  Pencil,
+  ChevronsUpDown,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,11 +26,31 @@ import { CustomerForm } from "../sideforms/CustomerForm";
 import { ItemForm } from "../sideforms/ItemForm";
 import { TaxForm } from "../sideforms/TaxForm";
 import { PaymentTermForm } from "../sideforms/PaymentTermForm";
-import { useNavigate } from "react-router";
+import { useParams } from "react-router";
 import { DiscountForm } from "../sideforms/DiscountForm";
 import { LaborForm } from "../sideforms/LaborForm";
 import { OtherChargeForm } from "../sideforms/OtherChargeForm";
 import { EditCustomerForm } from "../sideforms/EditCustomerForm";
+import { useGetCustomersQuery } from "@/features/server/customerSlice";
+import { useGetTaxsQuery } from "@/features/server/taxSlice";
+import { useGetDiscountsQuery } from "@/features/server/discountSlice";
+import { useGetItemsQuery } from "@/features/server/itemSlice";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useCreateInvoiceMutation } from "@/features/server/invoiceSlice";
 
 interface InvoiceItem {
   id: number;
@@ -36,7 +64,7 @@ interface InvoiceItem {
   paid: boolean;
 }
 
-export default function NewManualInvoiceForm() {
+export default function NewInvoiceForm() {
   const [items, setItems] = useState<InvoiceItem[]>([
     {
       id: 1,
@@ -72,137 +100,31 @@ export default function NewManualInvoiceForm() {
       paid: true,
     },
   ]);
+  const { estimateId } = useParams<{ estimateId: string }>();
   const [showCustomerForm, setShowCustomerForm] = useState(false);
-
   const [showItemForm, setShowItemForm] = useState(false);
   const [showTaxForm, setShowTaxForm] = useState(false);
   const [showDiscountForm, setShowDiscountForm] = useState(false);
   const [showLaborForm, setShowLaborForm] = useState(false);
   const [showOtherChargeForm, setShowOtherChargeForm] = useState(false);
   const [showPaymentTermForm, setShowPaymentTermForm] = useState(false);
+  // redux query for data fetch
+  const { data: customers = [] } = useGetCustomersQuery();
+  const { data: itemsList = [] } = useGetItemsQuery();
+  const { data: taxes = [] } = useGetTaxsQuery();
+  const { data: discounts = [] } = useGetDiscountsQuery();
 
-  const [taxes, setTaxes] = useState<
-    Array<{ id: number; tax_name: string; tax_rate: string }>
-  >([]);
   const [selectedTax, setSelectedTax] = useState<number | null>(null);
-
-  const [discounts, setDiscounts] = useState<
-    Array<{ id: number; discount_name: string; discount_rate: string }>
-  >([]);
   const [selectedDiscount, setSelectedDiscount] = useState<number | null>(null);
-  const [customers, setCustomers] = useState<
-    Array<{
-      id: number;
-      customer_display_name: string;
-      contact_first_name: string;
-      contact_last_name: string;
-      phone_number: string;
-      email_address: string;
-    }>
-  >([]);
-  const [selectedCustomer, setSelectedCustomer] = useState<number | null>(null);
-  const [itemsList, setItemsList] = useState<
-    Array<{
-      type: string;
-      id: number;
-      item_name: string;
-      price: string;
-      description: string;
-    }>
-  >([]);
-
   const [editShowCustomer, setEditShowCustomer] = useState(false);
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchTaxes = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/estimate/taxes/`,
-          {
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (!response.ok) throw new Error("Failed to fetch taxes");
-        const data = await response.json();
-        setTaxes(data);
-      } catch (error) {
-        console.error("Error fetching taxes:", error);
-      }
-    };
-
-    fetchTaxes();
-  }, []);
-
-  useEffect(() => {
-    const fetchDiscounts = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/estimate/discounts/`,
-          {
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (!response.ok) throw new Error("Failed to fetch discounts");
-        const data = await response.json();
-        setDiscounts(data);
-      } catch (error) {
-        console.error("Error fetching discounts:", error);
-      }
-    };
-    fetchDiscounts();
-  }, []);
-
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/estimate/customers/`,
-          {
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (!response.ok) throw new Error("Failed to fetch customers");
-        const data = await response.json();
-        setCustomers(data);
-      } catch (error) {
-        console.error("Error fetching customers:", error);
-      }
-    };
-    fetchCustomers();
-  }, []);
-
-  useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/estimate/new-item/`,
-          {
-            headers: {
-              "Authorization": `Bearer ${localStorage.getItem("token")}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (!response.ok) throw new Error("Failed to fetch items");
-        const data = await response.json();
-        setItemsList(data);
-      } catch (error) {
-        console.error("Error fetching items:", error);
-      }
-    };
-    fetchItems();
-  }, []);
+  const [selectedCustomer, setSelectedCustomer] = useState<number | null>(null);
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [taxSearch, setTaxSearch] = useState("");
+  const [discountSearch, setDiscountSearch] = useState("");
+  const [itemSearch, setItemSearch] = useState("");
+  const [message, setMessage] = useState("");
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [salesRep, setSalesRep] = useState("");
 
   const addNewRow = () => {
     const newItem: InvoiceItem = {
@@ -239,7 +161,7 @@ export default function NewManualInvoiceForm() {
           return {
             ...item,
             selectedItemId: Number(selectedValue),
-            price: selectedItem ? parseFloat(selectedItem.price) : 0,
+            price: selectedItem ? selectedItem.price : 0,
             description: selectedItem?.description || "",
           };
         }
@@ -253,16 +175,13 @@ export default function NewManualInvoiceForm() {
     let total = subtotal;
 
     if (item.hasTax && selectedTax) {
-      const taxRate = parseFloat(
-        taxes.find((t) => t.id === selectedTax)?.tax_rate || "0"
-      );
+      const taxRate = taxes.find((t) => t.id === selectedTax)?.tax_rate || 0;
       total += subtotal * (taxRate / 100);
     }
 
     if (item.hasDiscount && selectedDiscount) {
-      const discountRate = parseFloat(
-        discounts.find((d) => d.id === selectedDiscount)?.discount_rate || "0"
-      );
+      const discountRate =
+        discounts.find((d) => d.id === selectedDiscount)?.discount_rate || 0;
       total -= subtotal * (discountRate / 100);
     }
 
@@ -289,17 +208,42 @@ export default function NewManualInvoiceForm() {
     }, 0);
   };
 
+  const handleSaveDraft = () => {
+    console.log({
+      customerId: selectedCustomer,
+      estimateNumber: estimateId,
+      items: items.map((item) => ({
+        itemId: item.id,
+        selectedItemId: item.selectedItemId,
+        quantity: item.quantity,
+        price: item.price,
+        total: calculateRowTotal(item),
+        paid: item.paid,
+        hasTax: item.hasTax,
+        hasDiscount: item.hasDiscount,
+      })),
+      taxId: selectedTax,
+      discountId: selectedDiscount,
+      subtotal: calculateSubtotal().toFixed(2),
+      total: calculateTotal().toFixed(2),
+      amountDue: calculateAmountDue().toFixed(2),
+      message: message,
+      salesRep: salesRep,
+      attachments: attachments.map((file) => ({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      })),
+    });
+  };
+
   return (
     <div className="flex min-h-screen">
       {/* Form Section */}
       <div className="flex-1 p-8 border-r overflow-y-auto pb-20">
         <div className="flex items-start justify-between mb-8">
-          <h1 className="text-2xl font-semibold">New invoice</h1>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/invoice")}
-          >
+          <h1 className="text-2xl font-semibold">New Estimate Invoice</h1>
+          <Button variant="ghost" size="icon">
             <X className="h-5 w-5" />
           </Button>
         </div>
@@ -313,38 +257,71 @@ export default function NewManualInvoiceForm() {
             </div>
             <div className="flex gap-2 items-center">
               <div className="flex-1">
-                <Select
-                  value={selectedCustomer?.toString() || ""}
-                  onValueChange={(value) => {
-                    if (value === "add-customer") {
-                      setShowCustomerForm(true);
-                    } else {
-                      setSelectedCustomer(Number(value));
-                    }
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select customer" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {customers.map((customer) => (
-                      <SelectItem
-                        key={customer.id}
-                        value={customer.id.toString()}
-                      >
-                        <div className="flex flex-col">
-                          <span>{customer.customer_display_name}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                    <SelectItem value="add-customer">
-                      <div className="flex items-center gap-2 text-indigo-600">
-                        <UserPlus className="h-4 w-4" />
-                        Add New Customer
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="w-full justify-between"
+                    >
+                      {selectedCustomer
+                        ? customers.find((c) => c.id === selectedCustomer)
+                            ?.customer_display_name
+                        : "Select customer..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Command>
+                      <CommandInput
+                        placeholder="Search customers..."
+                        value={customerSearch}
+                        onValueChange={setCustomerSearch}
+                      />
+                      <CommandList>
+                        <CommandEmpty>No customers found.</CommandEmpty>
+                        <CommandGroup>
+                          {customers
+                            .filter((customer) =>
+                              customer.customer_display_name
+                                ?.toLowerCase()
+                                .includes(customerSearch.toLowerCase())
+                            )
+                            .map((customer) => (
+                              <CommandItem
+                                key={customer.id}
+                                value={customer.customer_display_name}
+                                onSelect={() =>
+                                  setSelectedCustomer(customer.id)
+                                }
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedCustomer === customer.id
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {customer.customer_display_name}
+                                <span className="text-xs text-muted-foreground">
+                                  #{customer.email_address}
+                                </span>
+                              </CommandItem>
+                            ))}
+                          <CommandItem
+                            value="add-customer"
+                            onSelect={() => setShowCustomerForm(true)}
+                            className="text-indigo-600"
+                          >
+                            <UserPlus className="mr-2 h-4 w-4" />
+                            Add New Customer
+                          </CommandItem>
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
               <Button
                 variant="outline"
@@ -408,18 +385,41 @@ export default function NewManualInvoiceForm() {
 
           {/* Invoice Details Section */}
           <div className="space-y-6">
-            <h2 className="text-lg font-semibold">Invoice details</h2>
+            <h2 className="text-lg font-semibold">Estimate details</h2>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2">
                 <div className="flex items-center">
                   <Label className="text-sm font-medium text-red-500 mr-2">
                     *
                   </Label>
-                  <Label>PS Number</Label>
+                  <Label>Estimate number</Label>
                 </div>
-                <Input />
+                <Input
+                  value={estimateId}
+                  readOnly
+                  className="bg-gray-100 cursor-not-allowed"
+                />
               </div>
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <Label className="text-sm font-medium text-red-500 mr-2">
+                    *
+                  </Label>
+                  <Label>Estimate date</Label>
+                </div>
+                <Input type="date" defaultValue="2025-01-07" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <Label className="text-sm font-medium text-red-500 mr-2">
+                    *
+                  </Label>
+                  <Label>Expiration date</Label>
+                </div>
+                <Input type="date" defaultValue="2025-01-07" />
+              </div>
+
               <div className="space-y-2">
                 <div className="flex items-center">
                   <Label className="text-sm font-medium text-red-500 mr-2">
@@ -427,7 +427,10 @@ export default function NewManualInvoiceForm() {
                   </Label>
                   <Label>Sales rep</Label>
                 </div>
-                <Input />
+                <Input
+                  value={salesRep}
+                  onChange={(e) => setSalesRep(e.target.value)}
+                />
               </div>
             </div>
           </div>
@@ -471,40 +474,78 @@ export default function NewManualInvoiceForm() {
                       <Label className="text-sm font-medium mb-1 block">
                         Item
                       </Label>
-                      <Select
-                        value={item.selectedItemId?.toString() || ""}
-                        onValueChange={(value) =>
-                          handleItemSelect(item.id, value)
-                        }
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Search items" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {itemsList
-                            .filter(
-                              (listItem) =>
-                                listItem.type === item.type.toUpperCase()
-                            )
-                            .map((listItem) => (
-                              <SelectItem
-                                key={listItem.id}
-                                value={listItem.id.toString()}
-                              >
-                                <div className="flex justify-between w-full">
-                                  <span>{listItem.item_name}</span>
-                                  <span>${listItem.price}</span>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          <SelectItem value="add-item">
-                            <div className="flex items-center gap-2 text-indigo-600">
-                              <SquarePlus className="h-4 w-4" />
-                              Add New Item
-                            </div>
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full justify-between"
+                          >
+                            {item.selectedItemId
+                              ? itemsList.find(
+                                  (i) => i.id === item.selectedItemId
+                                )?.item_name
+                              : "Search items..."}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0">
+                          <Command>
+                            <CommandInput
+                              placeholder="Search items..."
+                              value={itemSearch}
+                              onValueChange={setItemSearch}
+                            />
+                            <CommandList>
+                              <CommandEmpty>No items found.</CommandEmpty>
+                              <CommandGroup>
+                                {itemsList
+                                  .filter(
+                                    (listItem) =>
+                                      listItem.type ===
+                                        item.type.toUpperCase() &&
+                                      listItem.item_name
+                                        .toLowerCase()
+                                        .includes(itemSearch.toLowerCase())
+                                  )
+                                  .map((listItem) => (
+                                    <CommandItem
+                                      key={listItem.id}
+                                      value={listItem.item_name}
+                                      onSelect={() =>
+                                        handleItemSelect(
+                                          item.id,
+                                          listItem.id.toString()
+                                        )
+                                      }
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          item.selectedItemId === listItem.id
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                      <div className="flex justify-between w-full">
+                                        <span>{listItem.item_name}</span>
+                                        <span>${listItem.price}</span>
+                                      </div>
+                                    </CommandItem>
+                                  ))}
+                                <CommandItem
+                                  value="add-item"
+                                  onSelect={() => setShowItemForm(true)}
+                                  className="text-indigo-600"
+                                >
+                                  <SquarePlus className="mr-2 h-4 w-4" />
+                                  Add New Item
+                                </CommandItem>
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </div>
 
                     {/* Description */}
@@ -659,76 +700,141 @@ export default function NewManualInvoiceForm() {
               <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
                 <span>Tax</span>
                 <div className="w-[200px]">
-                  <Select
-                    value={selectedTax?.toString() || ""}
-                    onValueChange={(value) => {
-                      if (value === "add-tax") {
-                        setShowTaxForm(true);
-                      } else {
-                        setSelectedTax(Number(value));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select tax rate" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {taxes.map((tax) => (
-                        <SelectItem key={tax.id} value={tax.id.toString()}>
-                          {tax.tax_name} ({tax.tax_rate}%)
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="add-tax">
-                        <div className="flex items-center gap-2 text-indigo-600">
-                          <Plus className="h-4 w-4" />
-                          Add Tax Rate
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between"
+                      >
+                        {selectedTax
+                          ? taxes.find((t) => t.id === selectedTax)?.tax_name
+                          : "Select tax..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandInput
+                          placeholder="Search taxes..."
+                          value={taxSearch}
+                          onValueChange={setTaxSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>No taxes found.</CommandEmpty>
+                          <CommandGroup>
+                            {taxes
+                              .filter((tax) =>
+                                tax.tax_name
+                                  .toLowerCase()
+                                  .includes(taxSearch.toLowerCase())
+                              )
+                              .map((tax) => (
+                                <CommandItem
+                                  key={tax.id}
+                                  value={tax.tax_name}
+                                  onSelect={() => setSelectedTax(tax.id)}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      selectedTax === tax.id
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {tax.tax_name} ({tax.tax_rate}%)
+                                </CommandItem>
+                              ))}
+                            <CommandItem
+                              value="add-tax"
+                              onSelect={() => setShowTaxForm(true)}
+                              className="text-indigo-600"
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Add Tax Rate
+                            </CommandItem>
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <span className="text-right">
                   {selectedTax
-                    ? `$${
+                    ? `${
                         taxes.find((t) => t.id === selectedTax)?.tax_rate || 0
                       }%`
-                    : "$0.00"}
+                    : "0%"}
                 </span>
               </div>
 
               <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
                 <span>Discount</span>
                 <div className="w-[200px]">
-                  <Select
-                    value={selectedDiscount?.toString() || ""}
-                    onValueChange={(value) => {
-                      if (value === "add-discount") {
-                        setShowDiscountForm(true);
-                      } else {
-                        setSelectedDiscount(Number(value));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select discount" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {discounts.map((discount) => (
-                        <SelectItem
-                          key={discount.id}
-                          value={discount.id.toString()}
-                        >
-                          {discount.discount_name} ({discount.discount_rate}%)
-                        </SelectItem>
-                      ))}
-                      <SelectItem value="add-discount">
-                        <div className="flex items-center gap-2 text-indigo-600">
-                          <Plus className="h-4 w-4" />
-                          Add Discount
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between"
+                      >
+                        {selectedDiscount
+                          ? discounts.find((d) => d.id === selectedDiscount)
+                              ?.discount_name
+                          : "Select discount..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandInput
+                          placeholder="Search discounts..."
+                          value={discountSearch}
+                          onValueChange={setDiscountSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>No discounts found.</CommandEmpty>
+                          <CommandGroup>
+                            {discounts
+                              .filter((discount) =>
+                                discount.discount_name
+                                  .toLowerCase()
+                                  .includes(discountSearch.toLowerCase())
+                              )
+                              .map((discount) => (
+                                <CommandItem
+                                  key={discount.id}
+                                  value={discount.discount_name}
+                                  onSelect={() =>
+                                    setSelectedDiscount(discount.id)
+                                  }
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      selectedDiscount === discount.id
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {discount.discount_name} (
+                                  {discount.discount_rate}%)
+                                </CommandItem>
+                              ))}
+                            <CommandItem
+                              value="add-discount"
+                              onSelect={() => setShowDiscountForm(true)}
+                              className="text-indigo-600"
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Add Discount
+                            </CommandItem>
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <span className="text-right">
                   {selectedDiscount
@@ -736,7 +842,7 @@ export default function NewManualInvoiceForm() {
                         discounts.find((d) => d.id === selectedDiscount)
                           ?.discount_rate || 0
                       }%`
-                    : "$0.00"}
+                    : "0%"}
                 </span>
               </div>
               <div className="flex justify-between border-t pt-4 font-semibold">
@@ -757,12 +863,35 @@ export default function NewManualInvoiceForm() {
                 <Textarea
                   placeholder="Enter a message that will be displayed on the invoice"
                   rows={6}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label>Attachments</Label>
-                <div className="border-2 border-dashed rounded-lg p-6 text-center h-[160px] flex flex-col items-center justify-center">
+                <div
+                  className="border-2 border-dashed rounded-lg p-6 text-center h-[160px] flex flex-col items-center justify-center relative"
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const files = Array.from(e.dataTransfer.files);
+                    setAttachments((prev) => [...prev, ...files]);
+                  }}
+                  onDragOver={(e) => e.preventDefault()}
+                >
+                  <input
+                    type="file"
+                    multiple
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        const files = Array.from(e.target.files);
+                        setAttachments((prev) => [
+                          ...new Set([...prev, ...files]),
+                        ]);
+                      }
+                    }}
+                  />
                   <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center mb-4">
                     <Plus className="h-6 w-6 text-indigo-600" />
                   </div>
@@ -773,6 +902,11 @@ export default function NewManualInvoiceForm() {
                     PDF, JPG, PNG, CSV, XLS, XLSX
                   </div>
                 </div>
+                {attachments.length > 0 && (
+                  <div className="text-sm mt-2">
+                    Attached files: {attachments.map((f) => f.name).join(", ")}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -788,92 +922,17 @@ export default function NewManualInvoiceForm() {
               </span>
             </div>
             <div className="flex items-center gap-4">
-              <Button variant="outline" className="text-2xl p-2">
+              <Button
+                variant="outline"
+                className="text-2xl p-2"
+                onClick={handleSaveDraft}
+              >
                 Save Draft
               </Button>
               <Button className="bg-indigo-600 hover:bg-indigo-700 text-2xl p-2">
                 Review & Send
               </Button>
             </div>
-          </div>
-        </div>
-      </div>
-      {/* Preview Section */}
-      <div className="w-[600px] bg-gray-50 p-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="flex justify-between mb-8">
-            <div>
-              <h2 className="text-xl font-bold">Auto Gig Shop</h2>
-              <p className="text-sm text-gray-500">Bill to</p>
-            </div>
-            <div className="text-right">
-              <div className="space-y-1">
-                <div className="flex items-center justify-end gap-4">
-                  <span className="text-sm text-gray-500">Invoice</span>
-                  <span>001</span>
-                </div>
-                <div className="flex items-center justify-end gap-4">
-                  <span className="text-sm text-gray-500">Date</span>
-                  <span>Jan 07, 2025</span>
-                </div>
-                <div className="flex items-center justify-end gap-4">
-                  <span className="text-sm text-gray-500">Terms</span>
-                  <Button variant="outline" size="sm" className="h-6 text-xs">
-                    + Add Payment Term
-                  </Button>
-                </div>
-                <div className="flex items-center justify-end gap-4">
-                  <span className="text-sm text-gray-500">Due date</span>
-                  <span>Jan 07, 2025</span>
-                </div>
-                <div className="flex items-center justify-end gap-4">
-                  <span className="text-sm text-gray-500">Amount due</span>
-                  <span>$0.00</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="py-2 px-4 text-left">Quantity</th>
-                <th className="py-2 px-4 text-right">Price</th>
-                <th className="py-2 px-4 text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="py-2 px-4">1</td>
-                <td className="py-2 px-4 text-right">$0.00</td>
-                <td className="py-2 px-4 text-right">$0.00</td>
-              </tr>
-            </tbody>
-            <tfoot>
-              <tr className="border-t">
-                <td colSpan={2} className="py-2 px-4 text-right">
-                  Subtotal
-                </td>
-                <td className="py-2 px-4 text-right">$0.00</td>
-              </tr>
-              <tr>
-                <td colSpan={2} className="py-2 px-4 text-right">
-                  Total
-                </td>
-                <td className="py-2 px-4 text-right">$0.00</td>
-              </tr>
-              <tr>
-                <td colSpan={2} className="py-2 px-4 text-right">
-                  Paid
-                </td>
-                <td className="py-2 px-4 text-right">$0.00</td>
-              </tr>
-            </tfoot>
-          </table>
-
-          <div className="mt-4 bg-black text-white p-4 flex justify-between items-center">
-            <span>Amount due</span>
-            <span>$0.00</span>
           </div>
         </div>
       </div>

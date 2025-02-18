@@ -11,7 +11,7 @@ import CreateEstimate from "@/components/estimate/CreateEstimate";
 import AdminCreateEstimate from "@/components/estimate/AdminCreateEstimate";
 import NewInvoiceForm from "@/components/forms/NewInvoiceForm";
 import ManualInvoiceDashboard from "@/pages/ManualInvoiceDashboard";
-import NewManualInvoiceForm from "@/components/forms/NewManualInvoiceForm";
+import NewManualInvoiceForm from "@/components/forms/NewManualInvoiceFormcopy";
 import EditManualInvoiceForm from "@/components/forms/EditManualInvoiceForm";
 export const AppRoutes = () => {
   return (
