@@ -102,8 +102,7 @@ export default function NewInvoiceForm() {
     },
   ]);
   const { estimateId } = useParams<{ estimateId: string }>();
-  const [createInvoice, { isLoading, isError, isSuccess }] =
-    useCreateInvoiceMutation();
+  const [createInvoice, { isLoading }] = useCreateInvoiceMutation();
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [showItemForm, setShowItemForm] = useState(false);
   const [showTaxForm, setShowTaxForm] = useState(false);
@@ -951,8 +950,9 @@ export default function NewInvoiceForm() {
                 variant="outline"
                 className="text-2xl p-2"
                 onClick={handleSaveDraft}
+                disabled={isLoading}
               >
-                Save Draft
+                {isLoading ? "Saving" : "Save Draft"}
               </Button>
               <Button className="bg-indigo-600 hover:bg-indigo-700 text-2xl p-2">
                 Review & Send
