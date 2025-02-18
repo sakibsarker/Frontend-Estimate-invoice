@@ -11,8 +11,8 @@ import CreateEstimate from "@/components/estimate/CreateEstimate";
 import AdminCreateEstimate from "@/components/estimate/AdminCreateEstimate";
 import NewInvoiceForm from "@/components/forms/NewInvoiceForm";
 import ManualInvoiceDashboard from "@/pages/ManualInvoiceDashboard";
-import NewManualInvoiceForm from "@/components/forms/NewManualInvoiceFormcopy";
 import EditManualInvoiceForm from "@/components/forms/EditManualInvoiceForm";
+import ManualInvoiceForm from "@/components/forms/ManualInvoiceForm";
 export const AppRoutes = () => {
   return (
     <Routes>
@@ -37,7 +37,7 @@ export const AppRoutes = () => {
 
         <Route path="/invoice" element={<ManualInvoiceDashboard />} />
         <Route path="/invoice/:invoiceId" element={<EditManualInvoiceForm />} />
-        <Route path="/invoice/new" element={<NewManualInvoiceForm />} />
+        <Route path="/invoice/new" element={<ManualInvoiceForm />} />
 
         <Route path="/editinvoice" element={<EditInvoice />} />
         <Route path="/profile" element={<Profile />} />

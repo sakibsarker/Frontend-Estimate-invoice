@@ -26,7 +26,7 @@ import { CustomerForm } from "../sideforms/CustomerForm";
 import { ItemForm } from "../sideforms/ItemForm";
 import { TaxForm } from "../sideforms/TaxForm";
 import { PaymentTermForm } from "../sideforms/PaymentTermForm";
-import { useParams } from "react-router";
+
 import { DiscountForm } from "../sideforms/DiscountForm";
 import { LaborForm } from "../sideforms/LaborForm";
 import { OtherChargeForm } from "../sideforms/OtherChargeForm";
@@ -51,7 +51,6 @@ import {
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCreateInvoiceMutation } from "@/features/server/invoiceSlice";
-import { useGetRepairRequestByIDQuery } from "@/features/server/repairRequestSlice";
 
 import { toast } from "react-hot-toast";
 
@@ -67,15 +66,7 @@ interface InvoiceItem {
   paid: boolean;
 }
 
-const formatDate = (isoString: string) => {
-  const date = new Date(isoString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
-
-export default function NewInvoiceForm() {
+export default function ManualInvoiceForm() {
   const [items, setItems] = useState<InvoiceItem[]>([
     {
       id: 1,
@@ -111,7 +102,7 @@ export default function NewInvoiceForm() {
       paid: true,
     },
   ]);
-  const { estimateId } = useParams<{ estimateId: string }>();
+
   const [createInvoice, { isLoading }] = useCreateInvoiceMutation();
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [showItemForm, setShowItemForm] = useState(false);
@@ -125,9 +116,6 @@ export default function NewInvoiceForm() {
   const { data: itemsList = [] } = useGetItemsQuery();
   const { data: taxes = [] } = useGetTaxsQuery();
   const { data: discounts = [] } = useGetDiscountsQuery();
-  const { data: estimateData } = useGetRepairRequestByIDQuery(
-    Number(estimateId)
-  );
 
   const [selectedTax, setSelectedTax] = useState<number | null>(null);
   const [selectedDiscount, setSelectedDiscount] = useState<number | null>(null);
@@ -140,6 +128,7 @@ export default function NewInvoiceForm() {
   const [message, setMessage] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
   const [salesRep, setSalesRep] = useState("");
+  const [poNumber, setPoNumber] = useState("");
 
   const addNewRow = () => {
     const newItem: InvoiceItem = {
@@ -248,12 +237,13 @@ export default function NewInvoiceForm() {
       formData.append("customerId", selectedCustomer.toString());
       formData.append("invoice_status", "DRAFT");
       formData.append("payment_method", "CREDIT_CARD");
-      formData.append("po_number", "PO-12345");
+      formData.append("invoice_number", "3435");
 
       // Optional fields
-      if (estimateId) formData.append("repair_request", estimateId);
+
       if (selectedDiscount)
         formData.append("discount", selectedDiscount.toString());
+      if (poNumber) formData.append("po_number", poNumber);
       if (selectedTax) formData.append("tax", selectedTax.toString());
       if (salesRep) formData.append("sales_rep", salesRep);
       if (message) formData.append("message_on_invoice", message);
@@ -422,61 +412,25 @@ export default function NewInvoiceForm() {
           <div className="space-y-6">
             <h2 className="text-lg font-semibold">Estimate details</h2>
 
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <Label className="text-sm font-medium text-red-500 mr-2">
-                    *
-                  </Label>
-                  <Label>Estimate number</Label>
+                  <Label>Invoice number</Label>
                 </div>
-                <Input
-                  value={estimateId}
-                  readOnly
-                  className="bg-gray-100 cursor-not-allowed"
-                />
+                <Input />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <Label className="text-sm font-medium text-red-500 mr-2">
-                    *
-                  </Label>
-                  <Label>Estimate date</Label>
+                  <Label>PO number</Label>
                 </div>
                 <Input
-                  type="date"
-                  defaultValue={
-                    estimateData?.created_at
-                      ? formatDate(estimateData.created_at)
-                      : ""
-                  }
-                  readOnly
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center">
-                  <Label className="text-sm font-medium text-red-500 mr-2">
-                    *
-                  </Label>
-                  <Label>Expiration date</Label>
-                </div>
-
-                <Input
-                  type="date"
-                  defaultValue={
-                    estimateData?.created_at
-                      ? formatDate(estimateData.repair_date)
-                      : ""
-                  }
-                  readOnly
+                  value={poNumber}
+                  onChange={(e) => setPoNumber(e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <Label className="text-sm font-medium text-red-500 mr-2">
-                    *
-                  </Label>
                   <Label>Sales rep</Label>
                 </div>
                 <Input

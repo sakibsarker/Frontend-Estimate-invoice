@@ -433,7 +433,7 @@ export default function NewInvoiceForm() {
                 <Input
                   value={estimateId}
                   readOnly
-                  className="bg-gray-100 cursor-not-allowed"
+                  className="cursor-not-allowed"
                 />
               </div>
               <div className="space-y-2">
