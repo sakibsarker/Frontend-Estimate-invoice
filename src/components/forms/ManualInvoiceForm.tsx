@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   X,
   Trash2,
@@ -51,6 +51,7 @@ import {
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCreateInvoiceMutation } from "@/features/server/invoiceSlice";
+import { generateInvoiceNumber } from "@/lib/invoiceUtils";
 
 import { toast } from "react-hot-toast";
 
@@ -129,11 +130,16 @@ export default function ManualInvoiceForm() {
   const [attachments, setAttachments] = useState<File[]>([]);
   const [salesRep, setSalesRep] = useState("");
   const [poNumber, setPoNumber] = useState("");
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+
+  useEffect(() => {
+    setInvoiceNumber(generateInvoiceNumber());
+  }, []);
 
   const addNewRow = () => {
     const newItem: InvoiceItem = {
       id: items.length + 1,
-      type: "labor",
+      type: "parts",
       selectedItemId: null,
       description: "",
       quantity: 1,
@@ -237,12 +243,12 @@ export default function ManualInvoiceForm() {
       formData.append("customerId", selectedCustomer.toString());
       formData.append("invoice_status", "DRAFT");
       formData.append("payment_method", "CREDIT_CARD");
-      formData.append("invoice_number", "3435");
 
       // Optional fields
 
       if (selectedDiscount)
         formData.append("discount", selectedDiscount.toString());
+      if (invoiceNumber) formData.append("invoice_number", invoiceNumber);
       if (poNumber) formData.append("po_number", poNumber);
       if (selectedTax) formData.append("tax", selectedTax.toString());
       if (salesRep) formData.append("sales_rep", salesRep);
@@ -417,7 +423,7 @@ export default function ManualInvoiceForm() {
                 <div className="flex items-center">
                   <Label>Invoice number</Label>
                 </div>
-                <Input />
+                <Input value={invoiceNumber} readOnly />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center">
