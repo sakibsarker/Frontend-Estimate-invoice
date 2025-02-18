@@ -16,7 +16,7 @@ import { useParams, useNavigate } from "react-router";
 import toast, { Toaster } from "react-hot-toast";
 import Loader from "../Loader";
 import {
-  useGetRepairRequestQuery,
+  useGetRepairRequestByIDQuery,
   useUpdateRepairRequestMutation,
 } from "../../features/server/repairRequestSlice";
 
@@ -27,7 +27,7 @@ export default function ViewEstimateRequest() {
     data: estimateData,
     isLoading,
     refetch,
-  } = useGetRepairRequestQuery(Number(estimateId));
+  } = useGetRepairRequestByIDQuery(Number(estimateId));
   const [updateRepairRequest] = useUpdateRepairRequestMutation();
 
   const formatDate = (isoString: string) => {

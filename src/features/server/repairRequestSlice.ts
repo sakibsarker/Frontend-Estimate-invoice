@@ -42,7 +42,7 @@ export const repairRequestApi = createApi({
       }),
     }),
     // GET - Fetch a single repair request by ID
-    getRepairRequest: builder.query<RepairRequest, number>({
+    getRepairRequestByID: builder.query<RepairRequest, number>({
       query: (id) => `estimate/repair-requests/${id}/`,
     }),
 
@@ -60,6 +60,6 @@ export const repairRequestApi = createApi({
 // Export hooks for usage in components
 export const {
   useCreateRepairRequestMutation,
-  useGetRepairRequestQuery,
+  useGetRepairRequestByIDQuery,
   useUpdateRepairRequestMutation,
 } = repairRequestApi;

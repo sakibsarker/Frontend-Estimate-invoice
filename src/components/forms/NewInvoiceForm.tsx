@@ -51,6 +51,8 @@ import {
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCreateInvoiceMutation } from "@/features/server/invoiceSlice";
+import { useGetRepairRequestByIDQuery } from "@/features/server/repairRequestSlice";
+
 import { toast } from "react-hot-toast";
 
 interface InvoiceItem {
@@ -64,6 +66,14 @@ interface InvoiceItem {
   hasDiscount: boolean;
   paid: boolean;
 }
+
+const formatDate = (isoString: string) => {
+  const date = new Date(isoString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 export default function NewInvoiceForm() {
   const [items, setItems] = useState<InvoiceItem[]>([
@@ -115,6 +125,9 @@ export default function NewInvoiceForm() {
   const { data: itemsList = [] } = useGetItemsQuery();
   const { data: taxes = [] } = useGetTaxsQuery();
   const { data: discounts = [] } = useGetDiscountsQuery();
+  const { data: estimateData } = useGetRepairRequestByIDQuery(
+    Number(estimateId)
+  );
 
   const [selectedTax, setSelectedTax] = useState<number | null>(null);
   const [selectedDiscount, setSelectedDiscount] = useState<number | null>(null);
@@ -250,14 +263,12 @@ export default function NewInvoiceForm() {
         formData.append("attachments", file);
       });
 
-      const response = await createInvoice(formData).unwrap();
+      await createInvoice(formData).unwrap();
       toast.success("Draft saved successfully!", { id: toastId });
-      console.log("Draft saved:", response);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to save draft";
       toast.error(errorMessage, { id: toastId });
-      console.error("Save error:", error);
     }
   };
 
@@ -432,7 +443,15 @@ export default function NewInvoiceForm() {
                   </Label>
                   <Label>Estimate date</Label>
                 </div>
-                <Input type="date" defaultValue="2025-01-07" />
+                <Input
+                  type="date"
+                  defaultValue={
+                    estimateData?.created_at
+                      ? formatDate(estimateData.created_at)
+                      : ""
+                  }
+                  readOnly
+                />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center">
@@ -441,7 +460,16 @@ export default function NewInvoiceForm() {
                   </Label>
                   <Label>Expiration date</Label>
                 </div>
-                <Input type="date" defaultValue="2025-01-07" />
+
+                <Input
+                  type="date"
+                  defaultValue={
+                    estimateData?.created_at
+                      ? formatDate(estimateData.repair_date)
+                      : ""
+                  }
+                  readOnly
+                />
               </div>
 
               <div className="space-y-2">
