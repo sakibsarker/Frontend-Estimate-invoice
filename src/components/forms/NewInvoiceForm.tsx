@@ -51,6 +51,7 @@ import {
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCreateInvoiceMutation } from "@/features/server/invoiceSlice";
+import { toast } from "react-hot-toast";
 
 interface InvoiceItem {
   id: number;
@@ -211,33 +212,53 @@ export default function NewInvoiceForm() {
   };
 
   const handleSaveDraft = async () => {
+    const toastId = toast.loading("Saving draft...");
     try {
-      const payload = {
-        customerId: selectedCustomer,
-        repair_request: estimateId,
-        discount: selectedDiscount,
-        tax: selectedTax,
-        invoice_status: "DRAFT",
-        payment_method: "CREDIT_CARD",
-        sales_rep: salesRep || undefined,
-        po_number: "PO-12345",
-        message_on_invoice: message || undefined,
-        invoice_items: items.map((item) => ({
-          item: item.selectedItemId,
-          quantity: item.quantity,
-          price: item.price,
-          has_tax: item.hasTax,
-          has_discount: item.hasDiscount,
-          paid: item.paid,
-        })),
-      };
+      if (!selectedCustomer) throw new Error("Customer selection is required");
+      if (items.length === 0) throw new Error("At least one item is required");
 
-      const response = await createInvoice(payload).unwrap();
-      console.log("Draft saved successfully:", response);
-      alert("Draft saved successfully!");
+      const formData = new FormData();
+
+      // 1. Create nested JSON structure for invoice_items
+      const invoiceItems = items.map((item) => ({
+        item_id: item.selectedItemId,
+        quantity: item.quantity,
+        price: Number(Number(item.price).toFixed(2)),
+        has_tax: item.hasTax,
+        has_discount: item.hasDiscount,
+        paid: item.paid,
+      }));
+
+      // 2. Append as JSON string
+      formData.append("invoice_items", JSON.stringify(invoiceItems));
+
+      // 3. Append other fields
+      formData.append("customerId", selectedCustomer.toString());
+      formData.append("invoice_status", "DRAFT");
+      formData.append("payment_method", "CREDIT_CARD");
+      formData.append("po_number", "PO-12345");
+
+      // Optional fields
+      if (estimateId) formData.append("repair_request", estimateId);
+      if (selectedDiscount)
+        formData.append("discount", selectedDiscount.toString());
+      if (selectedTax) formData.append("tax", selectedTax.toString());
+      if (salesRep) formData.append("sales_rep", salesRep);
+      if (message) formData.append("message_on_invoice", message);
+
+      // 4. Add attachments
+      attachments.forEach((file) => {
+        formData.append("attachments", file);
+      });
+
+      const response = await createInvoice(formData).unwrap();
+      toast.success("Draft saved successfully!", { id: toastId });
+      console.log("Draft saved:", response);
     } catch (error) {
-      console.error("Error saving draft:", error);
-      alert("Failed to save draft. Check console for details.");
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to save draft";
+      toast.error(errorMessage, { id: toastId });
+      console.error("Save error:", error);
     }
   };
 
