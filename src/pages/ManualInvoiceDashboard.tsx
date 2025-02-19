@@ -7,7 +7,7 @@ import {
   Printer,
   User,
   X,
-  Car,
+  Landmark,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,14 +33,25 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useGetInvoiceStatisticsQuery } from "@/features/server/invoiceSlice";
+import {
+  useGetInvoiceStatisticsQuery,
+  useGetInvoiceQuery,
+} from "@/features/server/invoiceSlice";
 
-const getRepairStatusColor = (status: string) => {
+const getInvoiceStatusColor = (status: string) => {
   switch (status.toUpperCase()) {
+    case "DRAFT":
+      return "bg-gray-300";
+    case "SENT":
+      return "bg-purple-500";
     case "PAID":
       return "bg-blue-500";
     case "UNPAID":
       return "bg-green-500";
+    case "OVERDUE":
+      return "bg-red-500";
+    case "CANCELLED":
+      return "bg-gray-700";
     default:
       return "bg-gray-500";
   }
@@ -55,23 +66,21 @@ export default function ManualInvoiceDashboard() {
   const staticEstimates = [
     {
       id: 1,
-      repair_status: "PAID",
-      repair_details: "Brake system repair",
+      invoice_status: "PAID",
+      invoice_number: "INV-234",
       created_at: "2024-03-15",
-      repair_date: "2024-03-20",
-      vehicle_name: "Toyota Camry",
-      username: "John Doe",
-      status: "PAID",
+      total: 343,
+      amount_due: 345,
+      payment_method: "CARD",
     },
     {
       id: 2,
-      repair_status: "UNPAID",
-      repair_details: "Engine maintenance",
+      invoice_status: "UNPAID",
+      invoice_number: "INV-124",
       created_at: "2024-03-16",
-      repair_date: "2024-03-21",
-      vehicle_name: "Honda Civic",
-      username: "Jane Smith",
-      status: "UNPAID",
+      total: 34,
+      amount_due: 3434,
+      payment_method: "ONLIN",
     },
   ];
 
@@ -149,6 +158,8 @@ export default function ManualInvoiceDashboard() {
             <SelectContent>
               <SelectItem value="7d">This Week</SelectItem>
               <SelectItem value="30d">This Month</SelectItem>
+              <SelectItem value="180d">Last Six Months</SelectItem>
+              <SelectItem value="custom">Specific Date</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -159,7 +170,12 @@ export default function ManualInvoiceDashboard() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
-            <SelectItem value="new">New</SelectItem>
+            <SelectItem value="DRAFT">Draft</SelectItem>
+            <SelectItem value="SENT">Sent</SelectItem>
+            <SelectItem value="PAID">Paid</SelectItem>
+            <SelectItem value="UNPAID">Unpaid</SelectItem>
+            <SelectItem value="OVERDUE">Overdue</SelectItem>
+            <SelectItem value="CANCELLED">Cancelled</SelectItem>
           </SelectContent>
         </Select>
 
@@ -181,12 +197,15 @@ export default function ManualInvoiceDashboard() {
           <X className="h-4 w-4 ml-2" />
         </Button>
 
-        <Button className="bg-orange-500 hover:bg-orange-600">
+        <Button
+          onClick={() => navigate("/invoice/new")}
+          className="bg-orange-500 hover:bg-orange-600"
+        >
           Create Invoice
         </Button>
       </div>
 
-      {/* Estimates List */}
+      {/* invoice List */}
       <div className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {staticEstimates.map((estimate) => (
@@ -198,12 +217,12 @@ export default function ManualInvoiceDashboard() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge
-                      className={getRepairStatusColor(estimate.repair_status)}
+                      className={getInvoiceStatusColor(estimate.invoice_status)}
                     >
-                      {estimate.repair_status}
+                      {estimate.invoice_status}
                     </Badge>
                     <span className="text-blue-600">
-                      (#{estimate.id}) {estimate.repair_details}
+                      (#{estimate.id}) {estimate.invoice_number}
                     </span>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -219,35 +238,49 @@ export default function ManualInvoiceDashboard() {
                   </div>
                   <div className="text-sm text-gray-800 font-normal mb-2">
                     Created: {estimate.created_at}
-                    <br />
-                    Repair Date: {estimate.repair_date}
                   </div>
                   <div className="flex items-center gap-2">
-                    <Car className="h-5 w-5" />
-                    <span>{estimate.vehicle_name}</span>
+                    <Landmark className="h-5 w-5" />
+                    <span>{estimate.payment_method}</span>
                   </div>
-                  <div className="flex items-center gap-2 mt-1">
+                  {/* <div className="flex items-center gap-2 mt-1">
                     <User className="h-5 w-5" />
                     <span>{estimate.username}</span>
-                  </div>
+                  </div> */}
                   <div className="flex justify-end flex-col items-end">
                     <div
                       className={`font-semibold ${
-                        estimate.status === "PAID"
+                        estimate.invoice_status === "PAID"
                           ? "text-green-600"
-                          : "text-red-600"
+                          : estimate.invoice_status === "UNPAID"
+                          ? "text-red-600"
+                          : estimate.invoice_status === "OVERDUE"
+                          ? "text-red-600"
+                          : estimate.invoice_status === "DRAFT"
+                          ? "text-gray-500"
+                          : estimate.invoice_status === "SENT"
+                          ? "text-purple-600"
+                          : "text-gray-600"
                       }`}
                     >
-                      Total $1,250.00
+                      Total ${estimate.total}
                     </div>
                     <div
                       className={`font-semibold ${
-                        estimate.status === "PAID"
+                        estimate.invoice_status === "PAID"
                           ? "text-green-600"
-                          : "text-red-600"
+                          : estimate.invoice_status === "UNPAID"
+                          ? "text-red-600"
+                          : estimate.invoice_status === "OVERDUE"
+                          ? "text-red-600"
+                          : estimate.invoice_status === "DRAFT"
+                          ? "text-gray-500"
+                          : estimate.invoice_status === "SENT"
+                          ? "text-purple-600"
+                          : "text-gray-600"
                       }`}
                     >
-                      Due $1,250.00
+                      Due ${estimate.amount_due}
                     </div>
                   </div>
                 </div>

@@ -45,6 +45,13 @@ export interface InvoiceResponse {
   // ... other response fields
 }
 
+interface PaginatedInvoiceResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Invoice[];
+}
+
 // Add this interface
 interface InvoiceStatistics {
   total_invoices: number;
@@ -71,8 +78,23 @@ export const invoiceApi = createApi({
   }),
   endpoints: (builder) => ({
     // Get all invoice
-    getInvoice: builder.query<Invoice[], void>({
-      query: () => "estimate/newinvoices/",
+    // Update the getInvoice endpoint
+    getInvoice: builder.query<
+      PaginatedInvoiceResponse,
+      {
+        page?: number;
+        invoice_status?: string;
+        search?: string;
+      }
+    >({
+      query: (params) => ({
+        url: "estimate/newinvoices/new/",
+        params: {
+          page: params.page,
+          invoice_status: params.invoice_status,
+          search: params.search,
+        },
+      }),
     }),
     // Create new invoice
     createInvoice: builder.mutation<Invoice, FormData>({
