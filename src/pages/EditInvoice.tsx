@@ -372,8 +372,8 @@ export default function EditInvoice() {
                               onCheckedChange={(checked) =>
                                 setTemplateData({
                                   ...templateData,
-                                  itemFields: {
-                                    ...templateData.itemFields,
+                                  calculationFields: {
+                                    ...templateData.calculationFields,
                                     [key]: checked as boolean,
                                   },
                                 })
