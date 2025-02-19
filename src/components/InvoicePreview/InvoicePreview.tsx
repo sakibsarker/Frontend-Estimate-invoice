@@ -134,9 +134,7 @@ export function InvoicePreview({
             Bill To
           </h3>
           {templateData.customerFields.customerName && (
-            <div className="font-medium text-gray-900">
-              Customer Information
-            </div>
+            <div className="font-medium text-gray-900">Customer Name</div>
           )}
           {templateData.customerFields.billingAddress && (
             <div className="text-sm text-gray-600 space-y-1">
@@ -151,7 +149,7 @@ export function InvoicePreview({
           )}
           <div className="pt-2 space-y-1">
             {templateData.customerFields.email && (
-              <div className="flex items-center gap-2 text-sm text-blue-600">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Mail className="h-4 w-4" />
                 customer@email.com
               </div>
@@ -287,21 +285,21 @@ export function InvoicePreview({
       >
         <div className="max-w-xs ml-auto space-y-3">
           {templateData.calculationFields.subtotal && (
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-sm font-semibold">
               <span className="text-gray-600">Subtotal:</span>
               <span className="text-gray-900">$2,000.00</span>
             </div>
           )}
           {templateData.calculationFields.tax && (
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-sm font-semibold">
               <span className="text-gray-600">Tax (10%):</span>
               <span className="text-gray-900">$200.00</span>
             </div>
           )}
           {templateData.calculationFields.discount && (
-            <div className="flex justify-between text-sm text-red-600">
-              <span>Discount:</span>
-              <span>-$50.00</span>
+            <div className="flex justify-between font-semibold text-sm text-gray-600">
+              <span className="text-gray-600">Discount:</span>
+              <span className="text-gray-900">$50.00</span>
             </div>
           )}
           <div className="pt-3 border-t border-gray-200 flex justify-between font-semibold">
