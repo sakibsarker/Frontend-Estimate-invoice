@@ -23,6 +23,15 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import {
+  useGetTemplateQuery,
+  useCreateTemplateMutation,
+  useGetTemplatesByIDQuery,
+  useUpdateTemplateMutation,
+} from "@/features/server/templateSlice";
+import { toast } from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { templateApi } from "@/features/server/templateSlice";
 
 const layouts = [
   {
@@ -51,7 +60,7 @@ const colors = [
 ];
 
 interface Template {
-  id: string;
+  id: string | number;
   name: string;
   selected_color: string;
   selected_layout: string;
@@ -78,13 +87,12 @@ interface Template {
 }
 
 export default function EditInvoice() {
-  const [templates, setTemplates] = useState<Template[]>(() => {
-    const saved = localStorage.getItem("templates");
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [currentTemplateId, setCurrentTemplateId] = useState<string | null>(
-    null
-  );
+  const [createTemplate] = useCreateTemplateMutation();
+  const [updateTemplate] = useUpdateTemplateMutation();
+  const { data: apiTemplates = [] } = useGetTemplateQuery();
+  const [currentTemplateId, setCurrentTemplateId] = useState<
+    string | number | null
+  >(null);
   const [selectedColor, setSelectedColor] = useState("#4E4E56");
   const [selectedLayout, setSelectedLayout] = useState("modern");
   const [logo, setLogo] = useState<string | null>(null);
@@ -114,9 +122,19 @@ export default function EditInvoice() {
     null
   );
 
+  const [localTemplates, setLocalTemplates] = useState<Template[]>(() => {
+    const saved = localStorage.getItem("templates");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Merge API and local templates
+  const allTemplates = [...apiTemplates, ...localTemplates];
+
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    localStorage.setItem("templates", JSON.stringify(templates));
-  }, [templates]);
+    localStorage.setItem("templates", JSON.stringify(localTemplates));
+  }, [localTemplates]);
 
   useEffect(() => {
     const savedDefault = localStorage.getItem("defaultTemplate");
@@ -141,79 +159,122 @@ export default function EditInvoice() {
   };
 
   const handleSaveTemplate = async () => {
-    const newTemplate = {
-      id: uuidv4(),
-      name: templateData.name,
-      selected_color: selectedColor,
-      selected_layout: selectedLayout,
-      logo: logo,
-      is_default: templateData.is_default,
-      customer_name: templateData.customerName,
-      billing_address: templateData.billingAddress,
-      shipping_address: templateData.shippingAddress,
-      phone: templateData.phone,
-      email: templateData.email,
-      account_number: templateData.accountNumber,
-      po_number: templateData.poNumber,
-      sales_rep: templateData.salesRep,
-      date: templateData.Date,
-      item_name: templateData.itemName,
-      quantity: templateData.quantity,
-      price: templateData.price,
-      type: templateData.type,
-      description: templateData.description,
-      subtotal: templateData.subtotal,
-      tax: templateData.tax,
-      discount: templateData.discount,
-      due_amount: templateData.dueAmount,
-    };
+    try {
+      // Convert to API-compatible format
+      const templatePayload: Template = {
+        id: currentTemplateId || uuidv4(),
+        name: templateData.name,
+        selected_color: selectedColor,
+        selected_layout: selectedLayout,
+        logo: logo,
+        is_default: templateData.is_default,
 
-    console.log(templates);
+        // Map all fields to snake_case
+        customer_name: templateData.customerName,
+        billing_address: templateData.billingAddress,
+        shipping_address: templateData.shippingAddress,
+        phone: templateData.phone,
+        email: templateData.email,
+        account_number: templateData.accountNumber,
+        po_number: templateData.poNumber,
+        sales_rep: templateData.salesRep,
+        date: templateData.Date,
+        item_name: templateData.itemName,
+        quantity: templateData.quantity,
+        price: templateData.price,
+        type: templateData.type,
+        description: templateData.description,
+        subtotal: templateData.subtotal,
+        tax: templateData.tax,
+        discount: templateData.discount,
+        due_amount: templateData.dueAmount,
+      };
 
-    setTemplates((prev) => {
-      const updated = prev.filter((t) => t.id !== currentTemplateId);
-      return [...updated, newTemplate];
-    });
-    setCurrentTemplateId(newTemplate.id);
+      if (currentTemplateId) {
+        // Update existing template
+        if (typeof currentTemplateId === "number") {
+          // API template update
+          await updateTemplate(templatePayload).unwrap();
+          toast.success("Template updated in API");
+        } else {
+          // Local template update
+          setLocalTemplates((prev) =>
+            prev.map((t) => (t.id === currentTemplateId ? templatePayload : t))
+          );
+          toast.success("Local template updated");
+        }
+      } else {
+        // Create new template
+        if (templateData.is_default) {
+          // API template creation
+          const result = await createTemplate(templatePayload).unwrap();
+          setCurrentTemplateId(result.id);
+          toast.success("Template created in API");
+        } else {
+          // Local template creation
+          const newLocalTemplate = {
+            ...templatePayload,
+            id: `local-${uuidv4()}`, // Prefix local templates
+          };
+          setLocalTemplates((prev) => [...prev, newLocalTemplate]);
+          setCurrentTemplateId(newLocalTemplate.id);
+          toast.success("Local template created");
+        }
+      }
+
+      // Force reload of API templates
+      dispatch(templateApi.util.invalidateTags(["Templates"]));
+    } catch (error) {
+      console.error("Save failed:", error);
+      toast.error("Failed to save template. Check console for details.");
+    }
   };
 
-  const handleSelectTemplate = (templateId: string) => {
-    const template = templates.find((t) => t.id === templateId);
+  const handleSelectTemplate = (templateId: string | number) => {
+    const template = allTemplates.find((t) => t.id === templateId);
     if (template) {
       setTemplateData({
         ...templateData,
-        name: template.name,
-        is_default: template.is_default,
-        customerName: template.customer_name,
-        billingAddress: template.billing_address,
-        shippingAddress: template.shipping_address,
-        phone: template.phone,
-        email: template.email,
-        accountNumber: template.account_number,
-        poNumber: template.po_number,
-        salesRep: template.sales_rep,
-        Date: template.date,
-        itemName: template.item_name,
-        quantity: template.quantity,
-        price: template.price,
-        type: template.type,
-        description: template.description,
-        subtotal: template.subtotal,
-        tax: template.tax,
-        discount: template.discount,
-        dueAmount: template.due_amount,
+        ...template,
       });
       setSelectedColor(template.selected_color);
       setSelectedLayout(template.selected_layout);
       setLogo(template.logo);
-      setCurrentTemplateId(templateId);
+      setCurrentTemplateId(template.id);
     }
   };
+  // Update the handleSetDefault function
+  const handleSetDefault = async () => {
+    if (!currentTemplateId) return;
 
-  const handleSetDefault = () => {
-    if (currentTemplateId) {
-      localStorage.setItem("defaultTemplate", currentTemplateId);
-      setDefaultTemplateId(currentTemplateId);
+    try {
+      const template = allTemplates.find((t) => t.id === currentTemplateId);
+      if (!template) return;
+
+      if (typeof currentTemplateId === "number") {
+        // Create full template payload with type safety
+        const apiTemplate: Template = {
+          ...template,
+          is_default: true,
+        };
+
+        await updateTemplate(apiTemplate).unwrap();
+        dispatch(templateApi.util.invalidateTags(["Templates"]));
+      } else {
+        setLocalTemplates((prev) =>
+          prev.map((t) => ({
+            ...t,
+            is_default: t.id === currentTemplateId,
+          }))
+        );
+        localStorage.setItem("defaultTemplate", currentTemplateId);
+      }
+
+      setDefaultTemplateId(currentTemplateId.toString());
+      toast.success("Default template updated successfully");
+    } catch (error) {
+      console.error("Set default failed:", error);
+      toast.error("Failed to set default template");
     }
   };
 
@@ -221,7 +282,7 @@ export default function EditInvoice() {
     setCurrentTemplateId(null);
     setTemplateData({
       ...templateData,
-      name: "New Template " + (templates.length + 1),
+      name: "New Template " + (localTemplates.length + 1),
       is_default: false,
     });
 
@@ -262,19 +323,25 @@ export default function EditInvoice() {
 
         <div className="flex items-center gap-4 mb-6">
           <Select
-            value={currentTemplateId || ""}
-            onValueChange={handleSelectTemplate}
+            value={currentTemplateId?.toString()}
+            onValueChange={(value) => {
+              const id = value.includes("local-") ? value : Number(value);
+              handleSelectTemplate(id);
+            }}
           >
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Select Template">
                 {currentTemplateId
-                  ? templates.find((t) => t.id === currentTemplateId)?.name
+                  ? allTemplates.find((t) => t.id === currentTemplateId)?.name
                   : "Select Template"}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              {templates.map((template) => (
-                <SelectItem key={template.id} value={template.id}>
+              {allTemplates.map((template) => (
+                <SelectItem
+                  key={template.id.toString()}
+                  value={template.id.toString()}
+                >
                   <div className="flex items-center justify-between">
                     <span>{template.name}</span>
                     {template.id === defaultTemplateId && (

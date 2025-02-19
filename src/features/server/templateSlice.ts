@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 // Define the interface for the tempalte data
 
 interface Template {
-  id: number;
+  id: string | number;
   name: string;
   selected_color: string;
   selected_layout: string;
@@ -46,19 +46,22 @@ export const templateApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ["Templates"],
   endpoints: (builder) => ({
     // POST - Create new Template
 
     createTemplate: builder.mutation<Template, Omit<Template, "id">>({
-      query: (templatePayload) => ({
+      query: (payload) => ({
         url: "estimate/invoice-template/create/",
         method: "POST",
-        body: templatePayload,
+        body: payload,
       }),
+      invalidatesTags: ["Templates"],
     }),
     // Get all Template
     getTemplate: builder.query<Template[], void>({
       query: () => "estimate/invoice-template/",
+      providesTags: ["Templates"],
     }),
 
     // GET - Fetch a single Template by ID
@@ -68,11 +71,12 @@ export const templateApi = createApi({
 
     // PATCH - Update a Template
     updateTemplate: builder.mutation<Template, Template>({
-      query: (data) => ({
-        url: `estimate/invoice-template/${data.id}/update/`,
-        method: "PATCH",
-        body: data,
+      query: (payload) => ({
+        url: `estimate/invoice-template/${payload.id}/update/`,
+        method: "PUT",
+        body: payload,
       }),
+      invalidatesTags: ["Templates"],
     }),
   }),
 });
