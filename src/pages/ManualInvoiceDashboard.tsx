@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router";
 import {
   Home,
   Search,
@@ -32,90 +33,47 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useNavigate } from "react-router";
+import { useGetInvoiceStatisticsQuery } from "@/features/server/invoiceSlice";
 
-interface RepairRequest {
-  id: number;
-  username: string;
-  email: string;
-  phone_number: string;
-  repair_details: string;
-  repair_status: string;
-  previous_visits: number;
-  status: string;
-  vehicle_name: string;
-  estimate_attachments: string;
-  repair_date: string;
-  sms_sent_3_days: boolean;
-  sms_sent_7_days: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-interface StatisticRequest {
-  total_requests: string;
-  total_new_requests: string;
-  total_expired_requests: string;
-  accepted_percentage: string;
-}
-
-// Add these color mapping functions
 const getRepairStatusColor = (status: string) => {
   switch (status.toUpperCase()) {
     case "PAID":
       return "bg-blue-500";
     case "UNPAID":
       return "bg-green-500";
-    case "PAID":
-      return "bg-red-500";
     default:
       return "bg-gray-500";
   }
 };
 
 export default function ManualInvoiceDashboard() {
-  const [estimates, setEstimates] = useState<RepairRequest[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [timeframeFilter, setTimeframeFilter] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("en");
+  const { data: stats, isLoading, error } = useGetInvoiceStatisticsQuery();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchEstimates = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const queryParams = new URLSearchParams({
-          search: searchTerm,
-          status: statusFilter.toLowerCase(),
-          timeframe: timeframeFilter,
-          page: currentPage.toString(),
-        });
-
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_API_URL
-          }/estimate/repair-requests/statistics/?${queryParams}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.ok) throw new Error("Failed to fetch estimates");
-        const responseData = await response.json();
-        setEstimates(responseData.repair_requests);
-        setTotalPages(responseData.total_pages || 1);
-      } catch (error) {
-        console.error("Fetch error:", error);
-      }
-    };
-
-    fetchEstimates();
-  }, [currentPage, searchTerm, statusFilter, timeframeFilter]);
+  // Static sample data
+  const staticEstimates = [
+    {
+      id: 1,
+      repair_status: "PAID",
+      repair_details: "Brake system repair",
+      created_at: "2024-03-15",
+      repair_date: "2024-03-20",
+      vehicle_name: "Toyota Camry",
+      username: "John Doe",
+      status: "PAID",
+    },
+    {
+      id: 2,
+      repair_status: "UNPAID",
+      repair_details: "Engine maintenance",
+      created_at: "2024-03-16",
+      repair_date: "2024-03-21",
+      vehicle_name: "Honda Civic",
+      username: "Jane Smith",
+      status: "UNPAID",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-[#B8E1E9]">
@@ -133,62 +91,75 @@ export default function ManualInvoiceDashboard() {
               <SelectValue placeholder="Select language" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="en">
-                <span className="flex items-center gap-2">🇺🇸 English</span>
-              </SelectItem>
-              <SelectItem value="es">
-                <span className="flex items-center gap-2">🇪🇸 Español</span>
-              </SelectItem>
+              <SelectItem value="en">🇺🇸 English</SelectItem>
+              <SelectItem value="es">🇪🇸 Español</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
       {/* Header Stats */}
+
       <div className="bg-[#E8F4F7] p-6 rounded-lg mx-4">
-        <div className="text-2xl font-bold mb-4">Invoice</div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <div className="text-gray-600">Total Invoice Created: 32</div>
-            <div className="text-gray-600">Total Invoice Value: $12,312</div>
+        <div className="text-2xl font-bold mb-4">Invoice </div>
+        {isLoading ? (
+          <div>Wait Loading Invoice...</div>
+        ) : error ? (
+          <div className="text-red-500">Error loading statistics</div>
+        ) : stats ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <div className="text-gray-600">
+                Total Invoice Created: {stats.total_invoices}
+              </div>
+              <div className="text-gray-600">
+                Total Invoice Value: ${stats.total_amount.toLocaleString()}
+              </div>
+            </div>
+            <div>
+              <div className="text-gray-600">
+                Total Paid: ${stats.total_paid.toLocaleString()}
+              </div>
+              <div className="text-gray-600">
+                Total Unpaid: ${stats.total_unpaid.toLocaleString()}
+              </div>
+            </div>
+            <div>
+              <div className="text-gray-600">
+                Draft Invoices: {stats.total_draft}
+              </div>
+              <div className="text-gray-600">
+                Pending Invoices:: {stats.total_pending}
+              </div>
+              <div className="text-gray-600">
+                Amount Due: ${stats.total_amount_due.toLocaleString()}
+              </div>
+            </div>
           </div>
-          <div>
-            <div className="text-gray-600">Paid Amount: 15%</div>
-            <div className="text-gray-600">Unpaid Amount: $2,005</div>
-          </div>
-          <div>
-            <div className="text-gray-600">Draft Invoices: 10</div>
-            <div className="text-gray-600">Pending: 5</div>
-          </div>
-        </div>
-        <div className="text-red-500 mt-4">Changes based on the time frame</div>
+        ) : null}
       </div>
 
       {/* Filter Controls */}
       <div className="flex flex-wrap items-center gap-4 p-4">
         <div className="w-[200px]">
-          <Select value={timeframeFilter} onValueChange={setTimeframeFilter}>
+          <Select>
             <SelectTrigger>
               <SelectValue placeholder="Timeframe" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="7d">This Week</SelectItem>
               <SelectItem value="30d">This Month</SelectItem>
-              <SelectItem value="180d">Last Six Months</SelectItem>
-              <SelectItem value="custom">Specific Date</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <Select>
           <SelectTrigger className="w-[200px] bg-[#1a237e] text-white">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
             <SelectItem value="new">New</SelectItem>
-            <SelectItem value="viewed">Viewed</SelectItem>
-            <SelectItem value="expired">Expired</SelectItem>
           </SelectContent>
         </Select>
 
@@ -196,8 +167,6 @@ export default function ManualInvoiceDashboard() {
           <Input
             type="text"
             placeholder="Search estimates..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full"
           />
         </div>
@@ -207,19 +176,12 @@ export default function ManualInvoiceDashboard() {
           Search
         </Button>
 
-        <Button
-          variant="secondary"
-          className="bg-[#1a237e] text-white"
-          onClick={() => setSearchTerm("")}
-        >
+        <Button variant="secondary" className="bg-[#1a237e] text-white">
           Clear Filter
           <X className="h-4 w-4 ml-2" />
         </Button>
 
-        <Button
-          className="bg-orange-500 hover:bg-orange-600"
-          onClick={() => navigate("/invoice/new")}
-        >
+        <Button className="bg-orange-500 hover:bg-orange-600">
           Create Invoice
         </Button>
       </div>
@@ -227,11 +189,10 @@ export default function ManualInvoiceDashboard() {
       {/* Estimates List */}
       <div className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {estimates.map((estimate) => (
+          {staticEstimates.map((estimate) => (
             <div
               key={estimate.id}
               className="bg-white rounded-lg p-4 shadow cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => navigate(`/invoice/${estimate.id}`)}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -241,11 +202,9 @@ export default function ManualInvoiceDashboard() {
                     >
                       {estimate.repair_status}
                     </Badge>
-
                     <span className="text-blue-600">
                       (#{estimate.id}) {estimate.repair_details}
                     </span>
-
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm">
@@ -259,22 +218,9 @@ export default function ManualInvoiceDashboard() {
                     </DropdownMenu>
                   </div>
                   <div className="text-sm text-gray-800 font-normal mb-2">
-                    Created:{" "}
-                    {new Date(estimate.created_at).toLocaleDateString("en-CA", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                    })}
+                    Created: {estimate.created_at}
                     <br />
-                    Repair Date:{" "}
-                    {new Date(estimate.repair_date).toLocaleDateString(
-                      "en-CA",
-                      {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                      }
-                    )}
+                    Repair Date: {estimate.repair_date}
                   </div>
                   <div className="flex items-center gap-2">
                     <Car className="h-5 w-5" />
@@ -282,7 +228,6 @@ export default function ManualInvoiceDashboard() {
                   </div>
                   <div className="flex items-center gap-2 mt-1">
                     <User className="h-5 w-5" />
-
                     <span>{estimate.username}</span>
                   </div>
                   <div className="flex justify-end flex-col items-end">
@@ -293,8 +238,7 @@ export default function ManualInvoiceDashboard() {
                           : "text-red-600"
                       }`}
                     >
-                      Total ${(500.0).toFixed(2)}{" "}
-                      {/* Replace with actual balance value from your data */}
+                      Total $1,250.00
                     </div>
                     <div
                       className={`font-semibold ${
@@ -303,8 +247,7 @@ export default function ManualInvoiceDashboard() {
                           : "text-red-600"
                       }`}
                     >
-                      Due ${(500.0).toFixed(2)}{" "}
-                      {/* Replace with actual balance value from your data */}
+                      Due $1,250.00
                     </div>
                   </div>
                 </div>
@@ -323,28 +266,13 @@ export default function ManualInvoiceDashboard() {
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  aria-disabled={currentPage === 1}
-                />
+                <PaginationPrevious aria-disabled={true} />
               </PaginationItem>
-              {Array.from({ length: totalPages }, (_, index) => (
-                <PaginationItem key={index}>
-                  <PaginationLink
-                    onClick={() => setCurrentPage(index + 1)}
-                    isActive={currentPage === index + 1}
-                  >
-                    {index + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
               <PaginationItem>
-                <PaginationNext
-                  onClick={() =>
-                    setCurrentPage(Math.min(totalPages, currentPage + 1))
-                  }
-                  aria-disabled={currentPage === totalPages}
-                />
+                <PaginationLink isActive>1</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext aria-disabled={true} />
               </PaginationItem>
             </PaginationContent>
           </Pagination>

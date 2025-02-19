@@ -45,6 +45,18 @@ export interface InvoiceResponse {
   // ... other response fields
 }
 
+// Add this interface
+interface InvoiceStatistics {
+  total_invoices: number;
+  total_paid: number;
+  total_unpaid: number;
+  total_pending: number;
+  total_draft: number;
+  total_amount: number;
+  total_subtotal: number;
+  total_amount_due: number;
+}
+
 export const invoiceApi = createApi({
   reducerPath: "invoiceApi",
   baseQuery: fetchBaseQuery({
@@ -58,17 +70,11 @@ export const invoiceApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    // Get all customers
+    // Get all invoice
     getInvoice: builder.query<Invoice[], void>({
       query: () => "estimate/newinvoices/",
     }),
-
-    // Get single customer by ID
-    getInvoiceById: builder.query<Invoice, number>({
-      query: (id) => `estimate/newinvoices/${id}/`,
-    }),
-
-    // Create new customer
+    // Create new invoice
     createInvoice: builder.mutation<Invoice, FormData>({
       query: (formData) => ({
         url: "estimate/newinvoices/create/",
@@ -76,8 +82,17 @@ export const invoiceApi = createApi({
         body: formData,
       }),
     }),
+    // Get all statistics
+    getInvoiceStatistics: builder.query<InvoiceStatistics, void>({
+      query: () => "estimate/invoice-statistics/",
+    }),
 
-    // Update customer
+    // Get single invoice by ID
+    getInvoiceById: builder.query<Invoice, number>({
+      query: (id) => `estimate/newinvoices/${id}/`,
+    }),
+
+    // Update invoice
     updateInvoice: builder.mutation<Invoice, Partial<Invoice> & { id: number }>(
       {
         query: ({ id, ...patch }) => ({
@@ -100,7 +115,8 @@ export const invoiceApi = createApi({
 
 export const {
   useGetInvoiceQuery,
-  useLazyGetInvoiceByIdQuery,
+  useGetInvoiceByIdQuery,
+  useGetInvoiceStatisticsQuery,
   useCreateInvoiceMutation,
   useUpdateInvoiceMutation,
   useDeleteInvoiceMutation,
