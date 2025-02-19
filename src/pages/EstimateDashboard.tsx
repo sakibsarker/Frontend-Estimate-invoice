@@ -43,11 +43,18 @@ export default function EstimateDashboard() {
   const { data, isLoading, error } = useGetRepiarStatisticsQuery();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const {
     data: estimatesData,
     isLoading: estimatesLoading,
     error: estimatesError,
-  } = useGetRepiarRequstQuery(currentPage);
+    refetch,
+  } = useGetRepiarRequstQuery({
+    page: currentPage,
+    repair_status: selectedStatus !== "all" ? selectedStatus : undefined,
+    search: searchTerm,
+  });
 
   // Color mapping functions kept for UI consistency
   const getRepairStatusColor = (status: string) => {
@@ -148,15 +155,21 @@ export default function EstimateDashboard() {
           </Select>
         </div>
 
-        <Select>
+        <Select
+          value={selectedStatus}
+          onValueChange={(value) => {
+            setSelectedStatus(value);
+            setCurrentPage(1); // Reset to first page when changing filters
+          }}
+        >
           <SelectTrigger className="w-[200px] bg-[#1a237e] text-white">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
-            <SelectItem value="new">New</SelectItem>
-            <SelectItem value="viewed">Viewed</SelectItem>
-            <SelectItem value="expired">Expired</SelectItem>
+            <SelectItem value="NEW">New</SelectItem>
+            <SelectItem value="VIEWED">Viewed</SelectItem>
+            <SelectItem value="EXPIRED">Expired</SelectItem>
           </SelectContent>
         </Select>
 
@@ -165,6 +178,11 @@ export default function EstimateDashboard() {
             type="text"
             placeholder="Search estimates..."
             className="w-full"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1); // Reset to first page when searching
+            }}
           />
         </div>
 

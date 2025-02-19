@@ -55,8 +55,22 @@ export const repairRequestApi = createApi({
       }),
     }),
     // Get all estimate
-    getRepiarRequst: builder.query<PaginatedResponse<RepairRequest>, number>({
-      query: (page) => `estimate/repair-requests/new/?page=${page}`,
+    getRepiarRequst: builder.query<
+      PaginatedResponse<RepairRequest>,
+      {
+        page?: number;
+        repair_status?: string;
+        search?: string;
+      }
+    >({
+      query: (params) => ({
+        url: "estimate/repair-requests/new/",
+        params: {
+          page: params.page,
+          repair_status: params.repair_status,
+          search: params.search,
+        },
+      }),
     }),
 
     // Get all estimate statistics
