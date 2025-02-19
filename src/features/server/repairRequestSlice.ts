@@ -19,6 +19,13 @@ interface RepairRequest {
   updated_at: string;
 }
 
+interface RepairRequestStatistics {
+  total_requests: number;
+  total_new_requests: number;
+  total_expired_requests: number;
+  accepted_percentage: number;
+}
+
 export const repairRequestApi = createApi({
   reducerPath: "repairRequestApi",
   baseQuery: fetchBaseQuery({
@@ -41,6 +48,15 @@ export const repairRequestApi = createApi({
         body: formData,
       }),
     }),
+    // Get all estimate
+    getRepiarRequst: builder.query<RepairRequest[], void>({
+      query: () => "estimate/new-item/",
+    }),
+    // Get all estimate statistics
+    getRepiarStatistics: builder.query<RepairRequestStatistics, void>({
+      query: () => "estimate/repair-requests/statistics/",
+    }),
+
     // GET - Fetch a single repair request by ID
     getRepairRequestByID: builder.query<RepairRequest, number>({
       query: (id) => `estimate/repair-requests/${id}/`,
@@ -59,6 +75,8 @@ export const repairRequestApi = createApi({
 
 // Export hooks for usage in components
 export const {
+  useGetRepiarRequstQuery,
+  useGetRepiarStatisticsQuery,
   useCreateRepairRequestMutation,
   useGetRepairRequestByIDQuery,
   useUpdateRepairRequestMutation,
