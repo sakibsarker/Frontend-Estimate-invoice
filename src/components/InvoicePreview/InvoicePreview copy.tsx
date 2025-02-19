@@ -15,102 +15,88 @@ export function InvoicePreview({
   templateData,
 }: InvoicePreviewProps) {
   return (
-    <div
-      className={cn(
-        "bg-white rounded-xl shadow-lg p-6 md:p-8",
-        layout === "impact" && "border border-gray-100",
-        layout === "modern" && "shadow-sm"
-      )}
-    >
+    <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
       {/* Header Section - Layout Variations */}
       <div
         className={cn(
           "mb-6 md:mb-8 transition-all",
-          layout === "impact" && "bg-gray-50 rounded-lg p-6", // Layout 2 with background
-          layout === "classic" && "border-b pb-6"
+          layout === "impact" && "bg-gray-50 rounded-lg p-6", // Only layout with background
+          layout === "classic"
+            ? "flex flex-col md:flex-row justify-between"
+            : "text-center"
         )}
       >
         <div
           className={cn(
-            "flex flex-col md:flex-row justify-between",
-            layout === "impact" && "text-center flex-col",
-            layout === "modern" && "items-start"
+            layout === "classic" && "order-1",
+            layout === "modern" && "space-y-2"
           )}
         >
-          {/* Logo/Company Name Section */}
-          <div
-            className={cn(
-              layout === "classic" && "order-1",
-              layout === "modern" && "space-y-2"
-            )}
-          >
-            {logo ? (
-              <img
-                src={logo}
-                alt="Business logo"
-                className={cn(
-                  "w-auto object-contain mb-4",
-                  layout === "impact" ? "mx-auto h-24" : "h-20",
-                  layout === "modern" && "rounded-lg"
-                )}
-              />
-            ) : (
-              <h2
-                className={cn(
-                  "font-bold text-gray-800",
-                  layout === "impact" ? "text-3xl" : "text-2xl",
-                  layout === "modern" && "tracking-wide"
-                )}
-              >
-                Auto Gig Shop
-              </h2>
-            )}
-          </div>
-
-          {/* Invoice Header Info */}
-          <div
-            className={cn(
-              "space-y-2",
-              layout === "classic" && "text-right md:w-1/3",
-              layout === "modern" && "mt-4 md:mt-0",
-              layout === "minimal" && "hidden"
-            )}
-          >
-            <div
+          {logo ? (
+            <img
+              src={logo}
+              alt="Business logo"
               className={cn(
-                "font-bold text-primary-600",
+                "w-auto object-contain mb-4",
+                layout === "impact" ? "mx-auto h-24" : "h-20",
+                layout === "modern" && "rounded-lg"
+              )}
+            />
+          ) : (
+            <h2
+              className={cn(
+                "font-bold text-gray-800",
                 layout === "impact" ? "text-3xl" : "text-2xl",
-                layout === "modern" && "text-xl"
+                layout === "modern" && "tracking-wide"
               )}
             >
-              INVOICE
-            </div>
-            <div className="space-y-1 text-sm text-gray-500">
-              {templateData.headerFields.poNumber && (
-                <div
-                  className={cn(
-                    "flex items-center gap-2",
-                    layout === "classic" ? "justify-end" : "justify-center"
-                  )}
-                >
-                  <span>PO Number:</span>
-                  <span>#1234</span>
-                </div>
-              )}
-              {templateData.headerFields.Date && (
-                <div
-                  className={cn(
-                    layout === "modern" ? "text-gray-700" : "text-gray-500"
-                  )}
-                >
-                  {new Date().toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </div>
-              )}
-            </div>
+              Auto Gig Shop
+            </h2>
+          )}
+        </div>
+
+        <div
+          className={cn(
+            "space-y-2",
+            layout === "classic" && "text-right md:w-1/3",
+            layout === "modern" && "mt-4 text-center",
+            layout === "minimal" && "hidden"
+          )}
+        >
+          <div
+            className={cn(
+              "font-bold text-primary-600",
+              layout === "impact" ? "text-3xl" : "text-2xl",
+              layout === "modern" && "text-xl"
+            )}
+          >
+            INVOICE
+          </div>
+          <div className="space-y-1 text-sm text-gray-500">
+            {templateData.headerFields.poNumber && (
+              <div
+                className={cn(
+                  "flex items-center gap-2",
+                  layout === "classic" ? "justify-end" : "justify-center"
+                )}
+              >
+                <span>PO Number:</span>
+                <span>#1234</span>
+              </div>
+            )}
+            {templateData.headerFields.Date && (
+              <div
+                className={cn(
+                  layout === "modern" ? "text-gray-700" : "text-gray-500"
+                )}
+              >
+                {new Date().toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -134,9 +120,7 @@ export function InvoicePreview({
             Bill To
           </h3>
           {templateData.customerFields.customerName && (
-            <div className="font-medium text-gray-900">
-              Customer Information
-            </div>
+            <div className="font-medium text-gray-900">Customer Company</div>
           )}
           {templateData.customerFields.billingAddress && (
             <div className="text-sm text-gray-600 space-y-1">
@@ -165,7 +149,7 @@ export function InvoicePreview({
           </div>
         </div>
 
-        {/* Shipping Address */}
+        {/* Shipping Address - Layout Specific Display */}
         {templateData.customerFields.shippingAddress && (
           <div
             className={cn(
@@ -277,13 +261,11 @@ export function InvoicePreview({
         </table>
       </div>
 
-      {/* Totals Section - Layout Variations */}
+      {/* Totals Section */}
       <div
-        className={cn(
-          "mt-8 p-4 rounded-lg",
-          layout === "impact" && "bg-gray-50",
-          layout === "modern" && "border-t"
-        )}
+        className={`mt-8 ${
+          layout === "impact" ? "bg-gray-50" : ""
+        } p-4 rounded-lg`}
       >
         <div className="max-w-xs ml-auto space-y-3">
           {templateData.calculationFields.subtotal && (
@@ -319,7 +301,7 @@ export function InvoicePreview({
 
       {/* Footer Section */}
       <div
-        className="mt-8 p-6 rounded-lg"
+        className="mt-8 p-6 rounded-lg transition-colors duration-300"
         style={{
           backgroundColor: color,
           color: getContrastingTextColor(color),

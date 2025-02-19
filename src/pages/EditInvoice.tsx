@@ -75,7 +75,6 @@ export default function EditInvoice() {
       description: true,
     },
     calculationFields: {
-      total: true,
       subtotal: true,
       tax: true,
       discount: true,
