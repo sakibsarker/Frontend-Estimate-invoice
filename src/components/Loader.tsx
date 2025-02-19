@@ -8,7 +8,7 @@ export default function Loader() {
         ></div>
         <div
           className="w-24 h-24 rounded-full animate-spin absolute
-                      border-8 border-solid border-blue-500 border-t-transparent
+                      border-8 border-solid border-[#1a237e] border-t-transparent
                       shadow-md"
         ></div>
       </div>

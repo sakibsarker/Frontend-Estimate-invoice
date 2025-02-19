@@ -139,7 +139,7 @@ export default function Signup() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+          className="w-full bg-[#1a237e] text-white py-2 px-4 rounded hover:bg-[#1a237e]/70"
         >
           {loading ? "Registering..." : "Sign Up"}
         </button>

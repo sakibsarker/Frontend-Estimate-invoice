@@ -6,7 +6,7 @@ import Layout from "@/components/auth/layout";
 import Login from "@/components/auth/login";
 import Signup from "@/components/auth/signup";
 import LayoutPage from "@/pages/layout";
-import Profile from "@/pages/profile";
+import App from "@/App";
 import CreateEstimate from "@/components/estimate/CreateEstimate";
 import AdminCreateEstimate from "@/components/estimate/AdminCreateEstimate";
 import NewInvoiceForm from "@/components/forms/NewInvoiceForm";
@@ -40,7 +40,7 @@ export const AppRoutes = () => {
         <Route path="/invoice/new" element={<ManualInvoiceForm />} />
 
         <Route path="/editinvoice" element={<EditInvoice />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/home" element={<App />} />
       </Route>
     </Routes>
   );

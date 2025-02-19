@@ -34,7 +34,7 @@ const Login: React.FC = () => {
       localStorage.setItem("token", data.token);
 
       console.log("Login successful!");
-      navigate("/profile");
+      navigate("/home");
       // Redirect or update UI as needed
     } catch (err: any) {
       setError(err.message);
@@ -77,7 +77,7 @@ const Login: React.FC = () => {
           {error && <p className="text-red-500 mb-4">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600"
+            className="w-full bg-[#1a237e] text-white p-3 rounded-lg hover:bg-[#1a237e]/80"
             disabled={loading}
           >
             {loading ? "Logging in..." : "Login"}

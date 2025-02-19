@@ -87,7 +87,11 @@ export default function EstimateDashboard() {
     <div className="min-h-screen bg-[#B8E1E9]">
       {/* Top Navigation */}
       <div className="flex items-center gap-2 p-4 bg-[#B8E1E9]">
-        <Button variant="ghost" className="text-gray-700 hover:bg-blue-100">
+        <Button
+          variant="ghost"
+          className="text-gray-700 hover:bg-blue-100"
+          onClick={() => navigate("/home")}
+        >
           <Home className="h-6 w-6" />
           <span className="ml-2">Back to Home</span>
         </Button>
