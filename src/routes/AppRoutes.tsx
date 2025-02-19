@@ -13,6 +13,7 @@ import NewInvoiceForm from "@/components/forms/NewInvoiceForm";
 import ManualInvoiceDashboard from "@/pages/ManualInvoiceDashboard";
 import EditManualInvoiceForm from "@/components/forms/EditManualInvoiceForm";
 import ManualInvoiceForm from "@/components/forms/ManualInvoiceForm";
+import TemplateOne from "@/components/InvoiceTemplate/TemplateOne";
 export const AppRoutes = () => {
   return (
     <Routes>
@@ -23,6 +24,7 @@ export const AppRoutes = () => {
       </Route>
 
       <Route element={<LayoutPage />}>
+        <Route path="/home" element={<App />} />
         <Route path="/estimate" element={<EstimateDashboard />} />
         <Route path="/estimate/new" element={<CreateEstimate />} />
         <Route path="/admin/estimate" element={<AdminCreateEstimate />} />
@@ -40,7 +42,7 @@ export const AppRoutes = () => {
         <Route path="/invoice/new" element={<ManualInvoiceForm />} />
 
         <Route path="/editinvoice" element={<EditInvoice />} />
-        <Route path="/home" element={<App />} />
+        <Route path="/preview" element={<TemplateOne />} />
       </Route>
     </Routes>
   );

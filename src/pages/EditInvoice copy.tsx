@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Upload } from "lucide-react";
+import { X, Upload, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { InvoicePreview } from "@/components/InvoicePreview/InvoicePreview";
 
@@ -53,8 +59,13 @@ export default function EditInvoice() {
   const [templateData, setTemplateData] = useState({
     name: "Untitled",
     isDefault: false,
+    businessInfo: {
+      name: "",
+      address: "",
+      phone: "",
+      email: "",
+    },
     customerFields: {
-      customerName: true,
       billingAddress: true,
       shippingAddress: true,
       phone: true,
@@ -62,24 +73,16 @@ export default function EditInvoice() {
       accountNumber: true,
     },
     headerFields: {
+      paymentTerms: true,
+      dueDate: true,
       poNumber: true,
       salesRep: true,
-      Date: true,
     },
     itemFields: {
       date: true,
       itemName: true,
       quantity: true,
       price: true,
-      type: true,
-      description: true,
-    },
-    calculationFields: {
-      total: true,
-      subtotal: true,
-      tax: true,
-      discount: true,
-      dueAmount: true,
     },
   });
 
@@ -251,6 +254,24 @@ export default function EditInvoice() {
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-4">
+                  {/* Business Info */}
+                  <div className="space-y-2">
+                    <Label>Your business info</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Company profile" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="profile1">
+                          Company Profile 1
+                        </SelectItem>
+                        <SelectItem value="profile2">
+                          Company Profile 2
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   {/* Customer Info */}
                   <div className="space-y-2">
                     <Label>Customer info</Label>
@@ -319,6 +340,10 @@ export default function EditInvoice() {
                         )
                       )}
                     </div>
+                    <Button variant="outline" size="sm" className="mt-2">
+                      <Plus className="h-4 w-4 mr-1" />
+                      Add field
+                    </Button>
                   </div>
 
                   {/* Item Fields */}
@@ -354,46 +379,15 @@ export default function EditInvoice() {
                         )
                       )}
                     </div>
+                    <Button variant="outline" size="sm" className="mt-2">
+                      <Plus className="h-4 w-4 mr-1" />
+                      Add Column
+                    </Button>
                   </div>
 
-                  {/*Calculation Fields */}
+                  {/* Subtotal & Footer */}
                   <div className="space-y-2">
-                    <Label>Calculation</Label>
-                    <div className="space-y-2">
-                      {Object.entries(templateData.calculationFields).map(
-                        ([key, value]) => (
-                          <div
-                            key={key}
-                            className="flex items-center space-x-2"
-                          >
-                            <Checkbox
-                              id={key}
-                              checked={value}
-                              onCheckedChange={(checked) =>
-                                setTemplateData({
-                                  ...templateData,
-                                  itemFields: {
-                                    ...templateData.itemFields,
-                                    [key]: checked as boolean,
-                                  },
-                                })
-                              }
-                            />
-                            <label
-                              htmlFor={key}
-                              className="text-sm leading-none capitalize"
-                            >
-                              {key.replace(/([A-Z])/g, " $1").toLowerCase()}
-                            </label>
-                          </div>
-                        )
-                      )}
-                    </div>
-                  </div>
-
-                  {/*Footer Note */}
-                  <div className="space-y-2">
-                    <Label>Footer Note</Label>
+                    <Label>Subtotal & Footer</Label>
                     <Textarea
                       placeholder="Message on template"
                       className="h-20 resize-none"
