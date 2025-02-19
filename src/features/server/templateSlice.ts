@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 // Define the interface for the tempalte data
 
 interface Template {
-  id: string;
+  id: number;
   name: string;
   selected_color: string;
   selected_layout: string;
@@ -58,11 +58,11 @@ export const templateApi = createApi({
     }),
     // Get all Template
     getTemplate: builder.query<Template[], void>({
-      query: () => "estimate//invoice-template/",
+      query: () => "estimate/invoice-template/",
     }),
 
     // GET - Fetch a single Template by ID
-    getTemplateByID: builder.query<Template, number>({
+    getTemplatesByID: builder.query<Template, number>({
       query: (id) => `estimate/invoice-template/${id}/`,
     }),
 
@@ -81,6 +81,6 @@ export const templateApi = createApi({
 export const {
   useCreateTemplateMutation,
   useUpdateTemplateMutation,
-  useGetTemplateByIDQuery,
-  useLazyGetTemplateByIDQuery,
+  useGetTemplateQuery,
+  useGetTemplatesByIDQuery,
 } = templateApi;

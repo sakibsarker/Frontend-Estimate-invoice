@@ -5,7 +5,26 @@ interface InvoicePreviewProps {
   logo: string | null;
   color: string;
   layout: string;
-  templateData: any;
+  templateData: {
+    customerName: boolean;
+    billingAddress: boolean;
+    shippingAddress: boolean;
+    phone: boolean;
+    email: boolean;
+    accountNumber: boolean;
+    poNumber: boolean;
+    salesRep: boolean;
+    Date: boolean;
+    itemName: boolean;
+    quantity: boolean;
+    price: boolean;
+    type: boolean;
+    description: boolean;
+    subtotal: boolean;
+    tax: boolean;
+    discount: boolean;
+    dueAmount: boolean;
+  };
 }
 
 export function InvoicePreview({
@@ -86,18 +105,13 @@ export function InvoicePreview({
               INVOICE
             </div>
             <div className="space-y-1 text-sm text-gray-500">
-              {templateData.headerFields.poNumber && (
-                <div
-                  className={cn(
-                    "flex items-center gap-2",
-                    layout === "classic" ? "justify-end" : "justify-center"
-                  )}
-                >
-                  <span>PO Number:</span>
-                  <span>#1234</span>
+              {templateData.customerName && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Customer Name:</span>
+                  <span className="text-gray-900">Auto Gig Shop</span>
                 </div>
               )}
-              {templateData.headerFields.Date && (
+              {templateData.Date && (
                 <div
                   className={cn(
                     layout === "modern" ? "text-gray-700" : "text-gray-500"
@@ -108,6 +122,18 @@ export function InvoicePreview({
                     month: "short",
                     day: "numeric",
                   })}
+                </div>
+              )}
+              {templateData.poNumber && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">PO Number:</span>
+                  <span className="text-gray-900">PO-123456</span>
+                </div>
+              )}
+              {templateData.salesRep && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Sales Rep:</span>
+                  <span className="text-gray-900">John Doe</span>
                 </div>
               )}
             </div>
@@ -133,14 +159,11 @@ export function InvoicePreview({
           <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
             Bill To
           </h3>
-          {templateData.customerFields.customerName && (
-            <div className="font-medium text-gray-900">Customer Name</div>
-          )}
-          {templateData.customerFields.billingAddress && (
+          {templateData.billingAddress && (
             <div className="text-sm text-gray-600 space-y-1">
               <div>123 Business Road</div>
               <div>San Francisco, CA 94107</div>
-              {templateData.customerFields.accountNumber && (
+              {templateData.accountNumber && (
                 <div className="mt-2">
                   <span className="font-medium">Account #:</span> 123-45678
                 </div>
@@ -148,13 +171,13 @@ export function InvoicePreview({
             </div>
           )}
           <div className="pt-2 space-y-1">
-            {templateData.customerFields.email && (
+            {templateData.email && (
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Mail className="h-4 w-4" />
                 customer@email.com
               </div>
             )}
-            {templateData.customerFields.phone && (
+            {templateData.phone && (
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Phone className="h-4 w-4" />
                 (123) 456-7890
@@ -164,7 +187,7 @@ export function InvoicePreview({
         </div>
 
         {/* Shipping Address */}
-        {templateData.customerFields.shippingAddress && (
+        {templateData.shippingAddress && (
           <div
             className={cn(
               "p-4 rounded-lg",
@@ -196,27 +219,27 @@ export function InvoicePreview({
             className={cn("bg-gray-50", layout === "modern" && "border-b")}
           >
             <tr>
-              {templateData.itemFields.date && (
+              {templateData.Date && (
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
                   Date
                 </th>
               )}
-              {templateData.itemFields.itemName && (
+              {templateData.itemName && (
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Item
                 </th>
               )}
-              {templateData.itemFields.type && (
+              {templateData.type && (
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
                   Type
                 </th>
               )}
-              {templateData.itemFields.quantity && (
+              {templateData.quantity && (
                 <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Qty
                 </th>
               )}
-              {templateData.itemFields.price && (
+              {templateData.price && (
                 <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Price
                 </th>
@@ -234,34 +257,34 @@ export function InvoicePreview({
           >
             {[1, 2].map((item) => (
               <tr key={item} className="hover:bg-gray-50 transition-colors">
-                {templateData.itemFields.date && (
+                {templateData.Date && (
                   <td className="px-4 py-3 text-sm text-gray-500 hidden md:table-cell">
                     2024-03-{item.toString().padStart(2, "0")}
                   </td>
                 )}
-                {templateData.itemFields.itemName && (
+                {templateData.itemName && (
                   <td className="px-4 py-3">
                     <div className="font-medium text-gray-900">
                       Service {item}
                     </div>
-                    {templateData.itemFields.description && (
+                    {templateData.description && (
                       <div className="mt-1 text-sm text-gray-500">
                         Item description details
                       </div>
                     )}
                   </td>
                 )}
-                {templateData.itemFields.type && (
+                {templateData.type && (
                   <td className="px-4 py-3 text-sm text-gray-500 hidden md:table-cell">
                     Service
                   </td>
                 )}
-                {templateData.itemFields.quantity && (
+                {templateData.quantity && (
                   <td className="px-4 py-3 text-right text-sm text-gray-900">
                     2
                   </td>
                 )}
-                {templateData.itemFields.price && (
+                {templateData.price && (
                   <td className="px-4 py-3 text-right text-sm text-gray-900">
                     $500.00
                   </td>
@@ -284,19 +307,19 @@ export function InvoicePreview({
         )}
       >
         <div className="max-w-xs ml-auto space-y-3">
-          {templateData.calculationFields.subtotal && (
+          {templateData.subtotal && (
             <div className="flex justify-between text-sm font-semibold">
               <span className="text-gray-600">Subtotal:</span>
               <span className="text-gray-900">$2,000.00</span>
             </div>
           )}
-          {templateData.calculationFields.tax && (
+          {templateData.tax && (
             <div className="flex justify-between text-sm font-semibold">
               <span className="text-gray-600">Tax (10%):</span>
               <span className="text-gray-900">$200.00</span>
             </div>
           )}
-          {templateData.calculationFields.discount && (
+          {templateData.discount && (
             <div className="flex justify-between font-semibold text-sm text-gray-600">
               <span className="text-gray-600">Discount:</span>
               <span className="text-gray-900">$50.00</span>
@@ -306,7 +329,7 @@ export function InvoicePreview({
             <span className="text-gray-900">Total:</span>
             <span className="text-primary-600">$2,150.00</span>
           </div>
-          {templateData.calculationFields.dueAmount && (
+          {templateData.dueAmount && (
             <div className="flex justify-between text-sm font-medium text-red-600">
               <span>Due Amount:</span>
               <span>$2,150.00</span>
@@ -324,26 +347,26 @@ export function InvoicePreview({
         }}
       >
         <div className="text-sm space-y-2">
-          {templateData.footerNote || (
-            <>
-              <div className="flex items-center gap-2">
-                <Link className="h-4 w-4" />
-                <a
-                  href="https://payment.example.com"
-                  className="underline hover:opacity-80"
-                >
-                  https://payment.example.com
-                </a>
-              </div>
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                <span>Terms: Due on Receipt</span>
-              </div>
-              <div className="pt-2 font-medium">
-                Thank you for your business! 💙
-              </div>
-            </>
+          {templateData.customerName && (
+            <div className="flex items-center gap-2">
+              <Link className="h-4 w-4" />
+              <a
+                href="https://payment.example.com"
+                className="underline hover:opacity-80"
+              >
+                https://payment.example.com
+              </a>
+            </div>
           )}
+          {templateData.customerName && (
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              <span>Terms: Due on Receipt</span>
+            </div>
+          )}
+          <div className="pt-2 font-medium">
+            Thank you for your business! 💙
+          </div>
         </div>
       </div>
     </div>

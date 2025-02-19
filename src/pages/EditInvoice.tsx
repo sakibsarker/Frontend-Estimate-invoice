@@ -23,7 +23,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { useCreateTemplateMutation } from "@/features/server/templateSlice";
 
 const layouts = [
   {
@@ -54,40 +53,28 @@ const colors = [
 interface Template {
   id: string;
   name: string;
-  selectedColor: string;
-  selectedLayout: string;
+  selected_color: string;
+  selected_layout: string;
   logo: string | null;
-  templateData: {
-    name: string;
-    isDefault: boolean;
-    customerFields: {
-      customerName: boolean;
-      billingAddress: boolean;
-      shippingAddress: boolean;
-      phone: boolean;
-      email: boolean;
-      accountNumber: boolean;
-    };
-    headerFields: {
-      poNumber: boolean;
-      salesRep: boolean;
-      Date: boolean;
-    };
-    itemFields: {
-      date: boolean;
-      itemName: boolean;
-      quantity: boolean;
-      price: boolean;
-      type: boolean;
-      description: boolean;
-    };
-    calculationFields: {
-      subtotal: boolean;
-      tax: boolean;
-      discount: boolean;
-      dueAmount: boolean;
-    };
-  };
+  customer_name: boolean;
+  billing_address: boolean;
+  shipping_address: boolean;
+  phone: boolean;
+  email: boolean;
+  account_number: boolean;
+  po_number: boolean;
+  sales_rep: boolean;
+  date: boolean;
+  item_name: boolean;
+  quantity: boolean;
+  price: boolean;
+  type: boolean;
+  description: boolean;
+  subtotal: boolean;
+  tax: boolean;
+  discount: boolean;
+  due_amount: boolean;
+  is_default: boolean;
 }
 
 export default function EditInvoice() {
@@ -103,39 +90,29 @@ export default function EditInvoice() {
   const [logo, setLogo] = useState<string | null>(null);
   const [templateData, setTemplateData] = useState({
     name: "New Template",
-    isDefault: false,
-    customerFields: {
-      customerName: true,
-      billingAddress: true,
-      shippingAddress: true,
-      phone: true,
-      email: true,
-      accountNumber: true,
-    },
-    headerFields: {
-      poNumber: true,
-      salesRep: true,
-      Date: true,
-    },
-    itemFields: {
-      date: true,
-      itemName: true,
-      quantity: true,
-      price: true,
-      type: true,
-      description: true,
-    },
-    calculationFields: {
-      subtotal: true,
-      tax: true,
-      discount: true,
-      dueAmount: true,
-    },
+    is_default: false,
+    customerName: true,
+    billingAddress: true,
+    shippingAddress: true,
+    phone: true,
+    email: true,
+    accountNumber: true,
+    poNumber: true,
+    salesRep: true,
+    Date: true,
+    itemName: true,
+    quantity: true,
+    price: true,
+    type: true,
+    description: true,
+    subtotal: true,
+    tax: true,
+    discount: true,
+    dueAmount: true,
   });
   const [defaultTemplateId, setDefaultTemplateId] = useState<string | null>(
     null
   );
-  const [createTemplate] = useCreateTemplateMutation();
 
   useEffect(() => {
     localStorage.setItem("templates", JSON.stringify(templates));
@@ -164,61 +141,70 @@ export default function EditInvoice() {
   };
 
   const handleSaveTemplate = async () => {
-    try {
-      const templatePayload = {
-        name: templateData.name,
-        logo: logo,
-        selected_color: selectedColor,
-        selected_layout: selectedLayout,
-        is_default: templateData.isDefault,
-        customer_name: templateData.customerFields.customerName,
-        billing_address: templateData.customerFields.billingAddress,
-        shipping_address: templateData.customerFields.shippingAddress,
-        phone: templateData.customerFields.phone,
-        email: templateData.customerFields.email,
-        account_number: templateData.customerFields.accountNumber,
-        po_number: templateData.headerFields.poNumber,
-        sales_rep: templateData.headerFields.salesRep,
-        date: templateData.headerFields.Date,
-        item_name: templateData.itemFields.itemName,
-        quantity: templateData.itemFields.quantity,
-        price: templateData.itemFields.price,
-        type: templateData.itemFields.type,
-        description: templateData.itemFields.description,
-        subtotal: templateData.calculationFields.subtotal,
-        tax: templateData.calculationFields.tax,
-        discount: templateData.calculationFields.discount,
-        due_amount: templateData.calculationFields.dueAmount,
-      };
+    const newTemplate = {
+      id: uuidv4(),
+      name: templateData.name,
+      selected_color: selectedColor,
+      selected_layout: selectedLayout,
+      logo: logo,
+      is_default: templateData.is_default,
+      customer_name: templateData.customerName,
+      billing_address: templateData.billingAddress,
+      shipping_address: templateData.shippingAddress,
+      phone: templateData.phone,
+      email: templateData.email,
+      account_number: templateData.accountNumber,
+      po_number: templateData.poNumber,
+      sales_rep: templateData.salesRep,
+      date: templateData.Date,
+      item_name: templateData.itemName,
+      quantity: templateData.quantity,
+      price: templateData.price,
+      type: templateData.type,
+      description: templateData.description,
+      subtotal: templateData.subtotal,
+      tax: templateData.tax,
+      discount: templateData.discount,
+      due_amount: templateData.dueAmount,
+    };
 
-      const result = await createTemplate(templatePayload).unwrap();
-      console.log("Template created successfully:", result);
-      setTemplates((prev) => {
-        const updated = prev.filter((t) => t.id !== currentTemplateId);
-        return [
-          ...updated,
-          {
-            id: uuidv4(),
-            name: templateData.name,
-            selectedColor,
-            selectedLayout,
-            logo,
-            templateData,
-          },
-        ];
-      });
-      setCurrentTemplateId(uuidv4());
-    } catch (error) {
-      console.error("Failed to create template:", error);
-    }
+    console.log(templates);
+
+    setTemplates((prev) => {
+      const updated = prev.filter((t) => t.id !== currentTemplateId);
+      return [...updated, newTemplate];
+    });
+    setCurrentTemplateId(newTemplate.id);
   };
 
   const handleSelectTemplate = (templateId: string) => {
     const template = templates.find((t) => t.id === templateId);
     if (template) {
-      setTemplateData(template.templateData);
-      setSelectedColor(template.selectedColor);
-      setSelectedLayout(template.selectedLayout);
+      setTemplateData({
+        ...templateData,
+        name: template.name,
+        is_default: template.is_default,
+        customerName: template.customer_name,
+        billingAddress: template.billing_address,
+        shippingAddress: template.shipping_address,
+        phone: template.phone,
+        email: template.email,
+        accountNumber: template.account_number,
+        poNumber: template.po_number,
+        salesRep: template.sales_rep,
+        Date: template.date,
+        itemName: template.item_name,
+        quantity: template.quantity,
+        price: template.price,
+        type: template.type,
+        description: template.description,
+        subtotal: template.subtotal,
+        tax: template.tax,
+        discount: template.discount,
+        dueAmount: template.due_amount,
+      });
+      setSelectedColor(template.selected_color);
+      setSelectedLayout(template.selected_layout);
       setLogo(template.logo);
       setCurrentTemplateId(templateId);
     }
@@ -236,13 +222,35 @@ export default function EditInvoice() {
     setTemplateData({
       ...templateData,
       name: "New Template " + (templates.length + 1),
-      isDefault: false,
+      is_default: false,
     });
 
     setSelectedColor("#4E4E56");
     setSelectedLayout("modern");
     setLogo(null);
   };
+
+  // Filter only boolean fields for checkboxes
+  const booleanFields = [
+    "customerName",
+    "billingAddress",
+    "shippingAddress",
+    "phone",
+    "email",
+    "accountNumber",
+    "poNumber",
+    "salesRep",
+    "Date",
+    "itemName",
+    "quantity",
+    "price",
+    "type",
+    "description",
+    "subtotal",
+    "tax",
+    "discount",
+    "dueAmount",
+  ];
 
   return (
     <div className="flex min-h-screen">
@@ -429,131 +437,34 @@ export default function EditInvoice() {
                 <div className="space-y-2">
                   <Label>Customer info</Label>
                   <div className="space-y-2">
-                    {Object.entries(templateData.customerFields).map(
-                      ([key, value]) => (
-                        <div key={key} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={key}
-                            checked={value}
-                            onCheckedChange={(checked) =>
-                              setTemplateData({
-                                ...templateData,
-                                customerFields: {
-                                  ...templateData.customerFields,
-                                  [key]: checked as boolean,
-                                },
-                              })
-                            }
-                          />
-                          <label
-                            htmlFor={key}
-                            className="text-sm leading-none capitalize"
-                          >
-                            {key.replace(/([A-Z])/g, " $1").toLowerCase()}
-                          </label>
-                        </div>
-                      )
-                    )}
+                    {booleanFields.map((field) => (
+                      <div key={field} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={field}
+                          checked={
+                            templateData[
+                              field as keyof typeof templateData
+                            ] as boolean
+                          }
+                          onCheckedChange={(checked) =>
+                            setTemplateData({
+                              ...templateData,
+                              [field]: checked,
+                            })
+                          }
+                        />
+                        <label
+                          htmlFor={field}
+                          className="text-sm leading-none capitalize"
+                        >
+                          {field.replace(/([A-Z])/g, " $1").toLowerCase()}
+                        </label>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Header Fields */}
-                <div className="space-y-2">
-                  <Label>Header</Label>
-                  <div className="space-y-2">
-                    {Object.entries(templateData.headerFields).map(
-                      ([key, value]) => (
-                        <div key={key} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={key}
-                            checked={value}
-                            onCheckedChange={(checked) =>
-                              setTemplateData({
-                                ...templateData,
-                                headerFields: {
-                                  ...templateData.headerFields,
-                                  [key]: checked as boolean,
-                                },
-                              })
-                            }
-                          />
-                          <label
-                            htmlFor={key}
-                            className="text-sm leading-none capitalize"
-                          >
-                            {key.replace(/([A-Z])/g, " $1").toLowerCase()}
-                          </label>
-                        </div>
-                      )
-                    )}
-                  </div>
-                </div>
-
-                {/* Item Fields */}
-                <div className="space-y-2">
-                  <Label>Item</Label>
-                  <div className="space-y-2">
-                    {Object.entries(templateData.itemFields).map(
-                      ([key, value]) => (
-                        <div key={key} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={key}
-                            checked={value}
-                            onCheckedChange={(checked) =>
-                              setTemplateData({
-                                ...templateData,
-                                itemFields: {
-                                  ...templateData.itemFields,
-                                  [key]: checked as boolean,
-                                },
-                              })
-                            }
-                          />
-                          <label
-                            htmlFor={key}
-                            className="text-sm leading-none capitalize"
-                          >
-                            {key.replace(/([A-Z])/g, " $1").toLowerCase()}
-                          </label>
-                        </div>
-                      )
-                    )}
-                  </div>
-                </div>
-
-                {/*Calculation Fields */}
-                <div className="space-y-2">
-                  <Label>Calculation</Label>
-                  <div className="space-y-2">
-                    {Object.entries(templateData.calculationFields).map(
-                      ([key, value]) => (
-                        <div key={key} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={key}
-                            checked={value}
-                            onCheckedChange={(checked) =>
-                              setTemplateData({
-                                ...templateData,
-                                calculationFields: {
-                                  ...templateData.calculationFields,
-                                  [key]: checked as boolean,
-                                },
-                              })
-                            }
-                          />
-                          <label
-                            htmlFor={key}
-                            className="text-sm leading-none capitalize"
-                          >
-                            {key.replace(/([A-Z])/g, " $1").toLowerCase()}
-                          </label>
-                        </div>
-                      )
-                    )}
-                  </div>
-                </div>
-
-                {/*Footer Note */}
+                {/* Footer Note */}
                 <div className="space-y-2">
                   <Label>Footer Note</Label>
                   <Textarea
@@ -573,7 +484,26 @@ export default function EditInvoice() {
           logo={logo}
           color={selectedColor}
           layout={selectedLayout}
-          templateData={templateData}
+          templateData={{
+            customerName: templateData.customerName,
+            billingAddress: templateData.billingAddress,
+            shippingAddress: templateData.shippingAddress,
+            phone: templateData.phone,
+            email: templateData.email,
+            accountNumber: templateData.accountNumber,
+            poNumber: templateData.poNumber,
+            salesRep: templateData.salesRep,
+            Date: templateData.Date,
+            itemName: templateData.itemName,
+            quantity: templateData.quantity,
+            price: templateData.price,
+            type: templateData.type,
+            description: templateData.description,
+            subtotal: templateData.subtotal,
+            tax: templateData.tax,
+            discount: templateData.discount,
+            dueAmount: templateData.dueAmount,
+          }}
         />
       </div>
     </div>
