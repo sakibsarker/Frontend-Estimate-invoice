@@ -20,22 +20,18 @@ const layouts = [
   {
     id: "impact",
     name: "Impact",
-    image: "/placeholder.svg?height=100&width=80",
   },
   {
     id: "classic",
     name: "Classic",
-    image: "/placeholder.svg?height=100&width=80",
   },
   {
     id: "minimal",
     name: "Minimal",
-    image: "/placeholder.svg?height=100&width=80",
   },
   {
     id: "modern",
     name: "Modern",
-    image: "/placeholder.svg?height=100&width=80",
   },
 ];
 
@@ -200,11 +196,6 @@ export default function EditInvoice() {
                           }`}
                           onClick={() => setSelectedLayout(layout.id)}
                         >
-                          <img
-                            src={layout.image || "/placeholder.svg"}
-                            alt={layout.name}
-                            className="mb-2 w-full"
-                          />
                           <span className="text-sm">{layout.name}</span>
                         </div>
                       ))}
