@@ -191,7 +191,15 @@ export default function EstimateDashboard() {
           Search
         </Button>
 
-        <Button variant="secondary" className="bg-[#1a237e] text-white">
+        <Button
+          variant="secondary"
+          className="bg-[#1a237e] text-white"
+          onClick={() => {
+            setSelectedStatus("all");
+            setSearchTerm("");
+            setCurrentPage(1);
+          }}
+        >
           Clear Filter
           <X className="h-4 w-4 ml-2" />
         </Button>

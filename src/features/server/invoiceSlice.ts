@@ -91,7 +91,7 @@ export const invoiceApi = createApi({
         url: "estimate/newinvoices/new/",
         params: {
           page: params.page,
-          invoice_status: params.invoice_status,
+          status: params.invoice_status,
           search: params.search,
         },
       }),

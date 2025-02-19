@@ -61,28 +61,19 @@ export default function ManualInvoiceDashboard() {
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const { data: stats, isLoading, error } = useGetInvoiceStatisticsQuery();
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Static sample data
-  const staticEstimates = [
-    {
-      id: 1,
-      invoice_status: "PAID",
-      invoice_number: "INV-234",
-      created_at: "2024-03-15",
-      total: 343,
-      amount_due: 345,
-      payment_method: "CARD",
-    },
-    {
-      id: 2,
-      invoice_status: "UNPAID",
-      invoice_number: "INV-124",
-      created_at: "2024-03-16",
-      total: 34,
-      amount_due: 3434,
-      payment_method: "ONLIN",
-    },
-  ];
+  const {
+    data: invoicesData,
+    isLoading: invoicesLoading,
+    error: invoicesError,
+  } = useGetInvoiceQuery({
+    page: currentPage,
+    invoice_status: selectedStatus !== "all" ? selectedStatus : undefined,
+    search: searchTerm,
+  });
 
   return (
     <div className="min-h-screen bg-[#B8E1E9]">
@@ -164,7 +155,13 @@ export default function ManualInvoiceDashboard() {
           </Select>
         </div>
 
-        <Select>
+        <Select
+          value={selectedStatus}
+          onValueChange={(value) => {
+            setSelectedStatus(value);
+            setCurrentPage(1); // Reset to first page when changing status
+          }}
+        >
           <SelectTrigger className="w-[200px] bg-[#1a237e] text-white">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
@@ -182,17 +179,28 @@ export default function ManualInvoiceDashboard() {
         <div className="flex-grow">
           <Input
             type="text"
-            placeholder="Search estimates..."
+            placeholder="Search invoices..."
             className="w-full"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1); // Reset to first page when searching
+            }}
           />
         </div>
-
         <Button className="bg-[#1a237e]">
           <Search className="h-4 w-4 mr-2" />
           Search
         </Button>
-
-        <Button variant="secondary" className="bg-[#1a237e] text-white">
+        <Button
+          variant="secondary"
+          className="bg-[#1a237e] text-white"
+          onClick={() => {
+            setSelectedStatus("all");
+            setSearchTerm("");
+            setCurrentPage(1);
+          }}
+        >
           Clear Filter
           <X className="h-4 w-4 ml-2" />
         </Button>
@@ -207,109 +215,116 @@ export default function ManualInvoiceDashboard() {
 
       {/* invoice List */}
       <div className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {staticEstimates.map((estimate) => (
-            <div
-              key={estimate.id}
-              className="bg-white rounded-lg p-4 shadow cursor-pointer hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge
-                      className={getInvoiceStatusColor(estimate.invoice_status)}
-                    >
-                      {estimate.invoice_status}
-                    </Badge>
-                    <span className="text-blue-600">
-                      (#{estimate.id}) {estimate.invoice_number}
-                    </span>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                  <div className="text-sm text-gray-800 font-normal mb-2">
-                    Created: {estimate.created_at}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Landmark className="h-5 w-5" />
-                    <span>{estimate.payment_method}</span>
-                  </div>
-                  {/* <div className="flex items-center gap-2 mt-1">
-                    <User className="h-5 w-5" />
-                    <span>{estimate.username}</span>
-                  </div> */}
-                  <div className="flex justify-end flex-col items-end">
-                    <div
-                      className={`font-semibold ${
-                        estimate.invoice_status === "PAID"
-                          ? "text-green-600"
-                          : estimate.invoice_status === "UNPAID"
-                          ? "text-red-600"
-                          : estimate.invoice_status === "OVERDUE"
-                          ? "text-red-600"
-                          : estimate.invoice_status === "DRAFT"
-                          ? "text-gray-500"
-                          : estimate.invoice_status === "SENT"
-                          ? "text-purple-600"
-                          : "text-gray-600"
-                      }`}
-                    >
-                      Total ${estimate.total}
+        {invoicesLoading ? (
+          <div>Loading invoices...</div>
+        ) : invoicesError ? (
+          <div className="text-red-500">Error loading invoices</div>
+        ) : invoicesData ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {invoicesData.results.map((invoice) => (
+                <div
+                  key={invoice.id}
+                  className="bg-white rounded-lg p-4 shadow cursor-pointer hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge
+                          className={getInvoiceStatusColor(
+                            invoice.invoice_status
+                          )}
+                        >
+                          {invoice.invoice_status}
+                        </Badge>
+                        <span className="text-blue-600">
+                          {invoice.invoice_number}
+                        </span>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                            <DropdownMenuItem>Delete</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                      <div className="text-sm text-gray-800 font-normal mb-2">
+                        Created:{" "}
+                        {new Date(invoice.created_at).toLocaleDateString()}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Landmark className="h-5 w-5" />
+                        <span>{invoice.payment_method.replace("_", " ")}</span>
+                      </div>
+                      <div className="flex justify-end flex-col items-end mt-2">
+                        <div
+                          className={`font-semibold ${
+                            invoice.invoice_status === "PAID"
+                              ? "text-green-600"
+                              : invoice.invoice_status === "UNPAID"
+                              ? "text-red-600"
+                              : invoice.invoice_status === "OVERDUE"
+                              ? "text-orange-600"
+                              : "text-gray-600"
+                          }`}
+                        >
+                          Total: ${parseFloat(invoice.total).toFixed(2)}
+                        </div>
+                        <div
+                          className={`font-semibold ${
+                            invoice.invoice_status === "PAID"
+                              ? "text-green-600"
+                              : invoice.invoice_status === "UNPAID"
+                              ? "text-red-600"
+                              : invoice.invoice_status === "OVERDUE"
+                              ? "text-orange-600"
+                              : "text-gray-600"
+                          }`}
+                        >
+                          Due: ${parseFloat(invoice.amount_due).toFixed(2)}
+                        </div>
+                      </div>
                     </div>
-                    <div
-                      className={`font-semibold ${
-                        estimate.invoice_status === "PAID"
-                          ? "text-green-600"
-                          : estimate.invoice_status === "UNPAID"
-                          ? "text-red-600"
-                          : estimate.invoice_status === "OVERDUE"
-                          ? "text-red-600"
-                          : estimate.invoice_status === "DRAFT"
-                          ? "text-gray-500"
-                          : estimate.invoice_status === "SENT"
-                          ? "text-purple-600"
-                          : "text-gray-600"
-                      }`}
-                    >
-                      Due ${estimate.amount_due}
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm">
+                        <Printer className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm">
-                    <Printer className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Pagination */}
-        <div className="flex justify-center mt-6">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious aria-disabled={true} />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink isActive>1</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext aria-disabled={true} />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
+            {/* Pagination */}
+            <div className="flex justify-center mt-6">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(1, prev - 1))
+                      }
+                      aria-disabled={currentPage === 1}
+                    />
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationLink isActive>{currentPage}</PaginationLink>
+                  </PaginationItem>
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setCurrentPage((prev) => prev + 1)}
+                      aria-disabled={!invoicesData?.next}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          </>
+        ) : null}
       </div>
     </div>
   );
