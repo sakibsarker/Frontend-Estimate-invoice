@@ -15,88 +15,102 @@ export function InvoicePreview({
   templateData,
 }: InvoicePreviewProps) {
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
+    <div
+      className={cn(
+        "bg-white rounded-xl shadow-lg p-6 md:p-8",
+        layout === "impact" && "border border-gray-100",
+        layout === "modern" && "shadow-sm"
+      )}
+    >
       {/* Header Section - Layout Variations */}
       <div
         className={cn(
           "mb-6 md:mb-8 transition-all",
-          layout === "impact" && "bg-gray-50 rounded-lg p-6", // Only layout with background
-          layout === "classic"
-            ? "flex flex-col md:flex-row justify-between"
-            : "text-center"
+          layout === "impact" && "bg-gray-50 rounded-lg p-6", // Layout 2 with background
+          layout === "classic" && "border-b pb-6"
         )}
       >
         <div
           className={cn(
-            layout === "classic" && "order-1",
-            layout === "modern" && "space-y-2"
+            "flex flex-col md:flex-row justify-between",
+            layout === "impact" && "text-center flex-col",
+            layout === "modern" && "items-start"
           )}
         >
-          {logo ? (
-            <img
-              src={logo}
-              alt="Business logo"
-              className={cn(
-                "w-auto object-contain mb-4",
-                layout === "impact" ? "mx-auto h-24" : "h-20",
-                layout === "modern" && "rounded-lg"
-              )}
-            />
-          ) : (
-            <h2
-              className={cn(
-                "font-bold text-gray-800",
-                layout === "impact" ? "text-3xl" : "text-2xl",
-                layout === "modern" && "tracking-wide"
-              )}
-            >
-              Auto Gig Shop
-            </h2>
-          )}
-        </div>
-
-        <div
-          className={cn(
-            "space-y-2",
-            layout === "classic" && "text-right md:w-1/3",
-            layout === "modern" && "mt-4 text-center",
-            layout === "minimal" && "hidden"
-          )}
-        >
+          {/* Logo/Company Name Section */}
           <div
             className={cn(
-              "font-bold text-primary-600",
-              layout === "impact" ? "text-3xl" : "text-2xl",
-              layout === "modern" && "text-xl"
+              layout === "classic" && "order-1",
+              layout === "modern" && "space-y-2"
             )}
           >
-            INVOICE
+            {logo ? (
+              <img
+                src={logo}
+                alt="Business logo"
+                className={cn(
+                  "w-auto object-contain mb-4",
+                  layout === "impact" ? "mx-auto h-24" : "h-20",
+                  layout === "modern" && "rounded-lg"
+                )}
+              />
+            ) : (
+              <h2
+                className={cn(
+                  "font-bold text-gray-800",
+                  layout === "impact" ? "text-3xl" : "text-2xl",
+                  layout === "modern" && "tracking-wide"
+                )}
+              >
+                Auto Gig Shop
+              </h2>
+            )}
           </div>
-          <div className="space-y-1 text-sm text-gray-500">
-            {templateData.headerFields.poNumber && (
-              <div
-                className={cn(
-                  "flex items-center gap-2",
-                  layout === "classic" ? "justify-end" : "justify-center"
-                )}
-              >
-                <span>PO Number:</span>
-                <span>#1234</span>
-              </div>
+
+          {/* Invoice Header Info */}
+          <div
+            className={cn(
+              "space-y-2",
+              layout === "classic" && "text-right md:w-1/3",
+              layout === "modern" && "mt-4 md:mt-0",
+              layout === "minimal" && "hidden"
             )}
-            {templateData.headerFields.Date && (
-              <div
-                className={cn(
-                  layout === "modern" ? "text-gray-700" : "text-gray-500"
-                )}
-              >
-                {new Date().toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
-              </div>
-            )}
+          >
+            <div
+              className={cn(
+                "font-bold text-primary-600",
+                layout === "impact" ? "text-3xl" : "text-2xl",
+                layout === "modern" && "text-xl"
+              )}
+            >
+              INVOICE
+            </div>
+            <div className="space-y-1 text-sm text-gray-500">
+              {templateData.headerFields.poNumber && (
+                <div
+                  className={cn(
+                    "flex items-center gap-2",
+                    layout === "classic" ? "justify-end" : "justify-center"
+                  )}
+                >
+                  <span>PO Number:</span>
+                  <span>#1234</span>
+                </div>
+              )}
+              {templateData.headerFields.Date && (
+                <div
+                  className={cn(
+                    layout === "modern" ? "text-gray-700" : "text-gray-500"
+                  )}
+                >
+                  {new Date().toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -120,7 +134,7 @@ export function InvoicePreview({
             Bill To
           </h3>
           {templateData.customerFields.customerName && (
-            <div className="font-medium text-gray-900">Customer Company</div>
+            <div className="font-medium text-gray-900">Customer Name</div>
           )}
           {templateData.customerFields.billingAddress && (
             <div className="text-sm text-gray-600 space-y-1">
@@ -135,7 +149,7 @@ export function InvoicePreview({
           )}
           <div className="pt-2 space-y-1">
             {templateData.customerFields.email && (
-              <div className="flex items-center gap-2 text-sm text-blue-600">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Mail className="h-4 w-4" />
                 customer@email.com
               </div>
@@ -149,7 +163,7 @@ export function InvoicePreview({
           </div>
         </div>
 
-        {/* Shipping Address - Layout Specific Display */}
+        {/* Shipping Address */}
         {templateData.customerFields.shippingAddress && (
           <div
             className={cn(
@@ -261,29 +275,31 @@ export function InvoicePreview({
         </table>
       </div>
 
-      {/* Totals Section */}
+      {/* Totals Section - Layout Variations */}
       <div
-        className={`mt-8 ${
-          layout === "impact" ? "bg-gray-50" : ""
-        } p-4 rounded-lg`}
+        className={cn(
+          "mt-8 p-4 rounded-lg",
+          layout === "impact" && "bg-gray-50",
+          layout === "modern" && "border-t"
+        )}
       >
         <div className="max-w-xs ml-auto space-y-3">
           {templateData.calculationFields.subtotal && (
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-sm font-semibold">
               <span className="text-gray-600">Subtotal:</span>
               <span className="text-gray-900">$2,000.00</span>
             </div>
           )}
           {templateData.calculationFields.tax && (
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-sm font-semibold">
               <span className="text-gray-600">Tax (10%):</span>
               <span className="text-gray-900">$200.00</span>
             </div>
           )}
           {templateData.calculationFields.discount && (
-            <div className="flex justify-between text-sm text-red-600">
-              <span>Discount:</span>
-              <span>-$50.00</span>
+            <div className="flex justify-between font-semibold text-sm text-gray-600">
+              <span className="text-gray-600">Discount:</span>
+              <span className="text-gray-900">$50.00</span>
             </div>
           )}
           <div className="pt-3 border-t border-gray-200 flex justify-between font-semibold">
@@ -301,7 +317,7 @@ export function InvoicePreview({
 
       {/* Footer Section */}
       <div
-        className="mt-8 p-6 rounded-lg transition-colors duration-300"
+        className="mt-8 p-6 rounded-lg"
         style={{
           backgroundColor: color,
           color: getContrastingTextColor(color),

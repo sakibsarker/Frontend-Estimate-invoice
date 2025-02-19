@@ -23,6 +23,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { useCreateTemplateMutation } from "@/features/server/templateSlice";
 
 const layouts = [
   {
@@ -134,6 +135,7 @@ export default function EditInvoice() {
   const [defaultTemplateId, setDefaultTemplateId] = useState<string | null>(
     null
   );
+  const [createTemplate] = useCreateTemplateMutation();
 
   useEffect(() => {
     localStorage.setItem("templates", JSON.stringify(templates));
@@ -161,21 +163,54 @@ export default function EditInvoice() {
     }
   };
 
-  const handleSaveTemplate = () => {
-    const newTemplate = {
-      id: uuidv4(),
-      name: templateData.name,
-      selectedColor,
-      selectedLayout,
-      logo,
-      templateData,
-    };
+  const handleSaveTemplate = async () => {
+    try {
+      const templatePayload = {
+        name: templateData.name,
+        logo: logo,
+        selected_color: selectedColor,
+        selected_layout: selectedLayout,
+        is_default: templateData.isDefault,
+        customer_name: templateData.customerFields.customerName,
+        billing_address: templateData.customerFields.billingAddress,
+        shipping_address: templateData.customerFields.shippingAddress,
+        phone: templateData.customerFields.phone,
+        email: templateData.customerFields.email,
+        account_number: templateData.customerFields.accountNumber,
+        po_number: templateData.headerFields.poNumber,
+        sales_rep: templateData.headerFields.salesRep,
+        date: templateData.headerFields.Date,
+        item_name: templateData.itemFields.itemName,
+        quantity: templateData.itemFields.quantity,
+        price: templateData.itemFields.price,
+        type: templateData.itemFields.type,
+        description: templateData.itemFields.description,
+        subtotal: templateData.calculationFields.subtotal,
+        tax: templateData.calculationFields.tax,
+        discount: templateData.calculationFields.discount,
+        due_amount: templateData.calculationFields.dueAmount,
+      };
 
-    setTemplates((prev) => {
-      const updated = prev.filter((t) => t.id !== currentTemplateId);
-      return [...updated, newTemplate];
-    });
-    setCurrentTemplateId(newTemplate.id);
+      const result = await createTemplate(templatePayload).unwrap();
+      console.log("Template created successfully:", result);
+      setTemplates((prev) => {
+        const updated = prev.filter((t) => t.id !== currentTemplateId);
+        return [
+          ...updated,
+          {
+            id: uuidv4(),
+            name: templateData.name,
+            selectedColor,
+            selectedLayout,
+            logo,
+            templateData,
+          },
+        ];
+      });
+      setCurrentTemplateId(uuidv4());
+    } catch (error) {
+      console.error("Failed to create template:", error);
+    }
   };
 
   const handleSelectTemplate = (templateId: string) => {
@@ -203,6 +238,7 @@ export default function EditInvoice() {
       name: "New Template " + (templates.length + 1),
       isDefault: false,
     });
+
     setSelectedColor("#4E4E56");
     setSelectedLayout("modern");
     setLogo(null);
