@@ -33,29 +33,21 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useGetRepiarStatisticsQuery } from "@/features/server/repairRequestSlice";
+import {
+  useGetRepiarStatisticsQuery,
+  useGetRepiarRequstQuery,
+} from "@/features/server/repairRequestSlice";
 
 export default function EstimateDashboard() {
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const { data, isLoading, error } = useGetRepiarStatisticsQuery();
   const navigate = useNavigate();
-
-  // Static sample data
-  const staticEstimates = [
-    {
-      id: 1,
-      username: "John Doe",
-      email: "john@example.com",
-      phone_number: "+123456789",
-      repair_details: "Brake system repair",
-      repair_status: "NEW",
-      previous_visits: 2,
-      status: "PENDING",
-      vehicle_name: "2023 Toyota Camry",
-      repair_date: "2024-03-15",
-      created_at: "2024-03-01",
-    },
-  ];
+  const [currentPage, setCurrentPage] = useState(1);
+  const {
+    data: estimatesData,
+    isLoading: estimatesLoading,
+    error: estimatesError,
+  } = useGetRepiarRequstQuery(currentPage);
 
   // Color mapping functions kept for UI consistency
   const getRepairStatusColor = (status: string) => {
@@ -196,100 +188,115 @@ export default function EstimateDashboard() {
 
       {/* Estimates List */}
       <div className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {staticEstimates.map((estimate) => (
-            <div
-              key={estimate.id}
-              className="bg-white rounded-lg p-4 shadow cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => navigate(`/estimate/${estimate.id}/view`)}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge
-                      className={getRepairStatusColor(estimate.repair_status)}
-                    >
-                      {estimate.repair_status}
-                    </Badge>
+        {estimatesLoading ? (
+          <div>Loading estimates...</div>
+        ) : estimatesError ? (
+          <div>Error loading estimates</div>
+        ) : estimatesData ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {estimatesData.results.map((estimate) => (
+                <div
+                  key={estimate.id}
+                  className="bg-white rounded-lg p-4 shadow cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => navigate(`/estimate/${estimate.id}/view`)}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge
+                          className={getRepairStatusColor(
+                            estimate.repair_status
+                          )}
+                        >
+                          {estimate.repair_status}
+                        </Badge>
 
-                    <span className="text-blue-600">
-                      (#{estimate.id}) {estimate.repair_details}
-                    </span>
+                        <span className="text-blue-600">
+                          (#{estimate.id}) {estimate.repair_details}
+                        </span>
 
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                  <div className="text-sm text-gray-800 font-normal mb-2">
-                    Created:{" "}
-                    {new Date(estimate.created_at).toLocaleDateString("en-CA", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                    })}
-                    <br />
-                    Repair Date:{" "}
-                    {new Date(estimate.repair_date).toLocaleDateString(
-                      "en-CA",
-                      {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                      }
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Car className="h-5 w-5" />
-                    <span>{estimate.vehicle_name}</span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <User className="h-5 w-5" />
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                            <DropdownMenuItem>Delete</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                      <div className="text-sm text-gray-800 font-normal mb-2">
+                        Created:{" "}
+                        {new Date(estimate.created_at).toLocaleDateString(
+                          "en-CA"
+                        )}
+                        <br />
+                        Repair Date:{" "}
+                        {new Date(estimate.repair_date).toLocaleDateString(
+                          "en-CA"
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Car className="h-5 w-5" />
+                        <span>{estimate.vehicle_name}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <User className="h-5 w-5" />
 
-                    <span>{estimate.username}</span>
-                  </div>
-                  <div className="flex justify-end">
-                    <Badge className={getEstimateStatusColor(estimate.status)}>
-                      {estimate.status}
-                    </Badge>
+                        <span>{estimate.username}</span>
+                      </div>
+                      <div className="flex justify-end">
+                        <Badge
+                          className={getEstimateStatusColor(estimate.status)}
+                        >
+                          {estimate.status}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm">
+                        <Printer className="h-4 w-4" />
+                      </Button>
+                      <span className="font-semibold">
+                        {/* ${estimate.value.toFixed(2)} */}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm">
-                    <Printer className="h-4 w-4" />
-                  </Button>
-                  <span className="font-semibold">
-                    {/* ${estimate.value.toFixed(2)} */}
-                  </span>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Pagination */}
-        <div className="flex justify-center mt-6">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious href="#" />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">1</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext href="#" />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
+            {/* Pagination */}
+            <div className="flex justify-center mt-6">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(1, prev - 1))
+                      }
+                      aria-disabled={currentPage === 1}
+                    />
+                  </PaginationItem>
+
+                  <PaginationItem>
+                    <PaginationLink isActive>{currentPage}</PaginationLink>
+                  </PaginationItem>
+
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setCurrentPage((prev) => prev + 1)}
+                      aria-disabled={!estimatesData?.next}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          </>
+        ) : null}
       </div>
     </div>
   );

@@ -18,6 +18,12 @@ interface RepairRequest {
   created_at: string;
   updated_at: string;
 }
+interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
 
 interface RepairRequestStatistics {
   total_requests: number;
@@ -49,9 +55,10 @@ export const repairRequestApi = createApi({
       }),
     }),
     // Get all estimate
-    getRepiarRequst: builder.query<RepairRequest[], void>({
-      query: () => "estimate/new-item/",
+    getRepiarRequst: builder.query<PaginatedResponse<RepairRequest>, number>({
+      query: (page) => `estimate/repair-requests/new/?page=${page}`,
     }),
+
     // Get all estimate statistics
     getRepiarStatistics: builder.query<RepairRequestStatistics, void>({
       query: () => "estimate/repair-requests/statistics/",
