@@ -14,6 +14,7 @@ import ManualInvoiceDashboard from "@/pages/ManualInvoiceDashboard";
 import EditManualInvoiceForm from "@/components/forms/EditManualInvoiceForm";
 import ManualInvoiceForm from "@/components/forms/ManualInvoiceForm";
 import TemplateOne from "@/components/InvoiceTemplate/TemplateOne";
+import SendInvoice from "@/components/sendInvoice/sendinvoice";
 export const AppRoutes = () => {
   return (
     <Routes>
@@ -43,6 +44,7 @@ export const AppRoutes = () => {
 
         <Route path="/editinvoice" element={<EditInvoice />} />
         <Route path="/preview" element={<TemplateOne />} />
+        <Route path="/sendinvoice" element={<SendInvoice />} />
       </Route>
     </Routes>
   );
