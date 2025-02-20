@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { SendInvoicePreview } from "./SendInvoicePreview";
+import { useNavigate } from "react-router";
 
 // Add this static data object above the component
 const staticPreviewData = {
@@ -44,49 +45,62 @@ const staticPreviewData = {
 };
 
 const staticInvoiceData = {
-  customerName: "Auto Gig Shop",
-  billingAddress: "123 Business Road, San Francisco, CA 94107",
-  shippingAddress: "PO Box 1234, San Jose, CA 95054",
-  accountNumber: "123-45678",
-  email: "customer@email.com",
-  phone: "(123) 456-7890",
-  poNumber: "PO-123456",
-  salesRep: "John Doe",
-  createdAt: new Date().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  }),
-  items: [
+  customerId: {
+    customer_display_name: "Auto Gig Shop",
+    billing_address_line1: "123 Business Road",
+    billing_city: "San Francisco",
+    billing_state: "CA",
+    billing_zip_code: "94107",
+    shipping_address_line1: "PO Box 1234",
+    shipping_city: "San Jose",
+    shipping_state: "CA",
+    shipping_zip_code: "95054",
+    account_number: "123-45678",
+    email_address: "customer@email.com",
+    phone_number: "(123) 456-7890",
+  },
+  po_number: "PO-123456",
+  sales_rep: "John Doe",
+  created_at: new Date().toISOString(),
+  invoice_items_list: [
     {
-      date: "2024-03-01",
-      name: "Service 1",
-      type: "Service",
-      description: "Item description details",
+      item: {
+        item_name: "Service 1",
+        type: "Service",
+        description: "Item description details",
+        price: "500.00",
+      },
       quantity: 2,
-      price: 500.0,
-      total: 1000.0,
+      price: "500.00",
+      total: "1000.00",
     },
     {
-      date: "2024-03-02",
-      name: "Service 2",
-      type: "Service",
-      description: "Item description details",
+      item: {
+        item_name: "Service 2",
+        type: "Service",
+        description: "Item description details",
+        price: "500.00",
+      },
       quantity: 2,
-      price: 500.0,
-      total: 1000.0,
+      price: "500.00",
+      total: "1000.00",
     },
   ],
-  subtotal: 2000.0,
-  tax: 200.0,
-  discount: 50.0,
-  total: 2150.0,
-  dueAmount: 2150.0,
+  subtotal: "2000.00",
+  total: "2150.00",
+  amount_due: "2150.00",
+  tax: {
+    tax_rate: "200.00",
+  },
+  discount: {
+    discount_rate: "50.00",
+  },
 };
 
 export default function SendInvoice() {
   const [sendMethod, setSendMethod] = useState<"email" | "text">("email");
   const [sendCopy, setSendCopy] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="fixed inset-0 bg-background">
@@ -249,7 +263,12 @@ View invoice: [Link]`}
 
               <div className="flex items-center justify-between bg-background mt-auto">
                 <div className="flex gap-2">
-                  <Button variant="outline">Edit Invoice</Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate("/template")}
+                  >
+                    Edit Invoice
+                  </Button>
                   <Button>
                     {sendMethod === "email" ? "Send Email" : "Send Text"}
                   </Button>

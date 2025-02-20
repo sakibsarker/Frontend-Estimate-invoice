@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router";
 import EstimateDashboard from "../pages/EstimateDashboard";
 import ViewEstimateRequest from "@/components/estimate/ViewEstimateRequest";
-import EditInvoice from "@/pages/EditInvoice";
+import Template from "@/pages/Template";
 import Layout from "@/components/auth/layout";
 import Login from "@/components/auth/login";
 import Signup from "@/components/auth/signup";
@@ -37,14 +37,14 @@ export const AppRoutes = () => {
           path="/estimate/:estimateId/invoice/new"
           element={<NewInvoiceForm />}
         />
-
+        {/* invoice create */}
         <Route path="/invoice" element={<ManualInvoiceDashboard />} />
         <Route path="/invoice/:invoiceId" element={<EditManualInvoiceForm />} />
         <Route path="/invoice/new" element={<ManualInvoiceForm />} />
-
-        <Route path="/editinvoice" element={<EditInvoice />} />
-        <Route path="/preview" element={<TemplateOne />} />
-        <Route path="/sendinvoice" element={<SendInvoice />} />
+        {/* tempalte */}
+        <Route path="/template" element={<Template />} />
+        <Route path="/template/one" element={<TemplateOne />} />
+        <Route path="/invoice/:invoiceId/send" element={<SendInvoice />} />
       </Route>
     </Routes>
   );

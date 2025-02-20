@@ -30,32 +30,45 @@ interface PreviewProps {
 
 interface InvoiceDataProps {
   // Invoice content
-  customerName: string;
-  billingAddress: string;
-  shippingAddress: string;
-  accountNumber: string;
-  email: string;
-  phone: string;
-  poNumber: string;
-  salesRep: string;
-  createdAt: string;
-  items: Array<{
-    date: string;
-    name: string;
-    type: string;
-    description: string;
+  customerId: {
+    customer_display_name: string;
+    billing_address_line1: string;
+    billing_city: string;
+    billing_state: string;
+    billing_zip_code: string;
+    shipping_address_line1: string;
+    shipping_city: string;
+    shipping_state: string;
+    shipping_zip_code: string;
+    account_number: string;
+    email_address: string;
+    phone_number: string;
+  };
+  po_number: string;
+  sales_rep: string;
+  created_at: string;
+  invoice_items_list: Array<{
+    item: {
+      item_name: string;
+      type: string;
+      description: string;
+      price: string;
+    };
     quantity: number;
-    price: number;
-    total: number;
+    price: string;
+    total: string;
   }>;
-  subtotal: number;
-  tax: number;
-  discount: number;
-  total: number;
-  dueAmount: number;
+  subtotal: string;
+  total: string;
+  amount_due: string;
+  tax: {
+    tax_rate: string;
+  };
+  discount: {
+    discount_rate: string;
+  };
 }
 
-// Combined props for the component
 export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
   return (
     <div className="printable-area">
@@ -137,7 +150,7 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                       <div className="flex justify-between">
                         <span className="text-gray-600">Customer Name:</span>
                         <span className="text-gray-900">
-                          {props.customerName}
+                          {props.customerId.customer_display_name}
                         </span>
                       </div>
                     )}
@@ -149,23 +162,26 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                             : "text-gray-500"
                         )}
                       >
-                        {new Date(props.createdAt).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
+                        {new Date(props.created_at).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )}
                       </div>
                     )}
                     {props.templateData.poNumber && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">PO Number:</span>
-                        <span className="text-gray-900">{props.poNumber}</span>
+                        <span className="text-gray-900">{props.po_number}</span>
                       </div>
                     )}
                     {props.templateData.salesRep && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">Sales Rep:</span>
-                        <span className="text-gray-900">{props.salesRep}</span>
+                        <span className="text-gray-900">{props.sales_rep}</span>
                       </div>
                     )}
                   </div>
@@ -196,13 +212,16 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
               </h3>
               {props.templateData.billingAddress && (
                 <div className="text-sm text-gray-600 space-y-1">
-                  {props.billingAddress.split(", ").map((line, index) => (
-                    <div key={index}>{line}</div>
-                  ))}
+                  <div>{props.customerId.billing_address_line1}</div>
+                  <div>
+                    {props.customerId.billing_city},{" "}
+                    {props.customerId.billing_state}{" "}
+                    {props.customerId.billing_zip_code}
+                  </div>
                   {props.templateData.accountNumber && (
                     <div className="mt-2">
                       <span className="font-medium">Account #:</span>{" "}
-                      {props.accountNumber}
+                      {props.customerId.account_number}
                     </div>
                   )}
                 </div>
@@ -211,13 +230,13 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                 {props.templateData.email && (
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Mail className="h-4 w-4" />
-                    {props.email}
+                    {props.customerId.email_address}
                   </div>
                 )}
                 {props.templateData.phone && (
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Phone className="h-4 w-4" />
-                    {props.phone}
+                    {props.customerId.phone_number}
                   </div>
                 )}
               </div>
@@ -237,12 +256,15 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                 </h3>
                 <div className="text-sm text-gray-600 space-y-1">
                   {/* Customer Name */}
-                  <div>{props.customerName}</div>
+                  <div>{props.customerId.customer_display_name}</div>
 
                   {/* Split shipping address into lines */}
-                  {props.shippingAddress.split(", ").map((line, index) => (
-                    <div key={index}>{line}</div>
-                  ))}
+                  <div>{props.customerId.shipping_address_line1}</div>
+                  <div>
+                    {props.customerId.shipping_city},{" "}
+                    {props.customerId.shipping_state}{" "}
+                    {props.customerId.shipping_zip_code}
+                  </div>
                 </div>
               </div>
             )}
@@ -301,45 +323,52 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                   props.layout === "modern" && "divide-gray-100"
                 )}
               >
-                {props.items.map((item, index) => (
+                {props.invoice_items_list.map((invoiceItem, index) => (
                   <tr
                     key={index}
                     className="hover:bg-gray-50 transition-colors"
                   >
                     {props.templateData.Date && (
                       <td className="px-4 py-3 text-sm text-gray-500 hidden md:table-cell">
-                        {item.date}
+                        {new Date(props.created_at).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )}
                       </td>
                     )}
                     {props.templateData.itemName && (
                       <td className="px-4 py-3">
                         <div className="font-medium text-gray-900">
-                          {item.name}
+                          {invoiceItem.item.item_name}
                         </div>
                         {props.templateData.description && (
                           <div className="mt-1 text-sm text-gray-500">
-                            {item.description}
+                            {invoiceItem.item.description}
                           </div>
                         )}
                       </td>
                     )}
                     {props.templateData.type && (
                       <td className="px-4 py-3 text-sm text-gray-500 hidden md:table-cell">
-                        {item.type}
+                        {invoiceItem.item.type}
                       </td>
                     )}
                     {props.templateData.quantity && (
                       <td className="px-4 py-3 text-right text-sm text-gray-900">
-                        {item.quantity}
+                        {invoiceItem.quantity}
                       </td>
                     )}
                     {props.templateData.price && (
                       <td className="px-4 py-3 text-right text-sm text-gray-900">
-                        ${item.price.toFixed(2)}
+                        ${parseFloat(invoiceItem.item.price).toFixed(2)}
                       </td>
                     )}
                     <td className="px-4 py-3 text-right font-medium text-gray-900">
-                      ${item.total.toFixed(2)}
+                      ${parseFloat(invoiceItem.total).toFixed(2)}
                     </td>
                   </tr>
                 ))}
@@ -362,34 +391,50 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                 <div className="flex justify-between text-sm font-semibold">
                   <span className="text-gray-600">Subtotal:</span>
                   <span className="text-gray-900">
-                    ${props.subtotal.toFixed(2)}
+                    ${parseFloat(props.subtotal).toFixed(2)}
                   </span>
                 </div>
               )}
               {props.templateData.tax && (
                 <div className="flex justify-between text-sm font-semibold">
-                  <span className="text-gray-600">Tax (10%):</span>
-                  <span className="text-gray-900">${props.tax.toFixed(2)}</span>
+                  <span className="text-gray-600">
+                    Tax ({props.tax.tax_rate}%):
+                  </span>
+                  <span className="text-gray-900">
+                    $
+                    {(
+                      (parseFloat(props.subtotal) *
+                        parseFloat(props.tax.tax_rate)) /
+                      100
+                    ).toFixed(2)}
+                  </span>
                 </div>
               )}
               {props.templateData.discount && (
                 <div className="flex justify-between font-semibold text-sm text-gray-600">
-                  <span className="text-gray-600">Discount:</span>
+                  <span className="text-gray-600">
+                    Discount ({props.discount.discount_rate}%):
+                  </span>
                   <span className="text-gray-900">
-                    ${props.discount.toFixed(2)}
+                    $
+                    {(
+                      (parseFloat(props.subtotal) *
+                        parseFloat(props.discount.discount_rate)) /
+                      100
+                    ).toFixed(2)}
                   </span>
                 </div>
               )}
               <div className="pt-3 border-t border-gray-200 flex justify-between font-semibold">
                 <span className="text-gray-900">Total:</span>
                 <span className="text-primary-600">
-                  ${props.total.toFixed(2)}
+                  ${parseFloat(props.total).toFixed(2)}
                 </span>
               </div>
               {props.templateData.dueAmount && (
                 <div className="flex justify-between text-sm font-medium text-red-600">
                   <span>Due Amount:</span>
-                  <span>${props.dueAmount.toFixed(2)}</span>
+                  <span>${parseFloat(props.amount_due).toFixed(2)}</span>
                 </div>
               )}
             </div>

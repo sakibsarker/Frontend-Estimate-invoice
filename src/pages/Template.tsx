@@ -86,7 +86,7 @@ interface Template {
   is_default: boolean;
 }
 
-export default function EditInvoice() {
+export default function Template() {
   const [createTemplate] = useCreateTemplateMutation();
   const [updateTemplate] = useUpdateTemplateMutation();
   const { data: apiTemplates = [] } = useGetTemplateQuery();

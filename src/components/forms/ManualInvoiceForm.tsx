@@ -52,6 +52,7 @@ import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCreateInvoiceMutation } from "@/features/server/invoiceSlice";
 import { generateInvoiceNumber } from "@/lib/invoiceUtils";
+import { useNavigate } from "react-router";
 
 import { toast } from "react-hot-toast";
 
@@ -131,6 +132,7 @@ export default function ManualInvoiceForm() {
   const [salesRep, setSalesRep] = useState("");
   const [poNumber, setPoNumber] = useState("");
   const [invoiceNumber, setInvoiceNumber] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     setInvoiceNumber(generateInvoiceNumber());
@@ -942,7 +944,11 @@ export default function ManualInvoiceForm() {
               >
                 {isLoading ? "Saving" : "Save Draft"}
               </Button>
-              <Button className="bg-indigo-600 hover:bg-indigo-700 text-2xl p-2">
+              <Button
+                type="button"
+                className="bg-indigo-600 hover:bg-indigo-700 text-2xl p-2 "
+                onClick={() => navigate(`/invoice/${23}/send`)}
+              >
                 Review & Send
               </Button>
             </div>

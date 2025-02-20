@@ -64,6 +64,82 @@ interface InvoiceStatistics {
   total_amount_due: number;
 }
 
+interface Customer {
+  id: number;
+  customer_display_name: string;
+  contact_first_name: string;
+  contact_last_name: string;
+  email_address: string;
+  phone_number: string;
+  billing_country: string;
+  billing_address_line1: string;
+  billing_address_line2: string;
+  billing_city: string;
+  billing_state: string;
+  billing_zip_code: string;
+  shipping_country: string;
+  shipping_address_line1: string;
+  shipping_address_line2: string;
+  shipping_city: string;
+  shipping_state: string;
+  shipping_zip_code: string;
+  account_number: string;
+}
+
+interface TaxDetail {
+  id: number;
+  tax_name: string;
+  tax_rate: string;
+}
+
+interface DiscountDetail {
+  id: number;
+  discount_name: string;
+  discount_rate: string;
+}
+
+interface Item {
+  id: number;
+  type: string;
+  item_name: string;
+  description: string;
+  price: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface InvoiceItems {
+  id: number;
+  item: Item;
+  quantity: number;
+  price: string;
+  total: string;
+  has_tax: boolean;
+  has_discount: boolean;
+  paid: boolean;
+}
+
+interface InvoicePreview {
+  id: number;
+  customerId: Customer;
+  repair_request: number | null;
+  discount: DiscountDetail;
+  tax: TaxDetail;
+  invoice_number: string;
+  invoice_status: string;
+  payment_method: string;
+  sales_rep: string;
+  po_number: string;
+  message_on_invoice: string;
+  attachments: string;
+  subtotal: string;
+  total: string;
+  amount_due: string;
+  created_at: string;
+  updated_at: string;
+  invoice_items_list: InvoiceItems[];
+}
+
 export const invoiceApi = createApi({
   reducerPath: "invoiceApi",
   baseQuery: fetchBaseQuery({
@@ -111,7 +187,11 @@ export const invoiceApi = createApi({
 
     // Get single invoice by ID
     getInvoiceById: builder.query<Invoice, number>({
-      query: (id) => `estimate/newinvoices/${id}/`,
+      query: (id) => `estimate/invoices/${id}/`,
+    }),
+    // Get invoice Preview by ID
+    getInvoicePreviwById: builder.query<InvoicePreview, number>({
+      query: (id) => `estimate/invoices/detail/${id}/`,
     }),
 
     // Update invoice
@@ -138,6 +218,7 @@ export const invoiceApi = createApi({
 export const {
   useGetInvoiceQuery,
   useGetInvoiceByIdQuery,
+  useGetInvoicePreviwByIdQuery,
   useGetInvoiceStatisticsQuery,
   useCreateInvoiceMutation,
   useUpdateInvoiceMutation,
