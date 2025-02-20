@@ -1,7 +1,8 @@
 import { Mail, Phone, Link, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface InvoicePreviewProps {
+interface PreviewProps {
+  // Template configuration
   logo: string | null;
   color: string;
   layout: string;
@@ -25,8 +26,10 @@ interface InvoicePreviewProps {
     discount: boolean;
     dueAmount: boolean;
   };
+}
 
-  // New flat data props
+interface InvoiceDataProps {
+  // Invoice content
   customerName: string;
   billingAddress: string;
   shippingAddress: string;
@@ -52,34 +55,15 @@ interface InvoicePreviewProps {
   dueAmount: number;
 }
 
-export function SendInvoicePreview({
-  logo,
-  color,
-  layout,
-  templateData,
-  customerName,
-  billingAddress,
-  shippingAddress,
-  accountNumber,
-  email,
-  phone,
-  poNumber,
-  salesRep,
-  createdAt,
-  items,
-  subtotal,
-  tax,
-  discount,
-  total,
-  dueAmount,
-}: InvoicePreviewProps) {
+// Combined props for the component
+export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
   return (
     <div className="printable-area">
       <div
         className={cn(
           "bg-white rounded-xl shadow-lg p-6 md:p-8",
-          layout === "impact" && "border border-gray-100",
-          layout === "modern" && "shadow-sm"
+          props.layout === "impact" && "border border-gray-100",
+          props.layout === "modern" && "shadow-sm"
         )}
       >
         {/* Header Section - Layout Variations */}
@@ -87,40 +71,40 @@ export function SendInvoicePreview({
           <div
             className={cn(
               "mb-6 md:mb-8 transition-all",
-              layout === "impact" && "bg-gray-50 rounded-lg p-6", // Layout 2 with background
-              layout === "classic" && "border-b pb-6"
+              props.layout === "impact" && "bg-gray-50 rounded-lg p-6", // Layout 2 with background
+              props.layout === "classic" && "border-b pb-6"
             )}
           >
             <div
               className={cn(
                 "flex flex-col md:flex-row justify-between",
-                layout === "impact" && "text-center flex-col",
-                layout === "modern" && "items-start"
+                props.layout === "impact" && "text-center flex-col",
+                props.layout === "modern" && "items-start"
               )}
             >
               {/* Logo/Company Name Section */}
               <div
                 className={cn(
-                  layout === "classic" && "order-1",
-                  layout === "modern" && "space-y-2"
+                  props.layout === "classic" && "order-1",
+                  props.layout === "modern" && "space-y-2"
                 )}
               >
-                {logo ? (
+                {props.logo ? (
                   <img
-                    src={logo}
+                    src={props.logo}
                     alt="Business logo"
                     className={cn(
                       "w-auto object-contain mb-4",
-                      layout === "impact" ? "mx-auto h-24" : "h-20",
-                      layout === "modern" && "rounded-lg"
+                      props.layout === "impact" ? "mx-auto h-24" : "h-20",
+                      props.layout === "modern" && "rounded-lg"
                     )}
                   />
                 ) : (
                   <h2
                     className={cn(
                       "font-bold text-gray-800",
-                      layout === "impact" ? "text-3xl" : "text-2xl",
-                      layout === "modern" && "tracking-wide"
+                      props.layout === "impact" ? "text-3xl" : "text-2xl",
+                      props.layout === "modern" && "tracking-wide"
                     )}
                   >
                     Auto Gig Shop
@@ -134,52 +118,54 @@ export function SendInvoicePreview({
                 <div
                   className={cn(
                     "space-y-2",
-                    layout === "classic" && "text-right md:w-1/3",
-                    layout === "modern" && "mt-4 md:mt-0",
-                    layout === "minimal" && "hidden"
+                    props.layout === "classic" && "text-right md:w-1/3",
+                    props.layout === "modern" && "mt-4 md:mt-0",
+                    props.layout === "minimal" && "hidden"
                   )}
                 >
                   <div
                     className={cn(
                       "font-bold text-primary-600",
-                      layout === "impact" ? "text-3xl" : "text-2xl",
-                      layout === "modern" && "text-xl"
+                      props.layout === "impact" ? "text-3xl" : "text-2xl",
+                      props.layout === "modern" && "text-xl"
                     )}
                   >
                     INVOICE
                   </div>
                   <div className="space-y-1 text-sm text-gray-500">
-                    {templateData.customerName && (
+                    {props.templateData.customerName && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">Customer Name:</span>
-                        <span className="text-gray-900">{customerName}</span>
+                        <span className="text-gray-900">
+                          {props.customerName}
+                        </span>
                       </div>
                     )}
-                    {templateData.Date && (
+                    {props.templateData.Date && (
                       <div
                         className={cn(
-                          layout === "modern"
+                          props.layout === "modern"
                             ? "text-gray-700"
                             : "text-gray-500"
                         )}
                       >
-                        {new Date(createdAt).toLocaleDateString("en-US", {
+                        {new Date(props.createdAt).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
                         })}
                       </div>
                     )}
-                    {templateData.poNumber && (
+                    {props.templateData.poNumber && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">PO Number:</span>
-                        <span className="text-gray-900">{poNumber}</span>
+                        <span className="text-gray-900">{props.poNumber}</span>
                       </div>
                     )}
-                    {templateData.salesRep && (
+                    {props.templateData.salesRep && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">Sales Rep:</span>
-                        <span className="text-gray-900">{salesRep}</span>
+                        <span className="text-gray-900">{props.salesRep}</span>
                       </div>
                     )}
                   </div>
@@ -194,56 +180,56 @@ export function SendInvoicePreview({
           <div
             className={cn(
               "grid gap-6 mb-8",
-              layout === "classic" ? "md:grid-cols-3" : "md:grid-cols-2",
-              layout === "minimal" && "grid-cols-1"
+              props.layout === "classic" ? "md:grid-cols-3" : "md:grid-cols-2",
+              props.layout === "minimal" && "grid-cols-1"
             )}
           >
             {/* Billing Address */}
             <div
               className={cn(
                 "p-4 rounded-lg",
-                layout === "modern" ? "bg-white border" : "bg-gray-50"
+                props.layout === "modern" ? "bg-white border" : "bg-gray-50"
               )}
             >
               <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
                 Bill To
               </h3>
-              {templateData.billingAddress && (
+              {props.templateData.billingAddress && (
                 <div className="text-sm text-gray-600 space-y-1">
-                  {billingAddress.split(", ").map((line, index) => (
+                  {props.billingAddress.split(", ").map((line, index) => (
                     <div key={index}>{line}</div>
                   ))}
-                  {templateData.accountNumber && (
+                  {props.templateData.accountNumber && (
                     <div className="mt-2">
                       <span className="font-medium">Account #:</span>{" "}
-                      {accountNumber}
+                      {props.accountNumber}
                     </div>
                   )}
                 </div>
               )}
               <div className="pt-2 space-y-1">
-                {templateData.email && (
+                {props.templateData.email && (
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Mail className="h-4 w-4" />
-                    {email}
+                    {props.email}
                   </div>
                 )}
-                {templateData.phone && (
+                {props.templateData.phone && (
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Phone className="h-4 w-4" />
-                    {phone}
+                    {props.phone}
                   </div>
                 )}
               </div>
             </div>
 
             {/* Shipping Address */}
-            {templateData.shippingAddress && (
+            {props.templateData.shippingAddress && (
               <div
                 className={cn(
                   "p-4 rounded-lg",
-                  layout === "modern" ? "bg-white border" : "bg-gray-50",
-                  layout === "classic" && "md:col-span-2"
+                  props.layout === "modern" ? "bg-white border" : "bg-gray-50",
+                  props.layout === "classic" && "md:col-span-2"
                 )}
               >
                 <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
@@ -251,10 +237,10 @@ export function SendInvoicePreview({
                 </h3>
                 <div className="text-sm text-gray-600 space-y-1">
                   {/* Customer Name */}
-                  <div>{customerName}</div>
+                  <div>{props.customerName}</div>
 
                   {/* Split shipping address into lines */}
-                  {shippingAddress.split(", ").map((line, index) => (
+                  {props.shippingAddress.split(", ").map((line, index) => (
                     <div key={index}>{line}</div>
                   ))}
                 </div>
@@ -268,35 +254,38 @@ export function SendInvoicePreview({
           <div
             className={cn(
               "overflow-x-auto pb-2",
-              layout === "modern" && "border rounded-lg"
+              props.layout === "modern" && "border rounded-lg"
             )}
           >
             <table className="w-full">
               <thead
-                className={cn("bg-gray-50", layout === "modern" && "border-b")}
+                className={cn(
+                  "bg-gray-50",
+                  props.layout === "modern" && "border-b"
+                )}
               >
                 <tr>
-                  {templateData.Date && (
+                  {props.templateData.Date && (
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
                       Date
                     </th>
                   )}
-                  {templateData.itemName && (
+                  {props.templateData.itemName && (
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                       Item
                     </th>
                   )}
-                  {templateData.type && (
+                  {props.templateData.type && (
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
                       Type
                     </th>
                   )}
-                  {templateData.quantity && (
+                  {props.templateData.quantity && (
                     <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
                       Qty
                     </th>
                   )}
-                  {templateData.price && (
+                  {props.templateData.price && (
                     <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
                       Price
                     </th>
@@ -309,42 +298,42 @@ export function SendInvoicePreview({
               <tbody
                 className={cn(
                   "divide-y divide-gray-200",
-                  layout === "modern" && "divide-gray-100"
+                  props.layout === "modern" && "divide-gray-100"
                 )}
               >
-                {items.map((item, index) => (
+                {props.items.map((item, index) => (
                   <tr
                     key={index}
                     className="hover:bg-gray-50 transition-colors"
                   >
-                    {templateData.Date && (
+                    {props.templateData.Date && (
                       <td className="px-4 py-3 text-sm text-gray-500 hidden md:table-cell">
                         {item.date}
                       </td>
                     )}
-                    {templateData.itemName && (
+                    {props.templateData.itemName && (
                       <td className="px-4 py-3">
                         <div className="font-medium text-gray-900">
                           {item.name}
                         </div>
-                        {templateData.description && (
+                        {props.templateData.description && (
                           <div className="mt-1 text-sm text-gray-500">
                             {item.description}
                           </div>
                         )}
                       </td>
                     )}
-                    {templateData.type && (
+                    {props.templateData.type && (
                       <td className="px-4 py-3 text-sm text-gray-500 hidden md:table-cell">
                         {item.type}
                       </td>
                     )}
-                    {templateData.quantity && (
+                    {props.templateData.quantity && (
                       <td className="px-4 py-3 text-right text-sm text-gray-900">
                         {item.quantity}
                       </td>
                     )}
-                    {templateData.price && (
+                    {props.templateData.price && (
                       <td className="px-4 py-3 text-right text-sm text-gray-900">
                         ${item.price.toFixed(2)}
                       </td>
@@ -364,37 +353,43 @@ export function SendInvoicePreview({
           <div
             className={cn(
               "mt-8 p-4 rounded-lg",
-              layout === "impact" && "bg-gray-50",
-              layout === "modern" && "border-t"
+              props.layout === "impact" && "bg-gray-50",
+              props.layout === "modern" && "border-t"
             )}
           >
             <div className="max-w-xs ml-auto space-y-3">
-              {templateData.subtotal && (
+              {props.templateData.subtotal && (
                 <div className="flex justify-between text-sm font-semibold">
                   <span className="text-gray-600">Subtotal:</span>
-                  <span className="text-gray-900">${subtotal.toFixed(2)}</span>
+                  <span className="text-gray-900">
+                    ${props.subtotal.toFixed(2)}
+                  </span>
                 </div>
               )}
-              {templateData.tax && (
+              {props.templateData.tax && (
                 <div className="flex justify-between text-sm font-semibold">
                   <span className="text-gray-600">Tax (10%):</span>
-                  <span className="text-gray-900">${tax.toFixed(2)}</span>
+                  <span className="text-gray-900">${props.tax.toFixed(2)}</span>
                 </div>
               )}
-              {templateData.discount && (
+              {props.templateData.discount && (
                 <div className="flex justify-between font-semibold text-sm text-gray-600">
                   <span className="text-gray-600">Discount:</span>
-                  <span className="text-gray-900">${discount.toFixed(2)}</span>
+                  <span className="text-gray-900">
+                    ${props.discount.toFixed(2)}
+                  </span>
                 </div>
               )}
               <div className="pt-3 border-t border-gray-200 flex justify-between font-semibold">
                 <span className="text-gray-900">Total:</span>
-                <span className="text-primary-600">${total.toFixed(2)}</span>
+                <span className="text-primary-600">
+                  ${props.total.toFixed(2)}
+                </span>
               </div>
-              {templateData.dueAmount && (
+              {props.templateData.dueAmount && (
                 <div className="flex justify-between text-sm font-medium text-red-600">
                   <span>Due Amount:</span>
-                  <span>${dueAmount.toFixed(2)}</span>
+                  <span>${props.dueAmount.toFixed(2)}</span>
                 </div>
               )}
             </div>
@@ -406,12 +401,12 @@ export function SendInvoicePreview({
           <div
             className="mt-8 p-6 rounded-lg"
             style={{
-              backgroundColor: color,
-              color: getContrastingTextColor(color),
+              backgroundColor: props.color,
+              color: getContrastingTextColor(props.color),
             }}
           >
             <div className="text-sm space-y-2">
-              {templateData.customerName && (
+              {props.templateData.customerName && (
                 <div className="flex items-center gap-2">
                   <Link className="h-4 w-4" />
                   <a
@@ -422,7 +417,7 @@ export function SendInvoicePreview({
                   </a>
                 </div>
               )}
-              {templateData.customerName && (
+              {props.templateData.customerName && (
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   <span>Terms: Due on Receipt</span>

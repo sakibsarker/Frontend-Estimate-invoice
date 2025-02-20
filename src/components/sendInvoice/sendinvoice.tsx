@@ -20,7 +20,7 @@ import { SendInvoicePreview } from "./SendInvoicePreview";
 const staticPreviewData = {
   logo: "https://placehold.co/200x50.png",
   color: "#4F46E5",
-  layout: "modern",
+  layout: "classic",
   templateData: {
     customerName: true,
     billingAddress: true,
