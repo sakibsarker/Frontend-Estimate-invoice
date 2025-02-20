@@ -219,12 +219,16 @@ View invoice: [Link]`}
 
           {/* Right Side - Invoice Preview */}
           <div className="flex-1 bg-gray-50 overflow-y-auto">
-            <div className="flex h-12 items-center justify-end border-b px-4">
+            <div className="flex h-12 items-center justify-end border-b px-4 print:hidden">
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => window.print()}
+                >
                   <Printer className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="print:hidden">
                   <Download className="h-4 w-4" />
                 </Button>
               </div>
