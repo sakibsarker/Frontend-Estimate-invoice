@@ -43,6 +43,47 @@ const staticPreviewData = {
   },
 };
 
+const staticInvoiceData = {
+  customerName: "Auto Gig Shop",
+  billingAddress: "123 Business Road, San Francisco, CA 94107",
+  shippingAddress: "PO Box 1234, San Jose, CA 95054",
+  accountNumber: "123-45678",
+  email: "customer@email.com",
+  phone: "(123) 456-7890",
+  poNumber: "PO-123456",
+  salesRep: "John Doe",
+  createdAt: new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }),
+  items: [
+    {
+      date: "2024-03-01",
+      name: "Service 1",
+      type: "Service",
+      description: "Item description details",
+      quantity: 2,
+      price: 500.0,
+      total: 1000.0,
+    },
+    {
+      date: "2024-03-02",
+      name: "Service 2",
+      type: "Service",
+      description: "Item description details",
+      quantity: 2,
+      price: 500.0,
+      total: 1000.0,
+    },
+  ],
+  subtotal: 2000.0,
+  tax: 200.0,
+  discount: 50.0,
+  total: 2150.0,
+  dueAmount: 2150.0,
+};
+
 export default function SendInvoice() {
   const [sendMethod, setSendMethod] = useState<"email" | "text">("email");
   const [sendCopy, setSendCopy] = useState(false);
@@ -237,10 +278,8 @@ View invoice: [Link]`}
             {/* Preview content with padding */}
             <div className="p-6">
               <SendInvoicePreview
-                logo={staticPreviewData.logo}
-                color={staticPreviewData.color}
-                layout={staticPreviewData.layout}
-                templateData={staticPreviewData.templateData}
+                {...staticPreviewData}
+                {...staticInvoiceData}
               />
             </div>
           </div>

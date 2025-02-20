@@ -1,6 +1,5 @@
-import { Mail, Phone, Link, FileText, Printer } from "lucide-react";
+import { Mail, Phone, Link, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 
 interface InvoicePreviewProps {
   logo: string | null;
@@ -26,6 +25,31 @@ interface InvoicePreviewProps {
     discount: boolean;
     dueAmount: boolean;
   };
+
+  // New flat data props
+  customerName: string;
+  billingAddress: string;
+  shippingAddress: string;
+  accountNumber: string;
+  email: string;
+  phone: string;
+  poNumber: string;
+  salesRep: string;
+  createdAt: string;
+  items: Array<{
+    date: string;
+    name: string;
+    type: string;
+    description: string;
+    quantity: number;
+    price: number;
+    total: number;
+  }>;
+  subtotal: number;
+  tax: number;
+  discount: number;
+  total: number;
+  dueAmount: number;
 }
 
 export function SendInvoicePreview({
@@ -33,6 +57,21 @@ export function SendInvoicePreview({
   color,
   layout,
   templateData,
+  customerName,
+  billingAddress,
+  shippingAddress,
+  accountNumber,
+  email,
+  phone,
+  poNumber,
+  salesRep,
+  createdAt,
+  items,
+  subtotal,
+  tax,
+  discount,
+  total,
+  dueAmount,
 }: InvoicePreviewProps) {
   return (
     <div className="printable-area">
@@ -91,16 +130,6 @@ export function SendInvoicePreview({
 
               {/* Add print button to the right side */}
               <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => window.print()}
-                  className="print:hidden" // Hide during actual printing
-                >
-                  <Printer className="h-4 w-4 mr-2" />
-                  Print
-                </Button>
-
                 {/* Invoice Header Info */}
                 <div
                   className={cn(
@@ -123,7 +152,7 @@ export function SendInvoicePreview({
                     {templateData.customerName && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">Customer Name:</span>
-                        <span className="text-gray-900">Auto Gig Shop</span>
+                        <span className="text-gray-900">{customerName}</span>
                       </div>
                     )}
                     {templateData.Date && (
@@ -134,7 +163,7 @@ export function SendInvoicePreview({
                             : "text-gray-500"
                         )}
                       >
-                        {new Date().toLocaleDateString("en-US", {
+                        {new Date(createdAt).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
@@ -144,13 +173,13 @@ export function SendInvoicePreview({
                     {templateData.poNumber && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">PO Number:</span>
-                        <span className="text-gray-900">PO-123456</span>
+                        <span className="text-gray-900">{poNumber}</span>
                       </div>
                     )}
                     {templateData.salesRep && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">Sales Rep:</span>
-                        <span className="text-gray-900">John Doe</span>
+                        <span className="text-gray-900">{salesRep}</span>
                       </div>
                     )}
                   </div>
@@ -181,11 +210,13 @@ export function SendInvoicePreview({
               </h3>
               {templateData.billingAddress && (
                 <div className="text-sm text-gray-600 space-y-1">
-                  <div>123 Business Road</div>
-                  <div>San Francisco, CA 94107</div>
+                  {billingAddress.split(", ").map((line, index) => (
+                    <div key={index}>{line}</div>
+                  ))}
                   {templateData.accountNumber && (
                     <div className="mt-2">
-                      <span className="font-medium">Account #:</span> 123-45678
+                      <span className="font-medium">Account #:</span>{" "}
+                      {accountNumber}
                     </div>
                   )}
                 </div>
@@ -194,13 +225,13 @@ export function SendInvoicePreview({
                 {templateData.email && (
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Mail className="h-4 w-4" />
-                    customer@email.com
+                    {email}
                   </div>
                 )}
                 {templateData.phone && (
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Phone className="h-4 w-4" />
-                    (123) 456-7890
+                    {phone}
                   </div>
                 )}
               </div>
@@ -219,9 +250,13 @@ export function SendInvoicePreview({
                   Ship To
                 </h3>
                 <div className="text-sm text-gray-600 space-y-1">
-                  <div>Customer Name</div>
-                  <div>PO Box 1234</div>
-                  <div>San Jose, CA 95054</div>
+                  {/* Customer Name */}
+                  <div>{customerName}</div>
+
+                  {/* Split shipping address into lines */}
+                  {shippingAddress.split(", ").map((line, index) => (
+                    <div key={index}>{line}</div>
+                  ))}
                 </div>
               </div>
             )}
@@ -277,42 +312,45 @@ export function SendInvoicePreview({
                   layout === "modern" && "divide-gray-100"
                 )}
               >
-                {[1, 2].map((item) => (
-                  <tr key={item} className="hover:bg-gray-50 transition-colors">
+                {items.map((item, index) => (
+                  <tr
+                    key={index}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
                     {templateData.Date && (
                       <td className="px-4 py-3 text-sm text-gray-500 hidden md:table-cell">
-                        2024-03-{item.toString().padStart(2, "0")}
+                        {item.date}
                       </td>
                     )}
                     {templateData.itemName && (
                       <td className="px-4 py-3">
                         <div className="font-medium text-gray-900">
-                          Service {item}
+                          {item.name}
                         </div>
                         {templateData.description && (
                           <div className="mt-1 text-sm text-gray-500">
-                            Item description details
+                            {item.description}
                           </div>
                         )}
                       </td>
                     )}
                     {templateData.type && (
                       <td className="px-4 py-3 text-sm text-gray-500 hidden md:table-cell">
-                        Service
+                        {item.type}
                       </td>
                     )}
                     {templateData.quantity && (
                       <td className="px-4 py-3 text-right text-sm text-gray-900">
-                        2
+                        {item.quantity}
                       </td>
                     )}
                     {templateData.price && (
                       <td className="px-4 py-3 text-right text-sm text-gray-900">
-                        $500.00
+                        ${item.price.toFixed(2)}
                       </td>
                     )}
                     <td className="px-4 py-3 text-right font-medium text-gray-900">
-                      $1,000.00
+                      ${item.total.toFixed(2)}
                     </td>
                   </tr>
                 ))}
@@ -334,29 +372,29 @@ export function SendInvoicePreview({
               {templateData.subtotal && (
                 <div className="flex justify-between text-sm font-semibold">
                   <span className="text-gray-600">Subtotal:</span>
-                  <span className="text-gray-900">$2,000.00</span>
+                  <span className="text-gray-900">${subtotal.toFixed(2)}</span>
                 </div>
               )}
               {templateData.tax && (
                 <div className="flex justify-between text-sm font-semibold">
                   <span className="text-gray-600">Tax (10%):</span>
-                  <span className="text-gray-900">$200.00</span>
+                  <span className="text-gray-900">${tax.toFixed(2)}</span>
                 </div>
               )}
               {templateData.discount && (
                 <div className="flex justify-between font-semibold text-sm text-gray-600">
                   <span className="text-gray-600">Discount:</span>
-                  <span className="text-gray-900">$50.00</span>
+                  <span className="text-gray-900">${discount.toFixed(2)}</span>
                 </div>
               )}
               <div className="pt-3 border-t border-gray-200 flex justify-between font-semibold">
                 <span className="text-gray-900">Total:</span>
-                <span className="text-primary-600">$2,150.00</span>
+                <span className="text-primary-600">${total.toFixed(2)}</span>
               </div>
               {templateData.dueAmount && (
                 <div className="flex justify-between text-sm font-medium text-red-600">
                   <span>Due Amount:</span>
-                  <span>$2,150.00</span>
+                  <span>${dueAmount.toFixed(2)}</span>
                 </div>
               )}
             </div>
