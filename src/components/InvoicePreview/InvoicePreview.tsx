@@ -307,7 +307,7 @@ export function InvoicePreview({
             <span className="text-primary-600">$2,150.00</span>
           </div>
           {templateData.dueAmount && (
-            <div className="flex justify-between  font-semibold text-sm text-gray-600">
+            <div className="flex justify-between ">
               <span>Due Amount:</span>
               <span>$2,150.00</span>
             </div>

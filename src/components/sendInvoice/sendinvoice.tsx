@@ -21,12 +21,10 @@ import { useGetInvoicePreviwByIdQuery } from "@/features/server/invoiceSlice";
 // Add this static data object above the component
 const staticPreviewData = {
   logo: "https://placehold.co/200x50.png",
-  color: "#4F46E5",
   layout: "classic",
   templateData: {
     customerName: true,
     billingAddress: true,
-    shippingAddress: true,
     phone: true,
     email: true,
     accountNumber: true,

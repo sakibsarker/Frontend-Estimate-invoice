@@ -4,12 +4,10 @@ import { cn } from "@/lib/utils";
 interface PreviewProps {
   // Template configuration
   logo: string | null;
-  color: string;
   layout: string;
   templateData: {
     customerName: boolean;
     billingAddress: boolean;
-    shippingAddress: boolean;
     phone: boolean;
     email: boolean;
     accountNumber: boolean;
@@ -36,10 +34,6 @@ interface InvoiceDataProps {
     billing_city: string;
     billing_state: string;
     billing_zip_code: string;
-    shipping_address_line1: string;
-    shipping_city: string;
-    shipping_state: string;
-    shipping_zip_code: string;
     account_number: string;
     email_address: string;
     phone_number: string;
@@ -125,149 +119,116 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                 )}
               </div>
 
-              {/* Add print button to the right side */}
-              <div className="flex items-center gap-2">
-                {/* Invoice Header Info */}
+              {/* Invoice Customer Info */}
+              <div
+                className={cn(
+                  "space-y-2",
+                  props.layout === "classic"
+                    ? "md:grid-cols-3"
+                    : "md:grid-cols-2",
+                  props.layout === "minimal" && "grid-cols-1"
+                )}
+              >
                 <div
                   className={cn(
-                    "space-y-2",
-                    props.layout === "classic" && "text-right md:w-1/3",
-                    props.layout === "modern" && "mt-4 md:mt-0",
-                    props.layout === "minimal" && "hidden"
+                    "font-bold text-primary-600",
+                    props.layout === "impact" ? "text-3xl" : "text-2xl",
+                    props.layout === "modern" && "text-xl"
                   )}
                 >
-                  <div
-                    className={cn(
-                      "font-bold text-primary-600",
-                      props.layout === "impact" ? "text-3xl" : "text-2xl",
-                      props.layout === "modern" && "text-xl"
-                    )}
-                  >
-                    INVOICE
-                  </div>
-                  <div className="space-y-1 text-sm text-gray-500">
-                    {props.templateData.customerName && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Customer Name:</span>
-                        <span className="text-gray-900">
-                          {props.customerId.customer_display_name}
-                        </span>
+                  Bill To
+                </div>
+                <div className="space-y-1 text-sm text-gray-500">
+                  {props.templateData.billingAddress && (
+                    <div className="text-sm text-gray-600 space-y-1">
+                      <div>{props.customerId.billing_address_line1}</div>
+                      <div>
+                        {props.customerId.billing_city},{" "}
+                        {props.customerId.billing_state}{" "}
+                        {props.customerId.billing_zip_code}
+                      </div>
+                      {props.templateData.accountNumber && (
+                        <div className="mt-2">
+                          <span className="font-medium">Account #:</span>{" "}
+                          {props.customerId.account_number}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <div className="pt-2 space-y-1">
+                    {props.templateData.email && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Mail className="h-4 w-4" />
+                        {props.customerId.email_address}
                       </div>
                     )}
-                    {props.templateData.Date && (
-                      <div
-                        className={cn(
-                          props.layout === "modern"
-                            ? "text-gray-700"
-                            : "text-gray-500"
-                        )}
-                      >
-                        {new Date(props.created_at).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          }
-                        )}
-                      </div>
-                    )}
-                    {props.templateData.poNumber && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">PO Number:</span>
-                        <span className="text-gray-900">{props.po_number}</span>
-                      </div>
-                    )}
-                    {props.templateData.salesRep && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Sales Rep:</span>
-                        <span className="text-gray-900">{props.sales_rep}</span>
+                    {props.templateData.phone && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Phone className="h-4 w-4" />
+                        {props.customerId.phone_number}
                       </div>
                     )}
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Client Info - Layout Variations */}
-        <div className="page-break-after-avoid">
-          <div
-            className={cn(
-              "grid gap-6 mb-8",
-              props.layout === "classic" ? "md:grid-cols-3" : "md:grid-cols-2",
-              props.layout === "minimal" && "grid-cols-1"
-            )}
-          >
-            {/* Billing Address */}
-            <div
-              className={cn(
-                "p-4 rounded-lg",
-                props.layout === "modern" ? "bg-white border" : "bg-gray-50"
-              )}
-            >
-              <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-                Bill To
-              </h3>
-              {props.templateData.billingAddress && (
-                <div className="text-sm text-gray-600 space-y-1">
-                  <div>{props.customerId.billing_address_line1}</div>
-                  <div>
-                    {props.customerId.billing_city},{" "}
-                    {props.customerId.billing_state}{" "}
-                    {props.customerId.billing_zip_code}
-                  </div>
-                  {props.templateData.accountNumber && (
-                    <div className="mt-2">
-                      <span className="font-medium">Account #:</span>{" "}
-                      {props.customerId.account_number}
+              {/* Invoice Header Info */}
+              <div
+                className={cn(
+                  "space-y-2",
+                  props.layout === "classic" && "text-right md:w-1/3",
+                  props.layout === "modern" && "mt-4 md:mt-0",
+                  props.layout === "minimal" && "hidden"
+                )}
+              >
+                <div
+                  className={cn(
+                    "font-bold text-primary-600",
+                    props.layout === "impact" ? "text-3xl" : "text-2xl",
+                    props.layout === "modern" && "text-xl"
+                  )}
+                >
+                  INVOICE
+                </div>
+                <div className="space-y-1 text-sm text-gray-500">
+                  {props.templateData.customerName && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Customer Name:</span>
+                      <span className="text-gray-900">
+                        {props.customerId.customer_display_name}
+                      </span>
+                    </div>
+                  )}
+                  {props.templateData.Date && (
+                    <div
+                      className={cn(
+                        props.layout === "modern"
+                          ? "text-gray-700"
+                          : "text-gray-500"
+                      )}
+                    >
+                      {new Date(props.created_at).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </div>
+                  )}
+                  {props.templateData.poNumber && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">PO Number:</span>
+                      <span className="text-gray-900">{props.po_number}</span>
+                    </div>
+                  )}
+                  {props.templateData.salesRep && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Sales Rep:</span>
+                      <span className="text-gray-900">{props.sales_rep}</span>
                     </div>
                   )}
                 </div>
-              )}
-              <div className="pt-2 space-y-1">
-                {props.templateData.email && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Mail className="h-4 w-4" />
-                    {props.customerId.email_address}
-                  </div>
-                )}
-                {props.templateData.phone && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Phone className="h-4 w-4" />
-                    {props.customerId.phone_number}
-                  </div>
-                )}
               </div>
             </div>
-
-            {/* Shipping Address */}
-            {props.templateData.shippingAddress && (
-              <div
-                className={cn(
-                  "p-4 rounded-lg",
-                  props.layout === "modern" ? "bg-white border" : "bg-gray-50",
-                  props.layout === "classic" && "md:col-span-2"
-                )}
-              >
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-                  Ship To
-                </h3>
-                <div className="text-sm text-gray-600 space-y-1">
-                  {/* Customer Name */}
-                  <div>{props.customerId.customer_display_name}</div>
-
-                  {/* Split shipping address into lines */}
-                  <div>{props.customerId.shipping_address_line1}</div>
-                  <div>
-                    {props.customerId.shipping_city},{" "}
-                    {props.customerId.shipping_state}{" "}
-                    {props.customerId.shipping_zip_code}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
@@ -364,7 +325,7 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                     )}
                     {props.templateData.price && (
                       <td className="px-4 py-3 text-right text-sm text-gray-900">
-                        ${parseFloat(invoiceItem.item.price).toFixed(2)}
+                        ${parseFloat(invoiceItem.price).toFixed(2)}
                       </td>
                     )}
                     <td className="px-4 py-3 text-right font-medium text-gray-900">
@@ -432,7 +393,7 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                 </span>
               </div>
               {props.templateData.dueAmount && (
-                <div className="flex justify-between text-sm font-medium text-red-600">
+                <div className="flex justify-between ">
                   <span>Due Amount:</span>
                   <span>${parseFloat(props.amount_due).toFixed(2)}</span>
                 </div>
@@ -443,13 +404,7 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
 
         {/* Footer Section */}
         <div className="page-break-before-auto">
-          <div
-            className="mt-8 p-6 rounded-lg"
-            style={{
-              backgroundColor: props.color,
-              color: getContrastingTextColor(props.color),
-            }}
-          >
+          <div className="mt-8 p-6 rounded-lg">
             <div className="text-sm space-y-2">
               {props.templateData.customerName && (
                 <div className="flex items-center gap-2">
@@ -469,7 +424,7 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                 </div>
               )}
               <div className="pt-2 font-medium">
-                Thank you for your business! 💙
+                Thank you for your business!
               </div>
             </div>
           </div>
@@ -477,15 +432,4 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
       </div>
     </div>
   );
-}
-
-function getContrastingTextColor(hexColor: string) {
-  // Convert hex to RGB
-  const r = parseInt(hexColor.substr(1, 2), 16);
-  const g = parseInt(hexColor.substr(3, 2), 16);
-  const b = parseInt(hexColor.substr(5, 2), 16);
-
-  // Calculate luminance
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return luminance > 0.5 ? "#000000" : "#ffffff";
 }
