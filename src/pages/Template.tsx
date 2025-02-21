@@ -210,13 +210,13 @@ export default function Template() {
         if (typeof currentTemplateId === "number") {
           // API template update
           await updateTemplate(templatePayload).unwrap();
-          toast.success("Template updated in API");
+          toast.success(`Template ${currentTemplateId} updated`);
         } else {
           // Local template update
           setLocalTemplates((prev) =>
             prev.map((t) => (t.id === currentTemplateId ? templatePayload : t))
           );
-          toast.success("Local template updated");
+          toast.success("Template updated");
         }
       } else {
         // Always create through API first
@@ -339,10 +339,9 @@ export default function Template() {
         );
       }
 
-      toast.success("Full template data stored successfully");
+      toast.success(`Defult Template ${currentTemplateId} set successfully`);
     } catch (error) {
-      console.error("Set default failed:", error);
-      toast.error("Failed to store template data");
+      toast.error("Failed to set template");
     }
   };
 

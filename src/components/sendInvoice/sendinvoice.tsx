@@ -45,16 +45,64 @@ const staticPreviewData = {
 
 export default function SendInvoice() {
   const { invoiceId } = useParams<{ invoiceId: string }>();
-
-  const [sendMethod, setSendMethod] = useState<"email" | "text">("email");
-  const navigate = useNavigate();
-
   // Add the query hook
   const {
     data: invoiceData,
     isLoading,
     isError,
   } = useGetInvoicePreviwByIdQuery(Number(invoiceId)); // Pass the invoice ID (44 in this case)
+  const [sendMethod, setSendMethod] = useState<"email" | "text">("email");
+  const navigate = useNavigate();
+
+  // Get default template from localStorage or use static data
+  const savedDefault = localStorage.getItem("defaultTemplate");
+  const mergedPreviewData = savedDefault
+    ? (() => {
+        const parsedDefault = JSON.parse(savedDefault);
+        return {
+          logo: parsedDefault.logo || staticPreviewData.logo,
+          layout: parsedDefault.selected_layout || staticPreviewData.layout,
+          templateData: {
+            customerName:
+              parsedDefault.customer_name ??
+              staticPreviewData.templateData.customerName,
+            billingAddress:
+              parsedDefault.billing_address ??
+              staticPreviewData.templateData.billingAddress,
+            phone: parsedDefault.phone ?? staticPreviewData.templateData.phone,
+            email: parsedDefault.email ?? staticPreviewData.templateData.email,
+            accountNumber:
+              parsedDefault.account_number ??
+              staticPreviewData.templateData.accountNumber,
+            poNumber:
+              parsedDefault.po_number ??
+              staticPreviewData.templateData.poNumber,
+            salesRep:
+              parsedDefault.sales_rep ??
+              staticPreviewData.templateData.salesRep,
+            Date: parsedDefault.date ?? staticPreviewData.templateData.Date,
+            itemName:
+              parsedDefault.item_name ??
+              staticPreviewData.templateData.itemName,
+            quantity:
+              parsedDefault.quantity ?? staticPreviewData.templateData.quantity,
+            price: parsedDefault.price ?? staticPreviewData.templateData.price,
+            type: parsedDefault.type ?? staticPreviewData.templateData.type,
+            description:
+              parsedDefault.description ??
+              staticPreviewData.templateData.description,
+            subtotal:
+              parsedDefault.subtotal ?? staticPreviewData.templateData.subtotal,
+            tax: parsedDefault.tax ?? staticPreviewData.templateData.tax,
+            discount:
+              parsedDefault.discount ?? staticPreviewData.templateData.discount,
+            dueAmount:
+              parsedDefault.due_amount ??
+              staticPreviewData.templateData.dueAmount,
+          },
+        };
+      })()
+    : staticPreviewData;
 
   // Add error state
   if (isError) {
@@ -262,7 +310,7 @@ View invoice: [Link]`}
                   </p>
                 </div>
               ) : invoiceData ? (
-                <SendInvoicePreview {...staticPreviewData} {...invoiceData} />
+                <SendInvoicePreview {...mergedPreviewData} {...invoiceData} />
               ) : (
                 <div className="text-red-500 text-center">
                   <h2 className="text-xl font-semibold mb-2">
