@@ -135,51 +135,51 @@ export function InvoicePreview({
               )}
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Client Info - Layout Variations */}
-      <div
-        className={cn(
-          "grid gap-6 mb-8",
-          layout === "classic" ? "md:grid-cols-3" : "md:grid-cols-2",
-          layout === "minimal" && "grid-cols-1"
-        )}
-      >
-        {/* Billing Address */}
-        <div
-          className={cn(
-            "p-4 rounded-lg",
-            layout === "modern" ? "bg-white border" : "bg-gray-50"
-          )}
-        >
-          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-            Bill To
-          </h3>
-          {templateData.billingAddress && (
-            <div className="text-sm text-gray-600 space-y-1">
-              <div>123 Business Road</div>
-              <div>San Francisco, CA 94107</div>
-              {templateData.accountNumber && (
-                <div className="mt-2">
-                  <span className="font-medium">Account #:</span> 123-45678
+          {/*Invoice Client Info  */}
+          <div
+            className={cn(
+              "space-y-2",
+              layout === "classic" ? "md:grid-cols-3" : "md:grid-cols-2",
+              layout === "minimal" && "grid-cols-1"
+            )}
+          >
+            <div
+              className={cn(
+                "font-bold text-primary-600",
+                layout === "impact" ? "text-3xl" : "text-2xl",
+                layout === "modern" && "text-xl"
+              )}
+            >
+              Bill To
+            </div>
+            <div className="space-y-1 text-sm text-gray-500">
+              {templateData.billingAddress && (
+                <div className="text-sm text-gray-600 space-y-1">
+                  <div>123 Business Road</div>
+                  <div>San Francisco, CA 94107</div>
+                  {templateData.accountNumber && (
+                    <div className="mt-2">
+                      <span className="font-medium">Account #:</span> 123-45678
+                    </div>
+                  )}
                 </div>
               )}
+              <div className="pt-2 space-y-1">
+                {templateData.email && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Mail className="h-4 w-4" />
+                    customer@email.com
+                  </div>
+                )}
+                {templateData.phone && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Phone className="h-4 w-4" />
+                    (123) 456-7890
+                  </div>
+                )}
+              </div>
             </div>
-          )}
-          <div className="pt-2 space-y-1">
-            {templateData.email && (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Mail className="h-4 w-4" />
-                customer@email.com
-              </div>
-            )}
-            {templateData.phone && (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Phone className="h-4 w-4" />
-                (123) 456-7890
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -307,7 +307,7 @@ export function InvoicePreview({
             <span className="text-primary-600">$2,150.00</span>
           </div>
           {templateData.dueAmount && (
-            <div className="flex justify-between text-sm font-medium text-red-600">
+            <div className="flex justify-between  font-semibold text-sm text-gray-600">
               <span>Due Amount:</span>
               <span>$2,150.00</span>
             </div>
