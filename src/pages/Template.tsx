@@ -52,22 +52,13 @@ const layouts = [
   },
 ];
 
-const colors = [
-  ["#000000", "#333333", "#666666", "#999999", "#CCCCCC", "#FFFFFF"],
-  ["#FF0000", "#FF3333", "#FF6666", "#FF9999", "#FFCCCC", "#FFE6E6"],
-  ["#00FF00", "#33FF33", "#66FF66", "#99FF99", "#CCFFCC", "#E6FFE6"],
-  ["#0000FF", "#3333FF", "#6666FF", "#9999FF", "#CCCCFF", "#E6E6FF"],
-];
-
 interface Template {
   id: string | number;
   name: string;
-  selected_color: string;
   selected_layout: string;
   logo: string | null;
   customer_name: boolean;
   billing_address: boolean;
-  shipping_address: boolean;
   phone: boolean;
   email: boolean;
   account_number: boolean;
@@ -93,7 +84,6 @@ export default function Template() {
   const [currentTemplateId, setCurrentTemplateId] = useState<
     string | number | null
   >(null);
-  const [selectedColor, setSelectedColor] = useState("#4E4E56");
   const [selectedLayout, setSelectedLayout] = useState("modern");
   const [logo, setLogo] = useState<string | null>(null);
   const [templateData, setTemplateData] = useState({
@@ -101,7 +91,6 @@ export default function Template() {
     is_default: false,
     customerName: true,
     billingAddress: true,
-    shippingAddress: true,
     phone: true,
     email: true,
     accountNumber: true,
@@ -164,15 +153,11 @@ export default function Template() {
       const templatePayload: Template = {
         id: currentTemplateId || uuidv4(),
         name: templateData.name,
-        selected_color: selectedColor,
         selected_layout: selectedLayout,
         logo: logo,
         is_default: templateData.is_default,
-
-        // Map all fields to snake_case
         customer_name: templateData.customerName,
         billing_address: templateData.billingAddress,
-        shipping_address: templateData.shippingAddress,
         phone: templateData.phone,
         email: templateData.email,
         account_number: templateData.accountNumber,
@@ -237,7 +222,7 @@ export default function Template() {
         ...templateData,
         ...template,
       });
-      setSelectedColor(template.selected_color);
+
       setSelectedLayout(template.selected_layout);
       setLogo(template.logo);
       setCurrentTemplateId(template.id);
@@ -286,7 +271,6 @@ export default function Template() {
       is_default: false,
     });
 
-    setSelectedColor("#4E4E56");
     setSelectedLayout("modern");
     setLogo(null);
   };
@@ -295,7 +279,6 @@ export default function Template() {
   const booleanFields = [
     "customerName",
     "billingAddress",
-    "shippingAddress",
     "phone",
     "email",
     "accountNumber",
@@ -460,35 +443,6 @@ export default function Template() {
                     ))}
                   </div>
                 </div>
-
-                {/* Color Selection */}
-                <div className="space-y-2">
-                  <Label>Color</Label>
-                  <Input
-                    type="text"
-                    value={selectedColor}
-                    onChange={(e) => setSelectedColor(e.target.value)}
-                    className="mb-2"
-                  />
-                  <div className="grid gap-2">
-                    {colors.map((row, i) => (
-                      <div key={i} className="flex gap-2">
-                        {row.map((color) => (
-                          <button
-                            key={color}
-                            className={`h-6 w-6 rounded-full border ${
-                              selectedColor === color
-                                ? "ring-2 ring-blue-500 ring-offset-2"
-                                : ""
-                            }`}
-                            style={{ backgroundColor: color }}
-                            onClick={() => setSelectedColor(color)}
-                          />
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -500,9 +454,9 @@ export default function Template() {
             </AccordionTrigger>
             <AccordionContent>
               <div className="space-y-4">
-                {/* Customer Info */}
+                {/* invoice Info */}
                 <div className="space-y-2">
-                  <Label>Customer info</Label>
+                  <Label>Invoice information</Label>
                   <div className="space-y-2">
                     {booleanFields.map((field) => (
                       <div key={field} className="flex items-center space-x-2">
@@ -549,12 +503,10 @@ export default function Template() {
       <div className="flex-1 bg-gray-50 p-6">
         <InvoicePreview
           logo={logo}
-          color={selectedColor}
           layout={selectedLayout}
           templateData={{
             customerName: templateData.customerName,
             billingAddress: templateData.billingAddress,
-            shippingAddress: templateData.shippingAddress,
             phone: templateData.phone,
             email: templateData.email,
             accountNumber: templateData.accountNumber,

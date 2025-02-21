@@ -5,14 +5,13 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 interface Template {
   id: string | number;
   name: string;
-  selected_color: string;
   selected_layout: string;
   logo: string | null;
   is_default: boolean;
 
   customer_name: boolean;
   billing_address: boolean;
-  shipping_address: boolean;
+
   phone: boolean;
   email: boolean;
   account_number: boolean;

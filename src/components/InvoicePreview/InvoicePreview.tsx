@@ -3,12 +3,10 @@ import { cn } from "@/lib/utils";
 
 interface InvoicePreviewProps {
   logo: string | null;
-  color: string;
   layout: string;
   templateData: {
     customerName: boolean;
     billingAddress: boolean;
-    shippingAddress: boolean;
     phone: boolean;
     email: boolean;
     accountNumber: boolean;
@@ -29,7 +27,6 @@ interface InvoicePreviewProps {
 
 export function InvoicePreview({
   logo,
-  color,
   layout,
   templateData,
 }: InvoicePreviewProps) {
@@ -185,26 +182,6 @@ export function InvoicePreview({
             )}
           </div>
         </div>
-
-        {/* Shipping Address */}
-        {templateData.shippingAddress && (
-          <div
-            className={cn(
-              "p-4 rounded-lg",
-              layout === "modern" ? "bg-white border" : "bg-gray-50",
-              layout === "classic" && "md:col-span-2"
-            )}
-          >
-            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-              Ship To
-            </h3>
-            <div className="text-sm text-gray-600 space-y-1">
-              <div>Customer Name</div>
-              <div>PO Box 1234</div>
-              <div>San Jose, CA 95054</div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Items Table - Layout Variations */}
@@ -255,7 +232,7 @@ export function InvoicePreview({
               layout === "modern" && "divide-gray-100"
             )}
           >
-            {[1, 2].map((item) => (
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
               <tr key={item} className="hover:bg-gray-50 transition-colors">
                 {templateData.Date && (
                   <td className="px-4 py-3 text-sm text-gray-500 hidden md:table-cell">
@@ -339,13 +316,7 @@ export function InvoicePreview({
       </div>
 
       {/* Footer Section */}
-      <div
-        className="mt-8 p-6 rounded-lg"
-        style={{
-          backgroundColor: color,
-          color: getContrastingTextColor(color),
-        }}
-      >
+      <div className="mt-8 p-6">
         <div className="text-sm space-y-2">
           {templateData.customerName && (
             <div className="flex items-center gap-2">
@@ -364,22 +335,9 @@ export function InvoicePreview({
               <span>Terms: Due on Receipt</span>
             </div>
           )}
-          <div className="pt-2 font-medium">
-            Thank you for your business! 💙
-          </div>
+          <div className="pt-2 font-medium">Thank you for your business!</div>
         </div>
       </div>
     </div>
   );
-}
-
-function getContrastingTextColor(hexColor: string) {
-  // Convert hex to RGB
-  const r = parseInt(hexColor.substr(1, 2), 16);
-  const g = parseInt(hexColor.substr(3, 2), 16);
-  const b = parseInt(hexColor.substr(5, 2), 16);
-
-  // Calculate luminance
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return luminance > 0.5 ? "#000000" : "#ffffff";
 }
