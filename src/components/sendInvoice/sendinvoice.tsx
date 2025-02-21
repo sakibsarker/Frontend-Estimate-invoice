@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { SendInvoicePreview } from "./SendInvoicePreview";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useGetInvoicePreviwByIdQuery } from "@/features/server/invoiceSlice";
 
 // Add this static data object above the component
@@ -44,6 +44,8 @@ const staticPreviewData = {
 };
 
 export default function SendInvoice() {
+  const { invoiceId } = useParams<{ invoiceId: string }>();
+
   const [sendMethod, setSendMethod] = useState<"email" | "text">("email");
   const [sendCopy, setSendCopy] = useState(false);
   const navigate = useNavigate();
@@ -53,7 +55,7 @@ export default function SendInvoice() {
     data: invoiceData,
     isLoading,
     isError,
-  } = useGetInvoicePreviwByIdQuery(44); // Pass the invoice ID (44 in this case)
+  } = useGetInvoicePreviwByIdQuery(Number(invoiceId)); // Pass the invoice ID (44 in this case)
 
   // Add loading state
   if (isLoading) {

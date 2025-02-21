@@ -270,6 +270,58 @@ export default function ManualInvoiceForm() {
     }
   };
 
+  const handleCreateInvoice = async () => {
+    const toastId = toast.loading("Creating new invoice...");
+    try {
+      if (!selectedCustomer) throw new Error("Customer selection is required");
+      if (items.length === 0) throw new Error("At least one item is required");
+
+      const formData = new FormData();
+
+      // 1. Create nested JSON structure for invoice_items
+      const invoiceItems = items.map((item) => ({
+        item_id: item.selectedItemId,
+        quantity: item.quantity,
+        price: Number(Number(item.price).toFixed(2)),
+        has_tax: item.hasTax,
+        has_discount: item.hasDiscount,
+        paid: item.paid,
+      }));
+
+      // 2. Append as JSON string
+      formData.append("invoice_items", JSON.stringify(invoiceItems));
+
+      // 3. Append other fields
+      formData.append("customerId", selectedCustomer.toString());
+      formData.append("invoice_status", "PAID");
+      formData.append("payment_method", "CREDIT_CARD");
+
+      // Optional fields
+
+      if (selectedDiscount)
+        formData.append("discount", selectedDiscount.toString());
+      if (invoiceNumber) formData.append("invoice_number", invoiceNumber);
+      if (poNumber) formData.append("po_number", poNumber);
+      if (selectedTax) formData.append("tax", selectedTax.toString());
+      if (salesRep) formData.append("sales_rep", salesRep);
+      if (message) formData.append("message_on_invoice", message);
+
+      // 4. Add attachments
+      attachments.forEach((file) => {
+        formData.append("attachments", file);
+      });
+
+      const result = await createInvoice(formData).unwrap();
+      toast.success("Invoice Created successfully!", { id: toastId });
+      console.log(result.id);
+      navigate(`/invoice/${result.id}/send`);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to save draft";
+      toast.error(errorMessage, { id: toastId });
+    }
+  };
+
   return (
     <div className="flex min-h-screen">
       {/* Form Section */}
@@ -942,14 +994,15 @@ export default function ManualInvoiceForm() {
                 onClick={handleSaveDraft}
                 disabled={isLoading}
               >
-                {isLoading ? "Saving" : "Save Draft"}
+                {isLoading ? "Saving.." : "Save Draft"}
               </Button>
               <Button
                 type="button"
                 className="bg-indigo-600 hover:bg-indigo-700 text-2xl p-2 "
-                onClick={() => navigate(`/invoice/${23}/send`)}
+                onClick={handleCreateInvoice}
+                disabled={isLoading}
               >
-                Review & Send
+                {isLoading ? "Creating.." : "Review & Send"}
               </Button>
             </div>
           </div>
