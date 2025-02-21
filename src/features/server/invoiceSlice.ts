@@ -117,8 +117,8 @@ interface InvoicePreview {
   id: number;
   customerId: Customer;
   repair_request: number | null;
-  discount: DiscountDetail;
-  tax: TaxDetail;
+  discount: DiscountDetail | null;
+  tax: TaxDetail | null;
   invoice_number: string;
   invoice_status: string;
   payment_method: string;

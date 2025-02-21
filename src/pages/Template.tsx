@@ -301,30 +301,59 @@ export default function Template() {
       const template = allTemplates.find((t) => t.id === currentTemplateId);
       if (!template) return;
 
-      if (typeof currentTemplateId === "number") {
-        // Create full template payload with type safety
-        const apiTemplate: Template = {
-          ...template,
-        };
+      // Create complete template data object
+      const fullTemplateData = {
+        ...template,
+        selected_layout: selectedLayout,
+        logo: logo,
+        name: templateData.name,
+        customer_name: templateData.customerName,
+        billing_address: templateData.billingAddress,
+        phone: templateData.phone,
+        email: templateData.email,
+        account_number: templateData.accountNumber,
+        po_number: templateData.poNumber,
+        sales_rep: templateData.salesRep,
+        date: templateData.Date,
+        item_name: templateData.itemName,
+        quantity: templateData.quantity,
+        price: templateData.price,
+        type: templateData.type,
+        description: templateData.description,
+        subtotal: templateData.subtotal,
+        tax: templateData.tax,
+        discount: templateData.discount,
+        due_amount: templateData.dueAmount,
+      };
 
-        await updateTemplate(apiTemplate).unwrap();
+      // Store complete template data in localStorage
+      localStorage.setItem("defaultTemplate", JSON.stringify(fullTemplateData));
+
+      // Keep existing API/local template logic
+      if (typeof currentTemplateId === "number") {
+        await updateTemplate(fullTemplateData).unwrap();
         dispatch(templateApi.util.invalidateTags(["Templates"]));
       } else {
         setLocalTemplates((prev) =>
-          prev.map((t) => ({
-            ...t,
-          }))
+          prev.map((t) => (t.id === currentTemplateId ? fullTemplateData : t))
         );
-        localStorage.setItem("defaultTemplate", currentTemplateId);
       }
 
-      // setDefaultTemplateId(currentTemplateId.toString());
-      toast.success("Default template updated successfully");
+      toast.success("Full template data stored successfully");
     } catch (error) {
       console.error("Set default failed:", error);
-      toast.error("Failed to set default template");
+      toast.error("Failed to store template data");
     }
   };
+
+  // Add this to load stored template data on component mount
+  useEffect(() => {
+    const storedTemplate = localStorage.getItem("defaultTemplate");
+    if (storedTemplate) {
+      const parsedTemplate = JSON.parse(storedTemplate);
+      handleSelectTemplate(parsedTemplate.id);
+    }
+  }, []);
 
   const handleNewTemplate = () => {
     setCurrentTemplateId(null);

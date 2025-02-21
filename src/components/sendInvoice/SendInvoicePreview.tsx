@@ -56,10 +56,10 @@ interface InvoiceDataProps {
   total: string;
   amount_due: string;
   tax: {
-    tax_rate: string;
+    tax_rate: string | null;
   };
   discount: {
-    discount_rate: string;
+    discount_rate: string | null;
   };
 }
 
@@ -356,31 +356,31 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                   </span>
                 </div>
               )}
-              {props.templateData.tax && (
+              {props.templateData.tax && props.tax && (
                 <div className="flex justify-between text-sm font-semibold">
                   <span className="text-gray-600">
-                    Tax ({props.tax.tax_rate}%):
+                    Tax ({props.tax.tax_rate ?? "0"}%):
                   </span>
                   <span className="text-gray-900">
                     $
                     {(
                       (parseFloat(props.subtotal) *
-                        parseFloat(props.tax.tax_rate)) /
+                        parseFloat(props.tax.tax_rate ?? "0")) /
                       100
                     ).toFixed(2)}
                   </span>
                 </div>
               )}
-              {props.templateData.discount && (
+              {props.templateData.discount && props.discount && (
                 <div className="flex justify-between font-semibold text-sm text-gray-600">
                   <span className="text-gray-600">
-                    Discount ({props.discount.discount_rate}%):
+                    Discount ({props.discount.discount_rate ?? "0"}%):
                   </span>
                   <span className="text-gray-900">
                     $
                     {(
                       (parseFloat(props.subtotal) *
-                        parseFloat(props.discount.discount_rate)) /
+                        parseFloat(props.discount.discount_rate ?? "0")) /
                       100
                     ).toFixed(2)}
                   </span>
