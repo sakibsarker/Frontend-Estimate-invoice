@@ -57,15 +57,6 @@ export default function SendInvoice() {
     isError,
   } = useGetInvoicePreviwByIdQuery(Number(invoiceId)); // Pass the invoice ID (44 in this case)
 
-  // Add loading state
-  if (isLoading) {
-    return (
-      <div className="fixed inset-0 bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
-
   // Add error state
   if (isError) {
     return (
@@ -272,8 +263,19 @@ View invoice: [Link]`}
 
             {/* Preview content with padding */}
             <div className="p-6">
-              {invoiceData && (
+              {isLoading ? (
+                <div className="justify-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+                </div>
+              ) : invoiceData ? (
                 <SendInvoicePreview {...staticPreviewData} {...invoiceData} />
+              ) : (
+                <div className="text-red-500 text-center">
+                  <h2 className="text-xl font-semibold mb-2">
+                    Error loading invoice
+                  </h2>
+                  <p>Please try again later</p>
+                </div>
               )}
             </div>
           </div>
