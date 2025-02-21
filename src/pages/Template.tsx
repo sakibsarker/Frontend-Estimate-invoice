@@ -106,9 +106,7 @@ export default function Template() {
     discount: true,
     dueAmount: true,
   });
-  const [defaultTemplateId, setDefaultTemplateId] = useState<string | null>(
-    null
-  );
+  const [defaultTemplate, setDefaultTemplate] = useState<string | null>(null);
 
   const [localTemplates, setLocalTemplates] = useState<Template[]>(() => {
     const saved = localStorage.getItem("templates");
@@ -131,14 +129,14 @@ export default function Template() {
 
   useEffect(() => {
     const savedDefault = localStorage.getItem("defaultTemplate");
-    setDefaultTemplateId(savedDefault);
+    setDefaultTemplate(savedDefault);
   }, []);
 
   useEffect(() => {
-    if (defaultTemplateId) {
-      handleSelectTemplate(defaultTemplateId);
+    if (defaultTemplate) {
+      handleSelectTemplate(defaultTemplate);
     }
-  }, [defaultTemplateId]);
+  }, [defaultTemplate]);
 
   useEffect(() => {
     if (selectedTemplate && typeof currentTemplateId === "number") {
@@ -393,7 +391,7 @@ export default function Template() {
                   >
                     <div className="flex items-center justify-between">
                       <span>{template.name}</span>
-                      {template.id === defaultTemplateId && (
+                      {template.id === defaultTemplate && (
                         <span className="text-xs text-green-600 ml-2">
                           (Default)
                         </span>
