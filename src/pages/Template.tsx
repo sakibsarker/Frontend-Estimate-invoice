@@ -218,17 +218,19 @@ export default function Template() {
   const handleSelectTemplate = (templateId: string | number) => {
     const template = allTemplates.find((t) => t.id === templateId);
     if (template) {
+      // Store selected template in localStorage
+      localStorage.setItem("selectedTemplate", JSON.stringify(template));
+
       setTemplateData({
         ...templateData,
         ...template,
       });
-
       setSelectedLayout(template.selected_layout);
       setLogo(template.logo);
       setCurrentTemplateId(template.id);
     }
   };
-  // Update the handleSetDefault function
+
   const handleSetDefault = async () => {
     if (!currentTemplateId) return;
 
@@ -236,24 +238,28 @@ export default function Template() {
       const template = allTemplates.find((t) => t.id === currentTemplateId);
       if (!template) return;
 
-      if (typeof currentTemplateId === "number") {
-        // Create full template payload with type safety
-        const apiTemplate: Template = {
-          ...template,
-          is_default: true,
-        };
+      // Create updated template with default flag
+      const defaultTemplate = {
+        ...template,
 
-        await updateTemplate(apiTemplate).unwrap();
+        selected_layout: selectedLayout,
+        logo: logo,
+        ...templateData,
+      };
+
+      if (typeof currentTemplateId === "number") {
+        // API template update
+        await updateTemplate(defaultTemplate).unwrap();
         dispatch(templateApi.util.invalidateTags(["Templates"]));
       } else {
+        // Local template update
         setLocalTemplates((prev) =>
-          prev.map((t) => ({
-            ...t,
-            is_default: t.id === currentTemplateId,
-          }))
+          prev.map((t) => (t.id === currentTemplateId ? defaultTemplate : t))
         );
-        localStorage.setItem("defaultTemplate", currentTemplateId);
       }
+
+      // Store complete template data in localStorage
+      localStorage.setItem("defaultTemplate", JSON.stringify(defaultTemplate));
 
       setDefaultTemplateId(currentTemplateId.toString());
       toast.success("Default template updated successfully");
