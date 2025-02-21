@@ -16,6 +16,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { SendInvoicePreview } from "./SendInvoicePreview";
 import { useNavigate } from "react-router";
+import { useGetInvoicePreviwByIdQuery } from "@/features/server/invoiceSlice";
 
 // Add this static data object above the component
 const staticPreviewData = {
@@ -44,63 +45,38 @@ const staticPreviewData = {
   },
 };
 
-const staticInvoiceData = {
-  customerId: {
-    customer_display_name: "Auto Gig Shop",
-    billing_address_line1: "123 Business Road",
-    billing_city: "San Francisco",
-    billing_state: "CA",
-    billing_zip_code: "94107",
-    shipping_address_line1: "PO Box 1234",
-    shipping_city: "San Jose",
-    shipping_state: "CA",
-    shipping_zip_code: "95054",
-    account_number: "123-45678",
-    email_address: "customer@email.com",
-    phone_number: "(123) 456-7890",
-  },
-  po_number: "PO-123456",
-  sales_rep: "John Doe",
-  created_at: new Date().toISOString(),
-  invoice_items_list: [
-    {
-      item: {
-        item_name: "Service 1",
-        type: "Service",
-        description: "Item description details",
-        price: "500.00",
-      },
-      quantity: 2,
-      price: "500.00",
-      total: "1000.00",
-    },
-    {
-      item: {
-        item_name: "Service 2",
-        type: "Service",
-        description: "Item description details",
-        price: "500.00",
-      },
-      quantity: 2,
-      price: "500.00",
-      total: "1000.00",
-    },
-  ],
-  subtotal: "2000.00",
-  total: "2150.00",
-  amount_due: "2150.00",
-  tax: {
-    tax_rate: "200.00",
-  },
-  discount: {
-    discount_rate: "50.00",
-  },
-};
-
 export default function SendInvoice() {
   const [sendMethod, setSendMethod] = useState<"email" | "text">("email");
   const [sendCopy, setSendCopy] = useState(false);
   const navigate = useNavigate();
+
+  // Add the query hook
+  const {
+    data: invoiceData,
+    isLoading,
+    isError,
+  } = useGetInvoicePreviwByIdQuery(44); // Pass the invoice ID (44 in this case)
+
+  // Add loading state
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  // Add error state
+  if (isError) {
+    return (
+      <div className="fixed inset-0 bg-background flex items-center justify-center">
+        <div className="text-red-500 text-center">
+          <h2 className="text-xl font-semibold mb-2">Error loading invoice</h2>
+          <p>Please try again later</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-background">
@@ -296,10 +272,9 @@ View invoice: [Link]`}
 
             {/* Preview content with padding */}
             <div className="p-6">
-              <SendInvoicePreview
-                {...staticPreviewData}
-                {...staticInvoiceData}
-              />
+              {invoiceData && (
+                <SendInvoicePreview {...staticPreviewData} {...invoiceData} />
+              )}
             </div>
           </div>
         </div>
