@@ -7,7 +7,6 @@ interface Template {
   name: string;
   selected_layout: string;
   logo: string | null;
-  is_default: boolean;
 
   customer_name: boolean;
   billing_address: boolean;

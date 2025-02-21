@@ -74,7 +74,6 @@ interface Template {
   tax: boolean;
   discount: boolean;
   due_amount: boolean;
-  is_default: boolean;
 }
 
 export default function Template() {
@@ -146,7 +145,6 @@ export default function Template() {
       setTemplateData({
         ...templateData,
         name: selectedTemplate.name,
-        is_default: selectedTemplate.is_default,
         customerName: selectedTemplate.customer_name,
         billingAddress: selectedTemplate.billing_address,
         phone: selectedTemplate.phone,
@@ -189,7 +187,7 @@ export default function Template() {
         name: templateData.name,
         selected_layout: selectedLayout,
         logo: logo,
-        is_default: templateData.is_default,
+
         customer_name: templateData.customerName,
         billing_address: templateData.billingAddress,
         phone: templateData.phone,
@@ -268,7 +266,7 @@ export default function Template() {
           ...templateData,
           // Map API response fields to local state
           name: template.name,
-          is_default: template.is_default,
+
           customerName: template.customer_name,
           billingAddress: template.billing_address,
           phone: template.phone,
@@ -309,7 +307,6 @@ export default function Template() {
         // Create full template payload with type safety
         const apiTemplate: Template = {
           ...template,
-          is_default: true,
         };
 
         await updateTemplate(apiTemplate).unwrap();
@@ -318,13 +315,12 @@ export default function Template() {
         setLocalTemplates((prev) =>
           prev.map((t) => ({
             ...t,
-            is_default: t.id === currentTemplateId,
           }))
         );
         localStorage.setItem("defaultTemplate", currentTemplateId);
       }
 
-      setDefaultTemplateId(currentTemplateId.toString());
+      // setDefaultTemplateId(currentTemplateId.toString());
       toast.success("Default template updated successfully");
     } catch (error) {
       console.error("Set default failed:", error);
@@ -337,7 +333,6 @@ export default function Template() {
     setTemplateData({
       ...templateData,
       name: "New Template " + (localTemplates.length + 1),
-      is_default: false,
     });
 
     setSelectedLayout("modern");
