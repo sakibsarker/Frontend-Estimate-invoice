@@ -5,7 +5,6 @@ import { X, Printer, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -17,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SendInvoicePreview } from "./SendInvoicePreview";
 import { useNavigate, useParams } from "react-router";
 import { useGetInvoicePreviwByIdQuery } from "@/features/server/invoiceSlice";
+import { cn } from "@/lib/utils";
 
 // Add this static data object above the component
 const staticPreviewData = {
@@ -47,7 +47,6 @@ export default function SendInvoice() {
   const { invoiceId } = useParams<{ invoiceId: string }>();
 
   const [sendMethod, setSendMethod] = useState<"email" | "text">("email");
-  const [sendCopy, setSendCopy] = useState(false);
   const navigate = useNavigate();
 
   // Add the query hook
@@ -88,14 +87,22 @@ export default function SendInvoice() {
                 <div className="flex gap-2">
                   <Button
                     variant={sendMethod === "email" ? "default" : "outline"}
-                    className="w-24"
+                    className={cn(
+                      "w-24",
+                      sendMethod === "email" &&
+                        "bg-indigo-700 text-white hover:bg-indigo-800"
+                    )}
                     onClick={() => setSendMethod("email")}
                   >
                     Email
                   </Button>
                   <Button
                     variant={sendMethod === "text" ? "default" : "outline"}
-                    className="w-24"
+                    className={cn(
+                      "w-24",
+                      sendMethod === "text" &&
+                        "bg-indigo-700 text-white hover:bg-indigo-800"
+                    )}
                     onClick={() => setSendMethod("text")}
                   >
                     Text
@@ -120,22 +127,6 @@ export default function SendInvoice() {
                         </Button>
                       </div>
                       <Input id="to" className="mt-1.5" />
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="copy"
-                        checked={sendCopy}
-                        onCheckedChange={(checked) =>
-                          setSendCopy(checked as boolean)
-                        }
-                      />
-                      <label
-                        htmlFor="copy"
-                        className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Send a copy to me
-                      </label>
                     </div>
 
                     <div>
@@ -236,7 +227,7 @@ View invoice: [Link]`}
                   >
                     Edit Invoice
                   </Button>
-                  <Button>
+                  <Button className="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 text-sm">
                     {sendMethod === "email" ? "Send Email" : "Send Text"}
                   </Button>
                 </div>
@@ -264,8 +255,11 @@ View invoice: [Link]`}
             {/* Preview content with padding */}
             <div className="p-6">
               {isLoading ? (
-                <div className="justify-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+                <div className="flex justify-center items-center space-x-2">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a237e] "></div>
+                  <p className="text-[#1a237e] font-medium">
+                    PDF Generating...
+                  </p>
                 </div>
               ) : invoiceData ? (
                 <SendInvoicePreview {...staticPreviewData} {...invoiceData} />

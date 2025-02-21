@@ -52,6 +52,7 @@ import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCreateInvoiceMutation } from "@/features/server/invoiceSlice";
 import { useGetRepairRequestByIDQuery } from "@/features/server/repairRequestSlice";
+import { useNavigate } from "react-router";
 
 import { toast } from "react-hot-toast";
 
@@ -140,6 +141,7 @@ export default function NewInvoiceForm() {
   const [message, setMessage] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
   const [salesRep, setSalesRep] = useState("");
+  const navigate = useNavigate();
 
   const addNewRow = () => {
     const newItem: InvoiceItem = {
@@ -268,6 +270,56 @@ export default function NewInvoiceForm() {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to save draft";
+      toast.error(errorMessage, { id: toastId });
+    }
+  };
+
+  const handleCreateInvoice = async () => {
+    const toastId = toast.loading("Creating new invoice...");
+    try {
+      if (!selectedCustomer) throw new Error("Customer selection is required");
+      if (items.length === 0) throw new Error("At least one item is required");
+
+      const formData = new FormData();
+
+      // 1. Create nested JSON structure for invoice_items
+      const invoiceItems = items.map((item) => ({
+        item_id: item.selectedItemId,
+        quantity: item.quantity,
+        price: Number(Number(item.price).toFixed(2)),
+        has_tax: item.hasTax,
+        has_discount: item.hasDiscount,
+        paid: item.paid,
+      }));
+
+      // 2. Append as JSON string
+      formData.append("invoice_items", JSON.stringify(invoiceItems));
+
+      // 3. Append other fields
+      formData.append("customerId", selectedCustomer.toString());
+      formData.append("invoice_status", "PAID");
+      formData.append("payment_method", "CREDIT_CARD");
+      formData.append("po_number", "PO-12345");
+
+      // Optional fields
+      if (estimateId) formData.append("repair_request", estimateId);
+      if (selectedDiscount)
+        formData.append("discount", selectedDiscount.toString());
+      if (selectedTax) formData.append("tax", selectedTax.toString());
+      if (salesRep) formData.append("sales_rep", salesRep);
+      if (message) formData.append("message_on_invoice", message);
+
+      // 4. Add attachments
+      attachments.forEach((file) => {
+        formData.append("attachments", file);
+      });
+
+      const result = await createInvoice(formData).unwrap();
+      toast.success("Invoice Created successfully!", { id: toastId });
+      navigate(`/invoice/${result.id}/send`);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create invoice";
       toast.error(errorMessage, { id: toastId });
     }
   };
@@ -966,8 +1018,14 @@ export default function NewInvoiceForm() {
               >
                 {isLoading ? "Saving" : "Save Draft"}
               </Button>
-              <Button className="bg-indigo-600 hover:bg-indigo-700 text-2xl p-2">
-                Review & Send
+
+              <Button
+                type="button"
+                className="bg-indigo-600 hover:bg-indigo-700 text-2xl p-2 "
+                onClick={handleCreateInvoice}
+                disabled={isLoading}
+              >
+                {isLoading ? "Creating.." : "Review & Send"}
               </Button>
             </div>
           </div>

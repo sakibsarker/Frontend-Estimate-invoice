@@ -338,7 +338,10 @@ export default function Template() {
             </SelectContent>
           </Select>
 
-          <Button onClick={handleSaveTemplate} className="min-w-[100px]">
+          <Button
+            onClick={handleSaveTemplate}
+            className="min-w-[100px] bg-indigo-700 hover:bg-indigo-800 text-white"
+          >
             {currentTemplateId ? "Save Changes" : "Save New"}
           </Button>
 
@@ -346,7 +349,7 @@ export default function Template() {
             <Button
               variant="outline"
               onClick={handleSetDefault}
-              className="min-w-[120px]"
+              className="min-w-[120px] border-indigo-700 text-indigo-700 hover:bg-indigo-50"
             >
               Set as Default
             </Button>

@@ -313,11 +313,10 @@ export default function ManualInvoiceForm() {
 
       const result = await createInvoice(formData).unwrap();
       toast.success("Invoice Created successfully!", { id: toastId });
-      console.log(result.id);
       navigate(`/invoice/${result.id}/send`);
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to save draft";
+        error instanceof Error ? error.message : "Failed to create invoice";
       toast.error(errorMessage, { id: toastId });
     }
   };
