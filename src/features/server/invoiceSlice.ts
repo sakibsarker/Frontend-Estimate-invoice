@@ -146,6 +146,7 @@ export const invoiceApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ["Invoice"],
   endpoints: (builder) => ({
     // Get all invoice
     // Update the getInvoice endpoint
@@ -165,6 +166,7 @@ export const invoiceApi = createApi({
           search: params.search,
         },
       }),
+      providesTags: ["Invoice"],
     }),
     // Create new invoice
     createInvoice: builder.mutation<Invoice, FormData>({
@@ -202,9 +204,10 @@ export const invoiceApi = createApi({
     // Delete customer
     deleteInvoice: builder.mutation<void, number>({
       query: (id) => ({
-        url: `estimate/newinvoices/${id}/`,
+        url: `estimate/invoices/${id}/delete/`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Invoice"],
     }),
   }),
 });
