@@ -29,7 +29,7 @@ import {
   useGetTemplatesByIDQuery,
   useUpdateTemplateMutation,
 } from "@/features/server/templateSlice";
-import { toast } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { templateApi } from "@/features/server/templateSlice";
 
@@ -121,6 +121,11 @@ export default function Template() {
 
   const dispatch = useDispatch();
 
+  const { data: selectedTemplate } = useGetTemplatesByIDQuery(
+    typeof currentTemplateId === "number" ? currentTemplateId : 0,
+    { skip: typeof currentTemplateId !== "number" }
+  );
+
   useEffect(() => {
     localStorage.setItem("templates", JSON.stringify(localTemplates));
   }, [localTemplates]);
@@ -135,6 +140,35 @@ export default function Template() {
       handleSelectTemplate(defaultTemplateId);
     }
   }, [defaultTemplateId]);
+
+  useEffect(() => {
+    if (selectedTemplate && typeof currentTemplateId === "number") {
+      setTemplateData({
+        ...templateData,
+        name: selectedTemplate.name,
+        is_default: selectedTemplate.is_default,
+        customerName: selectedTemplate.customer_name,
+        billingAddress: selectedTemplate.billing_address,
+        phone: selectedTemplate.phone,
+        email: selectedTemplate.email,
+        accountNumber: selectedTemplate.account_number,
+        poNumber: selectedTemplate.po_number,
+        salesRep: selectedTemplate.sales_rep,
+        Date: selectedTemplate.date,
+        itemName: selectedTemplate.item_name,
+        quantity: selectedTemplate.quantity,
+        price: selectedTemplate.price,
+        type: selectedTemplate.type,
+        description: selectedTemplate.description,
+        subtotal: selectedTemplate.subtotal,
+        tax: selectedTemplate.tax,
+        discount: selectedTemplate.discount,
+        dueAmount: selectedTemplate.due_amount,
+      });
+      setSelectedLayout(selectedTemplate.selected_layout);
+      setLogo(selectedTemplate.logo);
+    }
+  }, [selectedTemplate]);
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -189,48 +223,81 @@ export default function Template() {
           toast.success("Local template updated");
         }
       } else {
-        // Create new template
-        if (templateData.is_default) {
-          // API template creation
-          const result = await createTemplate(templatePayload).unwrap();
-          setCurrentTemplateId(result.id);
-          toast.success("Template created in API");
-        } else {
-          // Local template creation
+        // Always create through API first
+        const result = await createTemplate(templatePayload).unwrap();
+
+        // Update local state with API response
+        setCurrentTemplateId(result.id);
+
+        // If marked as non-default, also save locally
+        if (!templateData.is_default) {
           const newLocalTemplate = {
-            ...templatePayload,
-            id: `local-${uuidv4()}`, // Prefix local templates
+            ...result,
+            id: `local-${result.id}`, // Maintain reference to API ID
           };
           setLocalTemplates((prev) => [...prev, newLocalTemplate]);
-          setCurrentTemplateId(newLocalTemplate.id);
-          toast.success("Local template created");
         }
+
+        toast.success("Template created successfully");
       }
 
       // Force reload of API templates
       dispatch(templateApi.util.invalidateTags(["Templates"]));
     } catch (error) {
       console.error("Save failed:", error);
-      toast.error("Failed to save template. Check console for details.");
+      toast.error("Failed to save template");
     }
   };
 
-  const handleSelectTemplate = (templateId: string | number) => {
-    const template = allTemplates.find((t) => t.id === templateId);
-    if (template) {
-      // Store selected template in localStorage
-      localStorage.setItem("selectedTemplate", JSON.stringify(template));
+  const handleSelectTemplate = async (templateId: string | number) => {
+    setCurrentTemplateId(templateId);
 
-      setTemplateData({
-        ...templateData,
-        ...template,
-      });
-      setSelectedLayout(template.selected_layout);
-      setLogo(template.logo);
-      setCurrentTemplateId(template.id);
+    try {
+      let template: Template | undefined;
+
+      if (typeof templateId === "number") {
+        // Fetch from API using Redux Query
+        template = selectedTemplate;
+      } else {
+        // Get from local templates
+        template = localTemplates.find((t) => t.id === templateId);
+      }
+
+      if (template) {
+        setTemplateData({
+          ...templateData,
+          // Map API response fields to local state
+          name: template.name,
+          is_default: template.is_default,
+          customerName: template.customer_name,
+          billingAddress: template.billing_address,
+          phone: template.phone,
+          email: template.email,
+          accountNumber: template.account_number,
+          poNumber: template.po_number,
+          salesRep: template.sales_rep,
+          Date: template.date,
+          itemName: template.item_name,
+          quantity: template.quantity,
+          price: template.price,
+          type: template.type,
+          description: template.description,
+          subtotal: template.subtotal,
+          tax: template.tax,
+          discount: template.discount,
+          dueAmount: template.due_amount,
+        });
+
+        setSelectedLayout(template.selected_layout);
+        setLogo(template.logo);
+      }
+    } catch (error) {
+      console.error("Error loading template:", error);
+      toast.error("Failed to load template");
     }
   };
 
+  // Update the handleSetDefault function
   const handleSetDefault = async () => {
     if (!currentTemplateId) return;
 
@@ -238,28 +305,24 @@ export default function Template() {
       const template = allTemplates.find((t) => t.id === currentTemplateId);
       if (!template) return;
 
-      // Create updated template with default flag
-      const defaultTemplate = {
-        ...template,
-
-        selected_layout: selectedLayout,
-        logo: logo,
-        ...templateData,
-      };
-
       if (typeof currentTemplateId === "number") {
-        // API template update
-        await updateTemplate(defaultTemplate).unwrap();
+        // Create full template payload with type safety
+        const apiTemplate: Template = {
+          ...template,
+          is_default: true,
+        };
+
+        await updateTemplate(apiTemplate).unwrap();
         dispatch(templateApi.util.invalidateTags(["Templates"]));
       } else {
-        // Local template update
         setLocalTemplates((prev) =>
-          prev.map((t) => (t.id === currentTemplateId ? defaultTemplate : t))
+          prev.map((t) => ({
+            ...t,
+            is_default: t.id === currentTemplateId,
+          }))
         );
+        localStorage.setItem("defaultTemplate", currentTemplateId);
       }
-
-      // Store complete template data in localStorage
-      localStorage.setItem("defaultTemplate", JSON.stringify(defaultTemplate));
 
       setDefaultTemplateId(currentTemplateId.toString());
       toast.success("Default template updated successfully");
@@ -303,237 +366,240 @@ export default function Template() {
   ];
 
   return (
-    <div className="flex min-h-screen">
-      {/* Left Panel - Configuration */}
-      <div className="w-[600px] border-r bg-white p-6 overflow-y-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-semibold">Template Manager</h1>
-        </div>
+    <>
+      <Toaster />
+      <div className="flex min-h-screen">
+        {/* Left Panel - Configuration */}
+        <div className="w-[600px] border-r bg-white p-6 overflow-y-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-semibold">Template Manager</h1>
+          </div>
 
-        <div className="flex items-center gap-4 mb-6">
-          <Select
-            value={currentTemplateId?.toString()}
-            onValueChange={(value) => {
-              const id = value.includes("local-") ? value : Number(value);
-              handleSelectTemplate(id);
-            }}
-          >
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Select Template">
-                {currentTemplateId
-                  ? allTemplates.find((t) => t.id === currentTemplateId)?.name
-                  : "Select Template"}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {allTemplates.map((template) => (
-                <SelectItem
-                  key={template.id.toString()}
-                  value={template.id.toString()}
-                >
-                  <div className="flex items-center justify-between">
-                    <span>{template.name}</span>
-                    {template.id === defaultTemplateId && (
-                      <span className="text-xs text-green-600 ml-2">
-                        (Default)
-                      </span>
-                    )}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Button
-            onClick={handleSaveTemplate}
-            className="min-w-[100px] bg-indigo-700 hover:bg-indigo-800 text-white"
-          >
-            {currentTemplateId ? "Save Changes" : "Save New"}
-          </Button>
-
-          {currentTemplateId && (
-            <Button
-              variant="outline"
-              onClick={handleSetDefault}
-              className="min-w-[120px] border-indigo-700 text-indigo-700 hover:bg-indigo-50"
+          <div className="flex items-center gap-4 mb-6">
+            <Select
+              value={currentTemplateId?.toString()}
+              onValueChange={(value) => {
+                const id = value.includes("local-") ? value : Number(value);
+                handleSelectTemplate(id);
+              }}
             >
-              Set as Default
-            </Button>
-          )}
-        </div>
-
-        {/* Template Name Input */}
-        <div className="mb-6">
-          <Label htmlFor="templateName">Template Name</Label>
-          <Input
-            id="templateName"
-            value={templateData.name}
-            onChange={(e) =>
-              setTemplateData({ ...templateData, name: e.target.value })
-            }
-            placeholder="Enter template name"
-          />
-          <Button
-            variant="outline"
-            onClick={handleNewTemplate}
-            className="mt-2 w-full"
-          >
-            Create New Template
-          </Button>
-        </div>
-
-        <Accordion type="single" collapsible className="w-full">
-          {/* Design Section */}
-          <AccordionItem value="design">
-            <AccordionTrigger className="text-sm font-semibold">
-              DESIGN
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-4">
-                {/* Logo Upload */}
-                <div className="space-y-2">
-                  <Label>Logo</Label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="border rounded-lg p-4 flex items-center justify-center bg-gray-50">
-                      {logo ? (
-                        <img
-                          src={logo || "/placeholder.svg"}
-                          alt="Logo"
-                          className="max-h-20 max-w-full object-contain"
-                        />
-                      ) : (
-                        <div className="text-center text-sm text-gray-500">
-                          No Logo
-                        </div>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Select Template">
+                  {currentTemplateId
+                    ? allTemplates.find((t) => t.id === currentTemplateId)?.name
+                    : "Select Template"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {allTemplates.map((template) => (
+                  <SelectItem
+                    key={template.id.toString()}
+                    value={template.id.toString()}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{template.name}</span>
+                      {template.id === defaultTemplateId && (
+                        <span className="text-xs text-green-600 ml-2">
+                          (Default)
+                        </span>
                       )}
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <div className="border-2 border-dashed rounded-lg p-4 text-center">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          id="logo-upload"
-                          onChange={handleLogoUpload}
-                        />
-                        <label
-                          htmlFor="logo-upload"
-                          className="cursor-pointer flex flex-col items-center gap-2"
-                        >
-                          <Upload className="h-6 w-6 text-gray-400" />
-                          <span className="text-sm text-gray-600">
-                            Upload Image
-                          </span>
-                          <span className="text-xs text-gray-400">
-                            Files supported: PNG, JPG
-                          </span>
-                        </label>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Button onClick={handleSaveTemplate} className="min-w-[100px]">
+              {currentTemplateId ? "Save Changes" : "Save New"}
+            </Button>
+
+            {currentTemplateId && (
+              <Button
+                variant="outline"
+                onClick={handleSetDefault}
+                className="min-w-[120px]"
+              >
+                Set as Default
+              </Button>
+            )}
+          </div>
+
+          {/* Template Name Input */}
+          <div className="mb-6">
+            <Label htmlFor="templateName">Template Name</Label>
+            <Input
+              id="templateName"
+              value={templateData.name}
+              onChange={(e) =>
+                setTemplateData({ ...templateData, name: e.target.value })
+              }
+              placeholder="Enter template name"
+            />
+            <Button
+              variant="outline"
+              onClick={handleNewTemplate}
+              className="mt-2 w-full"
+            >
+              Create New Template
+            </Button>
+          </div>
+
+          <Accordion type="single" collapsible className="w-full">
+            {/* Design Section */}
+            <AccordionItem value="design">
+              <AccordionTrigger className="text-sm font-semibold">
+                DESIGN
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  {/* Logo Upload */}
+                  <div className="space-y-2">
+                    <Label>Logo</Label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="border rounded-lg p-4 flex items-center justify-center bg-gray-50">
+                        {logo ? (
+                          <img
+                            src={logo || "/placeholder.svg"}
+                            alt="Logo"
+                            className="max-h-20 max-w-full object-contain"
+                          />
+                        ) : (
+                          <div className="text-center text-sm text-gray-500">
+                            No Logo
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            id="logo-upload"
+                            onChange={handleLogoUpload}
+                          />
+                          <label
+                            htmlFor="logo-upload"
+                            className="cursor-pointer flex flex-col items-center gap-2"
+                          >
+                            <Upload className="h-6 w-6 text-gray-400" />
+                            <span className="text-sm text-gray-600">
+                              Upload Image
+                            </span>
+                            <span className="text-xs text-gray-400">
+                              Files supported: PNG, JPG
+                            </span>
+                          </label>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Layout Selection */}
-                <div className="space-y-2">
-                  <Label>Layout</Label>
-                  <div className="grid grid-cols-4 gap-4">
-                    {layouts.map((layout) => (
-                      <div
-                        key={layout.id}
-                        className={`cursor-pointer rounded-lg border p-2 text-center ${
-                          selectedLayout === layout.id
-                            ? "border-blue-500 bg-blue-50"
-                            : "hover:border-gray-300"
-                        }`}
-                        onClick={() => setSelectedLayout(layout.id)}
-                      >
-                        <span className="text-sm">{layout.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          {/* Options Section */}
-          <AccordionItem value="options">
-            <AccordionTrigger className="text-sm font-semibold">
-              OPTIONS
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-4">
-                {/* invoice Info */}
-                <div className="space-y-2">
-                  <Label>Invoice information</Label>
+                  {/* Layout Selection */}
                   <div className="space-y-2">
-                    {booleanFields.map((field) => (
-                      <div key={field} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={field}
-                          checked={
-                            templateData[
-                              field as keyof typeof templateData
-                            ] as boolean
-                          }
-                          onCheckedChange={(checked) =>
-                            setTemplateData({
-                              ...templateData,
-                              [field]: checked,
-                            })
-                          }
-                        />
-                        <label
-                          htmlFor={field}
-                          className="text-sm leading-none capitalize"
+                    <Label>Layout</Label>
+                    <div className="grid grid-cols-4 gap-4">
+                      {layouts.map((layout) => (
+                        <div
+                          key={layout.id}
+                          className={`cursor-pointer rounded-lg border p-2 text-center ${
+                            selectedLayout === layout.id
+                              ? "border-blue-500 bg-blue-50"
+                              : "hover:border-gray-300"
+                          }`}
+                          onClick={() => setSelectedLayout(layout.id)}
                         >
-                          {field.replace(/([A-Z])/g, " $1").toLowerCase()}
-                        </label>
-                      </div>
-                    ))}
+                          <span className="text-sm">{layout.name}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
+              </AccordionContent>
+            </AccordionItem>
 
-                {/* Footer Note */}
-                <div className="space-y-2">
-                  <Label>Footer Note</Label>
-                  <Textarea
-                    placeholder="Message on template"
-                    className="h-20 resize-none"
-                  />
+            {/* Options Section */}
+            <AccordionItem value="options">
+              <AccordionTrigger className="text-sm font-semibold">
+                OPTIONS
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4">
+                  {/* invoice Info */}
+                  <div className="space-y-2">
+                    <Label>Invoice information</Label>
+                    <div className="space-y-2">
+                      {booleanFields.map((field) => (
+                        <div
+                          key={field}
+                          className="flex items-center space-x-2"
+                        >
+                          <Checkbox
+                            id={field}
+                            checked={
+                              templateData[
+                                field as keyof typeof templateData
+                              ] as boolean
+                            }
+                            onCheckedChange={(checked) =>
+                              setTemplateData({
+                                ...templateData,
+                                [field]: checked,
+                              })
+                            }
+                          />
+                          <label
+                            htmlFor={field}
+                            className="text-sm leading-none capitalize"
+                          >
+                            {field.replace(/([A-Z])/g, " $1").toLowerCase()}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Footer Note */}
+                  <div className="space-y-2">
+                    <Label>Footer Note</Label>
+                    <Textarea
+                      placeholder="Message on template"
+                      className="h-20 resize-none"
+                    />
+                  </div>
                 </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
 
-      {/* Right Panel - Preview */}
-      <div className="flex-1 bg-gray-50 p-6">
-        <InvoicePreview
-          logo={logo}
-          layout={selectedLayout}
-          templateData={{
-            customerName: templateData.customerName,
-            billingAddress: templateData.billingAddress,
-            phone: templateData.phone,
-            email: templateData.email,
-            accountNumber: templateData.accountNumber,
-            poNumber: templateData.poNumber,
-            salesRep: templateData.salesRep,
-            Date: templateData.Date,
-            itemName: templateData.itemName,
-            quantity: templateData.quantity,
-            price: templateData.price,
-            type: templateData.type,
-            description: templateData.description,
-            subtotal: templateData.subtotal,
-            tax: templateData.tax,
-            discount: templateData.discount,
-            dueAmount: templateData.dueAmount,
-          }}
-        />
+        {/* Right Panel - Preview */}
+        <div className="flex-1 bg-gray-50 p-6">
+          <InvoicePreview
+            logo={logo}
+            layout={selectedLayout}
+            templateData={{
+              customerName: templateData.customerName,
+              billingAddress: templateData.billingAddress,
+              phone: templateData.phone,
+              email: templateData.email,
+              accountNumber: templateData.accountNumber,
+              poNumber: templateData.poNumber,
+              salesRep: templateData.salesRep,
+              Date: templateData.Date,
+              itemName: templateData.itemName,
+              quantity: templateData.quantity,
+              price: templateData.price,
+              type: templateData.type,
+              description: templateData.description,
+              subtotal: templateData.subtotal,
+              tax: templateData.tax,
+              discount: templateData.discount,
+              dueAmount: templateData.dueAmount,
+            }}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
