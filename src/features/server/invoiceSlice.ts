@@ -134,6 +134,64 @@ interface InvoicePreview {
   invoice_items_list: InvoiceItems[];
 }
 
+interface GetCustomer {
+  id: number;
+  customer_display_name: string;
+  contact_first_name: string;
+  contact_last_name: string;
+  email_address: string;
+  phone_number: string;
+}
+
+interface GetDiscount {
+  id: number;
+  discount_name: string;
+  discount_rate: string;
+}
+
+interface GetTax {
+  id: number;
+  tax_name: string;
+  tax_rate: string;
+}
+
+interface GetInvoiceItem {
+  id: number;
+  item: {
+    id: number;
+    type: string;
+    item_name: string;
+    description: string;
+  };
+  quantity: number;
+  price: string;
+  total: string;
+  has_tax: boolean;
+  has_discount: boolean;
+  paid: boolean;
+}
+
+interface GetInvoice {
+  id: number;
+  customerId: GetCustomer;
+  repair_request: number | null;
+  discount: GetDiscount | null;
+  tax: GetTax | null;
+  invoice_number: string | null;
+  invoice_status: string;
+  payment_method: string;
+  sales_rep: string | null;
+  po_number: string | null;
+  message_on_invoice: string | null;
+  attachments: string | null;
+  subtotal: string;
+  total: string;
+  amount_due: string;
+  created_at: string;
+  updated_at: string;
+  invoice_items_list: GetInvoiceItem[];
+}
+
 export const invoiceApi = createApi({
   reducerPath: "invoiceApi",
   baseQuery: fetchBaseQuery({
@@ -186,7 +244,7 @@ export const invoiceApi = createApi({
     }),
 
     // Get single invoice by ID
-    getInvoiceById: builder.query<Invoice, number>({
+    getInvoiceById: builder.query<GetInvoice, number>({
       query: (id) => `estimate/invoices/${id}/`,
     }),
     // Get invoice Preview by ID
@@ -195,15 +253,18 @@ export const invoiceApi = createApi({
     }),
 
     // Update invoice
-    updateInvoice: builder.mutation<Invoice, Partial<Invoice> & { id: number }>(
-      {
-        query: ({ id, ...patch }) => ({
-          url: `/estimate/newinvoices/${id}/update/`,
-          method: "PUT",
-          body: patch,
-        }),
-      }
-    ),
+
+    updateInvoice: builder.mutation<
+      Invoice,
+      { id: number; formData: FormData }
+    >({
+      query: ({ id, formData }) => ({
+        url: `/estimate/newinvoices/${id}/update/`,
+        method: "PUT",
+        body: formData,
+      }),
+      invalidatesTags: ["Invoice"], // Add this to refresh cache
+    }),
 
     // Delete invoice
     deleteInvoice: builder.mutation<void, number>({

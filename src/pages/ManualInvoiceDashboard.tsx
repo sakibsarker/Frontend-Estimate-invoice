@@ -5,7 +5,7 @@ import {
   Search,
   MoreVertical,
   Printer,
-  User,
+  // User,
   X,
   Landmark,
 } from "lucide-react";
@@ -330,7 +330,7 @@ export default function ManualInvoiceDashboard() {
                 {invoicesData.results.map((invoice) => (
                   <div
                     key={invoice.id}
-                    onClick={() => navigate(`/invoice/${invoice.id}`)}
+                    onClick={() => navigate(`/invoice/${invoice.id}/edit`)}
                     className="bg-white rounded-lg p-4 shadow cursor-pointer hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between">

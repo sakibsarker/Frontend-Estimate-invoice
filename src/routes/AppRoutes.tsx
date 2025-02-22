@@ -39,7 +39,10 @@ export const AppRoutes = () => {
         />
         {/* invoice create */}
         <Route path="/invoice" element={<ManualInvoiceDashboard />} />
-        <Route path="/invoice/:invoiceId" element={<EditManualInvoiceForm />} />
+        <Route
+          path="/invoice/:invoiceId/edit"
+          element={<EditManualInvoiceForm />}
+        />
         <Route path="/invoice/new" element={<ManualInvoiceForm />} />
         {/* tempalte */}
         <Route path="/template" element={<Template />} />
