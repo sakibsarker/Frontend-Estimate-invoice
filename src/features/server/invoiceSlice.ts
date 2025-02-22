@@ -259,7 +259,7 @@ export const invoiceApi = createApi({
       { id: number; formData: FormData }
     >({
       query: ({ id, formData }) => ({
-        url: `/estimate/newinvoices/${id}/update/`,
+        url: `/estimate/invoices/${id}/update/`,
         method: "PUT",
         body: formData,
       }),

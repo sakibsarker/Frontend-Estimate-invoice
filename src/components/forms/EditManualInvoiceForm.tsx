@@ -51,8 +51,8 @@ import {
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  useCreateInvoiceMutation,
   useGetInvoiceByIdQuery,
+  useUpdateInvoiceMutation,
 } from "@/features/server/invoiceSlice";
 import { generateInvoiceNumber } from "@/lib/invoiceUtils";
 import { useNavigate, useParams } from "react-router";
@@ -73,7 +73,7 @@ interface InvoiceItem {
 
 export default function EditManualInvoiceForm() {
   const { invoiceId } = useParams<{ invoiceId: string }>();
-  console.log(invoiceId);
+
   const [items, setItems] = useState<InvoiceItem[]>([
     {
       id: 1,
@@ -110,15 +110,9 @@ export default function EditManualInvoiceForm() {
     },
   ]);
 
-  const {
-    data: invoiceData,
+  const { data: invoiceData } = useGetInvoiceByIdQuery(Number(invoiceId));
 
-    refetch,
-  } = useGetInvoiceByIdQuery(Number(invoiceId));
-
-  console.log(invoiceData);
-
-  const [createInvoice, { isLoading }] = useCreateInvoiceMutation();
+  const [updateInvoice] = useUpdateInvoiceMutation();
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [showItemForm, setShowItemForm] = useState(false);
   const [showTaxForm, setShowTaxForm] = useState(false);
@@ -261,15 +255,16 @@ export default function EditManualInvoiceForm() {
     }, 0);
   };
 
-  const handleSaveDraft = async () => {
-    const toastId = toast.loading("Saving draft...");
+  const handleUpdateInvoice = async () => {
+    const toastId = toast.loading("Updating invoice...");
     try {
+      if (!invoiceId) throw new Error("Invoice ID is required");
       if (!selectedCustomer) throw new Error("Customer selection is required");
       if (items.length === 0) throw new Error("At least one item is required");
 
       const formData = new FormData();
 
-      // 1. Create nested JSON structure for invoice_items
+      // Add all update fields
       const invoiceItems = items.map((item) => ({
         item_id: item.selectedItemId,
         quantity: item.quantity,
@@ -279,66 +274,12 @@ export default function EditManualInvoiceForm() {
         paid: item.paid,
       }));
 
-      // 2. Append as JSON string
       formData.append("invoice_items", JSON.stringify(invoiceItems));
-
-      // 3. Append other fields
-      formData.append("customerId", selectedCustomer.toString());
-      formData.append("invoice_status", "DRAFT");
-      formData.append("payment_method", "CREDIT_CARD");
-
-      // Optional fields
-
-      if (selectedDiscount)
-        formData.append("discount", selectedDiscount.toString());
-      if (invoiceNumber) formData.append("invoice_number", invoiceNumber);
-      if (poNumber) formData.append("po_number", poNumber);
-      if (selectedTax) formData.append("tax", selectedTax.toString());
-      if (salesRep) formData.append("sales_rep", salesRep);
-      if (message) formData.append("message_on_invoice", message);
-
-      // 4. Add attachments
-      attachments.forEach((file) => {
-        formData.append("attachments", file);
-      });
-
-      await createInvoice(formData).unwrap();
-      toast.success("Draft saved successfully!", { id: toastId });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to save draft";
-      toast.error(errorMessage, { id: toastId });
-    }
-  };
-
-  const handleCreateInvoice = async () => {
-    const toastId = toast.loading("Creating new invoice...");
-    try {
-      if (!selectedCustomer) throw new Error("Customer selection is required");
-      if (items.length === 0) throw new Error("At least one item is required");
-
-      const formData = new FormData();
-
-      // 1. Create nested JSON structure for invoice_items
-      const invoiceItems = items.map((item) => ({
-        item_id: item.selectedItemId,
-        quantity: item.quantity,
-        price: Number(Number(item.price).toFixed(2)),
-        has_tax: item.hasTax,
-        has_discount: item.hasDiscount,
-        paid: item.paid,
-      }));
-
-      // 2. Append as JSON string
-      formData.append("invoice_items", JSON.stringify(invoiceItems));
-
-      // 3. Append other fields
       formData.append("customerId", selectedCustomer.toString());
       formData.append("invoice_status", "PAID");
       formData.append("payment_method", "CREDIT_CARD");
 
       // Optional fields
-
       if (selectedDiscount)
         formData.append("discount", selectedDiscount.toString());
       if (invoiceNumber) formData.append("invoice_number", invoiceNumber);
@@ -347,17 +288,20 @@ export default function EditManualInvoiceForm() {
       if (salesRep) formData.append("sales_rep", salesRep);
       if (message) formData.append("message_on_invoice", message);
 
-      // 4. Add attachments
-      attachments.forEach((file) => {
-        formData.append("attachments", file);
-      });
+      // Attachments
+      attachments.forEach((file) => formData.append("attachments", file));
 
-      const result = await createInvoice(formData).unwrap();
-      toast.success("Invoice Created successfully!", { id: toastId });
-      navigate(`/invoice/${result.id}/send`);
+      // Only call update mutation
+      await updateInvoice({
+        id: Number(invoiceId),
+        formData,
+      }).unwrap();
+
+      toast.success("Invoice updated successfully!", { id: toastId });
+      navigate(`/invoice/${invoiceId}/send`);
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to create invoice";
+        error instanceof Error ? error.message : "Failed to update invoice";
       toast.error(errorMessage, { id: toastId });
     }
   };
@@ -1024,20 +968,13 @@ export default function EditManualInvoiceForm() {
             </div>
             <div className="flex items-center gap-4">
               <Button
-                variant="outline"
-                className="text-2xl p-2"
-                onClick={handleSaveDraft}
-                disabled={isLoading}
-              >
-                {isLoading ? "Saving.." : "Save Draft"}
-              </Button>
-              <Button
                 type="button"
                 className="bg-indigo-600 hover:bg-indigo-700 text-2xl p-2 "
-                onClick={handleCreateInvoice}
-                disabled={isLoading}
+                onClick={handleUpdateInvoice}
+                // disabled={isLoading}
               >
-                {isLoading ? "Creating.." : "Review & Send"}
+                Update
+                {/* {isLoading ? "Updating..." : "Save Changes"} */}
               </Button>
             </div>
           </div>
