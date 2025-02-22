@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { X, Printer, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import { SendInvoicePreview } from "./SendInvoicePreview";
 import { useNavigate, useParams } from "react-router";
 import { useGetInvoicePreviwByIdQuery } from "@/features/server/invoiceSlice";
 import { cn } from "@/lib/utils";
+import { useReactToPrint } from "react-to-print";
 
 // Add this static data object above the component
 const staticPreviewData = {
@@ -103,6 +104,9 @@ export default function SendInvoice() {
         };
       })()
     : staticPreviewData;
+
+  const contentRef = useRef<HTMLDivElement>(null);
+  const reactToPrintFn = useReactToPrint({ contentRef });
 
   // Add error state
   if (isError) {
@@ -290,7 +294,7 @@ View invoice: [Link]`}
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => window.print()}
+                  onClick={() => reactToPrintFn()}
                 >
                   <Printer className="h-4 w-4" />
                 </Button>
@@ -310,7 +314,14 @@ View invoice: [Link]`}
                   </p>
                 </div>
               ) : invoiceData ? (
-                <SendInvoicePreview {...mergedPreviewData} {...invoiceData} />
+                <>
+                  <div ref={contentRef}>
+                    <SendInvoicePreview
+                      {...mergedPreviewData}
+                      {...invoiceData}
+                    />
+                  </div>
+                </>
               ) : (
                 <div className="text-red-500 text-center">
                   <h2 className="text-xl font-semibold mb-2">
