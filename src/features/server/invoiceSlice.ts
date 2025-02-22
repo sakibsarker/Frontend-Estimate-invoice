@@ -205,7 +205,7 @@ export const invoiceApi = createApi({
       }
     ),
 
-    // Delete customer
+    // Delete invoice
     deleteInvoice: builder.mutation<void, number>({
       query: (id) => ({
         url: `estimate/invoices/${id}/delete/`,

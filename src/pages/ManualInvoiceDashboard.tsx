@@ -120,6 +120,7 @@ export default function ManualInvoiceDashboard() {
     data: invoicesData,
     isLoading: invoicesLoading,
     error: invoicesError,
+    refetch,
   } = useGetInvoiceQuery({
     page: currentPage,
     invoice_status: selectedStatus !== "all" ? selectedStatus : undefined,
@@ -355,7 +356,7 @@ export default function ManualInvoiceDashboard() {
                                         `Invoice ${invoice.id}  deleted successfully`
                                       );
                                       // Optional: Refetch invoices after deletion
-                                      // refetch();
+                                      refetch();
                                     } catch (error) {
                                       toast.error("Failed to delete invoice");
                                     }

@@ -45,6 +45,7 @@ export const repairRequestApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ["Repairrequests"],
   endpoints: (builder) => ({
     // POST - Create new repair request
     createRepairRequest: builder.mutation<RepairRequest, FormData>({
@@ -75,6 +76,7 @@ export const repairRequestApi = createApi({
           end_date: params.end_date,
         },
       }),
+      providesTags: ["Repairrequests"],
     }),
 
     // Get all estimate statistics
@@ -95,6 +97,14 @@ export const repairRequestApi = createApi({
         body: data,
       }),
     }),
+    // Delete repair request
+    deleteRepairRequest: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `estimate/repair-requests/${id}/delete/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Repairrequests"],
+    }),
   }),
 });
 
@@ -105,4 +115,5 @@ export const {
   useCreateRepairRequestMutation,
   useGetRepairRequestByIDQuery,
   useUpdateRepairRequestMutation,
+  useDeleteRepairRequestMutation,
 } = repairRequestApi;
