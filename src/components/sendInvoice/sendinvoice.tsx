@@ -17,8 +17,8 @@ import { SendInvoicePreview } from "./SendInvoicePreview";
 import { useNavigate, useParams } from "react-router";
 import { useGetInvoicePreviwByIdQuery } from "@/features/server/invoiceSlice";
 import { cn } from "@/lib/utils";
-import { useReactToPrint } from "react-to-print";
-
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 // Add this static data object above the component
 const staticPreviewData = {
   logo: "https://placehold.co/200x50.png",
@@ -106,7 +106,77 @@ export default function SendInvoice() {
     : staticPreviewData;
 
   const contentRef = useRef<HTMLDivElement>(null);
-  const reactToPrintFn = useReactToPrint({ contentRef });
+
+  // Print function using jsPDF and html2canvas
+  const handlePrint = () => {
+    if (contentRef.current) {
+      html2canvas(contentRef.current, { scale: 2 }).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF("p", "mm", "a4"); // A4 size page
+        const imgWidth = 210; // A4 width in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        // Add margins to avoid cutting off content
+        const marginX = 10; // Left and right margins
+        const marginY = 10; // Top and bottom margins
+
+        pdf.addImage(
+          imgData,
+          "PNG",
+          marginX,
+          marginY,
+          imgWidth - 2 * marginX,
+          imgHeight - 2 * marginY
+        );
+
+        // Open the print dialog
+        pdf.autoPrint(); // Automatically trigger the print dialog
+        const blob = pdf.output("blob");
+        const url = URL.createObjectURL(blob);
+        window.open(url, "_blank"); // Open the PDF in a new tab and trigger print
+      });
+    }
+  };
+
+  // Function to handle PDF download
+
+  const handleDownloadPdf = () => {
+    if (contentRef.current) {
+      html2canvas(contentRef.current, {
+        scale: 2,
+        backgroundColor: "#ffffff", // Ensure white background
+      }).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF("p", "mm", "a4"); // A4 size page
+        const imgWidth = 210; // A4 width in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        // Add margins to avoid cutting off content
+        const marginX = 10; // Left and right margins
+        const marginY = 10; // Top and bottom margins
+
+        let position = 0;
+        const pageHeight = 297; // A4 height in mm
+
+        while (position < imgHeight) {
+          if (position > 0) {
+            pdf.addPage();
+          }
+          pdf.addImage(
+            imgData,
+            "PNG",
+            marginX,
+            position > 0 ? -position + marginY : marginY,
+            imgWidth - 2 * marginX,
+            imgHeight - 2 * marginY
+          );
+          position += pageHeight;
+        }
+
+        pdf.save("invoice.pdf"); // Save the PDF with the name "invoice.pdf"
+      });
+    }
+  };
 
   // Add error state
   if (isError) {
@@ -291,21 +361,22 @@ View invoice: [Link]`}
           <div className="flex-1 bg-gray-50 overflow-y-auto">
             <div className="flex h-12 items-center justify-end border-b px-4 print:hidden">
               <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={handlePrint}>
+                  <Printer className="h-4 w-4" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => reactToPrintFn()}
+                  className="print:hidden"
+                  onClick={handleDownloadPdf}
                 >
-                  <Printer className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="print:hidden">
                   <Download className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
             {/* Preview content with padding */}
-            <div className="p-6">
+            <div className="p-6 relative overflow-visible" ref={contentRef}>
               {isLoading ? (
                 <div className="flex justify-center items-center space-x-2">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a237e] "></div>
@@ -314,14 +385,7 @@ View invoice: [Link]`}
                   </p>
                 </div>
               ) : invoiceData ? (
-                <>
-                  <div ref={contentRef}>
-                    <SendInvoicePreview
-                      {...mergedPreviewData}
-                      {...invoiceData}
-                    />
-                  </div>
-                </>
+                <SendInvoicePreview {...mergedPreviewData} {...invoiceData} />
               ) : (
                 <div className="text-red-500 text-center">
                   <h2 className="text-xl font-semibold mb-2">
