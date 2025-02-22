@@ -966,12 +966,12 @@ export default function ManualInvoiceForm() {
                   <div className="text-xs text-gray-500 mt-1">
                     PDF, JPG, PNG, CSV, XLS, XLSX
                   </div>
+                  {attachments.length > 0 && (
+                    <div className="text-sm font-semibold">
+                      {attachments.map((f) => f.name).join(", ")}
+                    </div>
+                  )}
                 </div>
-                {attachments.length > 0 && (
-                  <div className="text-sm mt-2">
-                    Attached files: {attachments.map((f) => f.name).join(", ")}
-                  </div>
-                )}
               </div>
             </div>
           </div>

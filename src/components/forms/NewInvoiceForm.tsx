@@ -526,9 +526,6 @@ export default function NewInvoiceForm() {
 
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <Label className="text-sm font-medium text-red-500 mr-2">
-                    *
-                  </Label>
                   <Label>Sales rep</Label>
                 </div>
                 <Input
@@ -989,12 +986,12 @@ export default function NewInvoiceForm() {
                   <div className="text-xs text-gray-500 mt-1">
                     PDF, JPG, PNG, CSV, XLS, XLSX
                   </div>
+                  {attachments.length > 0 && (
+                    <div className="text-sm font-semibold">
+                      {attachments.map((f) => f.name).join(", ")}
+                    </div>
+                  )}
                 </div>
-                {attachments.length > 0 && (
-                  <div className="text-sm mt-2">
-                    Attached files: {attachments.map((f) => f.name).join(", ")}
-                  </div>
-                )}
               </div>
             </div>
           </div>
