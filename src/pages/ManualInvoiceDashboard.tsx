@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import {
   Home,
@@ -67,6 +67,54 @@ export default function ManualInvoiceDashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [tempSearchTerm, setTempSearchTerm] = useState("");
+  const [timeframe, setTimeframe] = useState<string>("");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>(
+    new Date().toISOString().split("T")[0]
+  );
+
+  // Add this useEffect to handle date calculations
+  useEffect(() => {
+    const today = new Date();
+    const newEndDate = today.toISOString().split("T")[0];
+
+    switch (timeframe) {
+      case "7d":
+        const lastWeek = new Date(today);
+        lastWeek.setDate(today.getDate() - 7);
+        setStartDate(lastWeek.toISOString().split("T")[0]);
+        setEndDate(newEndDate);
+        break;
+
+      case "30d":
+        const lastMonth = new Date(today);
+        lastMonth.setDate(today.getDate() - 30);
+        setStartDate(lastMonth.toISOString().split("T")[0]);
+        setEndDate(newEndDate);
+        break;
+
+      case "180d":
+        const sixMonthsAgo = new Date(today);
+        sixMonthsAgo.setMonth(today.getMonth() - 6);
+        setStartDate(sixMonthsAgo.toISOString().split("T")[0]);
+        setEndDate(newEndDate);
+        break;
+
+      case "custom":
+        // Reset dates when custom is selected
+        setStartDate("");
+        setEndDate(newEndDate);
+        break;
+
+      default:
+        setStartDate("");
+        setEndDate(newEndDate);
+    }
+
+    // Reset to first page when timeframe changes
+    setCurrentPage(1);
+  }, [timeframe]);
 
   const {
     data: invoicesData,
@@ -76,6 +124,8 @@ export default function ManualInvoiceDashboard() {
     page: currentPage,
     invoice_status: selectedStatus !== "all" ? selectedStatus : undefined,
     search: searchTerm,
+    start_date: startDate,
+    end_date: endDate,
   });
 
   return (
@@ -154,9 +204,9 @@ export default function ManualInvoiceDashboard() {
         {/* Filter Controls */}
         <div className="flex flex-wrap items-center gap-4 p-4">
           <div className="w-[200px]">
-            <Select>
+            <Select value={timeframe} onValueChange={setTimeframe}>
               <SelectTrigger>
-                <SelectValue placeholder="Timeframe" />
+                <SelectValue placeholder="Time frame" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="7d">This Week</SelectItem>
@@ -165,6 +215,23 @@ export default function ManualInvoiceDashboard() {
                 <SelectItem value="custom">Specific Date</SelectItem>
               </SelectContent>
             </Select>
+            {/* // Add date inputs for custom selection */}
+            {timeframe === "custom" && (
+              <div className="flex gap-2">
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  max={endDate}
+                />
+                <Input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  min={startDate}
+                />
+              </div>
+            )}
           </div>
 
           <Select
@@ -193,14 +260,23 @@ export default function ManualInvoiceDashboard() {
               type="text"
               placeholder="Search invoices..."
               className="w-full"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1); // Reset to first page when searching
+              value={tempSearchTerm}
+              onChange={(e) => setTempSearchTerm(e.target.value)}
+              onKeyUp={(e) => {
+                if (e.key === "Enter") {
+                  setSearchTerm(tempSearchTerm);
+                  setCurrentPage(1);
+                }
               }}
             />
           </div>
-          <Button className="bg-[#1a237e]">
+          <Button
+            className="bg-[#1a237e]"
+            onClick={() => {
+              setSearchTerm(tempSearchTerm);
+              setCurrentPage(1);
+            }}
+          >
             <Search className="h-4 w-4 mr-2" />
             Search
           </Button>
@@ -210,6 +286,10 @@ export default function ManualInvoiceDashboard() {
             onClick={() => {
               setSelectedStatus("all");
               setSearchTerm("");
+              setTempSearchTerm("");
+              setTimeframe(""); // Add this
+              setStartDate(""); // Add this
+              setEndDate(new Date().toISOString().split("T")[0]); // Reset to today
               setCurrentPage(1);
             }}
           >

@@ -156,6 +156,8 @@ export const invoiceApi = createApi({
         page?: number;
         invoice_status?: string;
         search?: string;
+        start_date?: string;
+        end_date?: string;
       }
     >({
       query: (params) => ({
@@ -164,6 +166,8 @@ export const invoiceApi = createApi({
           page: params.page,
           status: params.invoice_status,
           search: params.search,
+          start_date: params.start_date,
+          end_date: params.end_date,
         },
       }),
       providesTags: ["Invoice"],
