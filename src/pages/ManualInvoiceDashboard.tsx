@@ -330,11 +330,13 @@ export default function ManualInvoiceDashboard() {
                 {invoicesData.results.map((invoice) => (
                   <div
                     key={invoice.id}
-                    onClick={() => navigate(`/invoice/${invoice.id}/edit`)}
                     className="bg-white rounded-lg p-4 shadow cursor-pointer hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start justify-between">
-                      <div className="flex-1">
+                      <div
+                        className="flex-1"
+                        onClick={() => navigate(`/invoice/${invoice.id}/edit`)}
+                      >
                         <div className="flex items-center gap-2 mb-2">
                           <Badge
                             className={getInvoiceStatusColor(
@@ -420,7 +422,13 @@ export default function ManualInvoiceDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            navigate(`/invoice/${invoice.id}/send`)
+                          }
+                        >
                           <Printer className="h-4 w-4" />
                         </Button>
                       </div>

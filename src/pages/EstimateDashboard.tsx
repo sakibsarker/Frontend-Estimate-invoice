@@ -332,10 +332,14 @@ export default function EstimateDashboard() {
                   <div
                     key={estimate.id}
                     className="bg-white rounded-lg p-4 shadow cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => navigate(`/estimate/${estimate.id}/view`)}
                   >
                     <div className="flex items-start justify-between">
-                      <div className="flex-1">
+                      <div
+                        className="flex-1"
+                        onClick={() =>
+                          navigate(`/estimate/${estimate.id}/view`)
+                        }
+                      >
                         <div className="flex items-center gap-2 mb-2">
                           <Badge
                             className={getRepairStatusColor(
@@ -414,12 +418,22 @@ export default function EstimateDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm">
-                          <Printer className="h-4 w-4" />
-                        </Button>
-                        <span className="font-semibold">
-                          {/* ${estimate.value.toFixed(2)} */}
-                        </span>
+                        {estimate.invoice_id && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              navigate(`/invoice/${estimate.invoice_id}/send`)
+                            }
+                          >
+                            <Printer className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {estimate.invoice_total && (
+                          <span className="font-semibold">
+                            ${estimate.invoice_total}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

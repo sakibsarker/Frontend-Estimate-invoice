@@ -17,6 +17,27 @@ interface RepairRequest {
   sms_sent_7_days: boolean;
   created_at: string;
   updated_at: string;
+  invoice_id: string;
+}
+
+interface QueryRepairRequest {
+  id: number;
+  username: string;
+  email: string;
+  phone_number: string;
+  repair_details: string;
+  repair_status: "NEW" | "VIEWED" | "EXPIRED";
+  previous_visits: number;
+  status: "PENDING" | "ACCEPTED" | "REJECTED";
+  vehicle_name: string;
+  estimate_attachments: string;
+  repair_date: string;
+  sms_sent_3_days: boolean;
+  sms_sent_7_days: boolean;
+  created_at: string;
+  updated_at: string;
+  invoice_id: string | number;
+  invoice_total: string | number;
 }
 interface PaginatedResponse<T> {
   count: number;
@@ -57,7 +78,7 @@ export const repairRequestApi = createApi({
     }),
     // Get all estimate
     getRepiarRequst: builder.query<
-      PaginatedResponse<RepairRequest>,
+      PaginatedResponse<QueryRepairRequest>,
       {
         page?: number;
         repair_status?: string;
@@ -67,7 +88,7 @@ export const repairRequestApi = createApi({
       }
     >({
       query: (params) => ({
-        url: "estimate/repair-requests/new/",
+        url: "estimate/repair-requests/",
         params: {
           page: params.page,
           repair_status: params.repair_status,
