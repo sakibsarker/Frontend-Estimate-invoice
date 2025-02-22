@@ -116,18 +116,27 @@ export default function SendInvoice() {
         const imgWidth = 210; // A4 width in mm
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-        // Add margins to avoid cutting off content
+        // Margins to avoid cutting off content
         const marginX = 10; // Left and right margins
         const marginY = 10; // Top and bottom margins
 
-        pdf.addImage(
-          imgData,
-          "PNG",
-          marginX,
-          marginY,
-          imgWidth - 2 * marginX,
-          imgHeight - 2 * marginY
-        );
+        let position = 0;
+        const pageHeight = 297; // A4 height in mm
+
+        while (position < imgHeight) {
+          if (position > 0) {
+            pdf.addPage(); // Add a new page for each segment
+          }
+          pdf.addImage(
+            imgData,
+            "PNG",
+            marginX,
+            position > 0 ? -position + marginY : marginY,
+            imgWidth - 2 * marginX,
+            imgHeight - 2 * marginY
+          );
+          position += pageHeight - 2 * marginY; // Move to the next page
+        }
 
         // Open the print dialog
         pdf.autoPrint(); // Automatically trigger the print dialog

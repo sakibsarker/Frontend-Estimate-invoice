@@ -1,6 +1,6 @@
 import { Mail, Phone, Link, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
-
+import { useTranslation } from "react-i18next";
 interface PreviewProps {
   // Template configuration
   logo: string | null;
@@ -64,6 +64,7 @@ interface InvoiceDataProps {
 }
 
 export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
+  const { t } = useTranslation();
   return (
     <div className="printable-area">
       <div
@@ -136,7 +137,7 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                     props.layout === "modern" && "text-xl"
                   )}
                 >
-                  Bill To
+                  {t("billTo")}
                 </div>
                 <div className="space-y-1 text-sm text-gray-500">
                   {props.templateData.billingAddress && (
@@ -149,7 +150,7 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                       </div>
                       {props.templateData.accountNumber && (
                         <div className="mt-2">
-                          <span className="font-medium">Account #:</span>{" "}
+                          <span className="font-medium">{t("account")}#:</span>{" "}
                           {props.customerId.account_number}
                         </div>
                       )}
@@ -183,17 +184,19 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
               >
                 <div
                   className={cn(
-                    "font-bold text-primary-600",
+                    "font-bold text-primary-600 uppercase",
                     props.layout === "impact" ? "text-3xl" : "text-2xl",
                     props.layout === "modern" && "text-xl"
                   )}
                 >
-                  INVOICE
+                  {t("invoice")}
                 </div>
                 <div className="space-y-1 text-sm text-gray-500">
                   {props.templateData.customerName && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Customer Name:</span>
+                      <span className="text-gray-600">
+                        {t("customerName")}:
+                      </span>
                       <span className="text-gray-900">
                         {props.customerId.customer_display_name}
                       </span>
@@ -216,13 +219,13 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                   )}
                   {props.templateData.poNumber && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">PO Number:</span>
+                      <span className="text-gray-600">{t("poNumber")}:</span>
                       <span className="text-gray-900">{props.po_number}</span>
                     </div>
                   )}
                   {props.templateData.salesRep && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Sales Rep:</span>
+                      <span className="text-gray-600">{t("salesRep")}::</span>
                       <span className="text-gray-900">{props.sales_rep}</span>
                     </div>
                   )}
@@ -250,31 +253,31 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                 <tr>
                   {props.templateData.Date && (
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                      Date
+                      {t("date")}
                     </th>
                   )}
                   {props.templateData.itemName && (
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Item
+                      {t("item")}
                     </th>
                   )}
                   {props.templateData.type && (
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                      Type
+                      {t("type")}
                     </th>
                   )}
                   {props.templateData.quantity && (
                     <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Qty
+                      {t("qty")}
                     </th>
                   )}
                   {props.templateData.price && (
                     <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Price
+                      {t("price")}
                     </th>
                   )}
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Amount
+                    {t("amount")}
                   </th>
                 </tr>
               </thead>
@@ -350,7 +353,7 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
             <div className="max-w-xs ml-auto space-y-3">
               {props.templateData.subtotal && (
                 <div className="flex justify-between text-sm font-semibold">
-                  <span className="text-gray-600">Subtotal:</span>
+                  <span className="text-gray-600">{t("subtotal")}:</span>
                   <span className="text-gray-900">
                     ${parseFloat(props.subtotal).toFixed(2)}
                   </span>
@@ -359,7 +362,7 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
               {props.templateData.tax && props.tax && (
                 <div className="flex justify-between text-sm font-semibold">
                   <span className="text-gray-600">
-                    Tax ({props.tax.tax_rate ?? "0"}%):
+                    {t("tax")} ({props.tax.tax_rate ?? "0"}%):
                   </span>
                   <span className="text-gray-900">
                     $
@@ -374,7 +377,7 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
               {props.templateData.discount && props.discount && (
                 <div className="flex justify-between font-semibold text-sm text-gray-600">
                   <span className="text-gray-600">
-                    Discount ({props.discount.discount_rate ?? "0"}%):
+                    {t("discount")} ({props.discount.discount_rate ?? "0"}%):
                   </span>
                   <span className="text-gray-900">
                     $
@@ -394,7 +397,7 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
               </div>
               {props.templateData.dueAmount && (
                 <div className="flex justify-between ">
-                  <span>Due Amount:</span>
+                  <span>{t("dueAmount")}</span>
                   <span>${parseFloat(props.amount_due).toFixed(2)}</span>
                 </div>
               )}

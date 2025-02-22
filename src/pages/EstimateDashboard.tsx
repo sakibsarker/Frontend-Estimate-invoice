@@ -39,9 +39,11 @@ import {
   useDeleteRepairRequestMutation,
 } from "@/features/server/repairRequestSlice";
 import toast, { Toaster } from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 export default function EstimateDashboard() {
-  const [selectedLanguage, setSelectedLanguage] = useState("en");
+  const { t, i18n } = useTranslation();
+
   const { data, isLoading, error } = useGetRepiarStatisticsQuery();
   const [deleteRepairRequest] = useDeleteRepairRequestMutation();
   const navigate = useNavigate();
@@ -54,6 +56,13 @@ export default function EstimateDashboard() {
   const [endDate, setEndDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
+
+  //  useEffect to initialize language from localStorage
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("i18nextLng") || "en";
+    i18n.changeLanguage(savedLanguage);
+  }, [i18n]);
 
   // Add this useEffect to handle date calculations
   useEffect(() => {
@@ -155,8 +164,11 @@ export default function EstimateDashboard() {
           {/* Language Selector */}
           <div className="ml-auto flex items-center gap-2">
             <Select
-              value={selectedLanguage}
-              onValueChange={setSelectedLanguage}
+              value={i18n.language}
+              onValueChange={(lng: string) => {
+                i18n.changeLanguage(lng);
+                localStorage.setItem("i18nextLng", lng); // Optional: Save preference
+              }}
             >
               <SelectTrigger className="w-[150px] bg-[#1a237e] text-white">
                 <SelectValue placeholder="Select language" />
@@ -170,7 +182,7 @@ export default function EstimateDashboard() {
         </div>
 
         <div className="bg-[#E8F4F7] p-6 rounded-lg mx-4">
-          <div className="text-2xl font-bold mb-4">Estimate</div>
+          <div className="text-2xl font-bold mb-4">{t("estimate")}</div>
           {isLoading ? (
             <div>Wait statistics is showing...</div>
           ) : error ? (
@@ -179,23 +191,24 @@ export default function EstimateDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <div className="text-gray-600">
-                  Total Estimates Created: {data.total_requests}
+                  {t("totalEstimatesCreated")}: {data.total_requests}
                 </div>
                 <div className="text-gray-600">
-                  New Estimates: {data.total_new_requests}
-                </div>
-              </div>
-              <div>
-                <div className="text-gray-600">
-                  Expired Estimates: {data.total_expired_requests}
-                </div>
-                <div className="text-gray-600">
-                  Approval Rates: {data.accepted_percentage.toFixed(1)}%
+                  {t("newEstimates")}: {data.total_new_requests}
                 </div>
               </div>
               <div>
                 <div className="text-gray-600">
-                  Accepted Percentage: {data.accepted_percentage.toFixed(1)}%
+                  {t("expiredEstimates")}: {data.total_expired_requests}
+                </div>
+                <div className="text-gray-600">
+                  {t("approvalRates")}: {data.accepted_percentage.toFixed(1)}%
+                </div>
+              </div>
+              <div>
+                <div className="text-gray-600">
+                  {t("acceptedPercentage")}:{" "}
+                  {data.accepted_percentage.toFixed(1)}%
                 </div>
               </div>
             </div>
