@@ -128,7 +128,7 @@ export default function ViewEstimateRequest() {
 
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-500">Total Spending:</div>
-                    <div>$0</div>
+                    <div>${estimateData?.invoice_total ?? 0}</div>
                   </div>
                 </div>
               </div>

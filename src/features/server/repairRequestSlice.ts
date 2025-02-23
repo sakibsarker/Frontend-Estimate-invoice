@@ -15,6 +15,7 @@ interface RepairRequest {
   repair_date: string;
   sms_sent_3_days: boolean;
   sms_sent_7_days: boolean;
+  invoice_total: string;
   created_at: string;
   updated_at: string;
   invoice_id: string;
