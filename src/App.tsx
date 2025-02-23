@@ -133,8 +133,8 @@ export default function App() {
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Estimate Card */}
-          <Link
-            to="/estimate"
+          <div
+            onClick={() => navigate("/estimate")}
             className="group bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-blue-500 hover:border-blue-600"
           >
             <div className="flex items-center gap-4">
@@ -162,11 +162,11 @@ export default function App() {
                 </p>
               </div>
             </div>
-          </Link>
+          </div>
 
           {/* Invoice Card */}
-          <Link
-            to="/invoice"
+          <div
+            onClick={() => navigate("/invoice")}
             className="group bg-white p-8 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-purple-500 hover:border-purple-600"
           >
             <div className="flex items-center gap-4">
@@ -192,7 +192,7 @@ export default function App() {
                 <p className="text-gray-600 mt-2">Manage and track invoices</p>
               </div>
             </div>
-          </Link>
+          </div>
         </div>
       </main>
     </div>

@@ -438,7 +438,10 @@ export default function Template() {
               </SelectContent>
             </Select>
 
-            <Button onClick={handleSaveTemplate} className="min-w-[100px]">
+            <Button
+              onClick={handleSaveTemplate}
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-800"
+            >
               {currentTemplateId ? "Save Changes" : "Save New"}
             </Button>
 

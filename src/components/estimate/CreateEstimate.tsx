@@ -211,11 +211,7 @@ export default function CreateEstimate() {
               >
                 {isLoading ? "Submitting..." : "Submit Your Estimate"}
               </Button>
-              <Button
-                variant="destructive"
-                className="bg-red-600 hover:bg-red-500"
-                onClick={() => navigate("/estimate")}
-              >
+              <Button variant="outline" onClick={() => navigate("/estimate")}>
                 Close
               </Button>
             </div>

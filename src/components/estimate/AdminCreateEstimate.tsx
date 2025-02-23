@@ -352,11 +352,7 @@ export default function AdminCreateEstimate() {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-              <Button
-                variant="secondary"
-                className="bg-black/80 text-white hover:bg-black/90"
-                onClick={() => navigate("/estimate")}
-              >
+              <Button variant="outline" onClick={() => navigate("/estimate")}>
                 Go Back
               </Button>
 

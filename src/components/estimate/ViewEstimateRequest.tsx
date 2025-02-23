@@ -216,36 +216,34 @@ export default function ViewEstimateRequest() {
 
               {/* Action Buttons */}
               <div className="relative flex items-center gap-4 pt-4">
-                <Button
-                  variant="secondary"
-                  className="bg-black/80 text-white hover:bg-black/90"
-                  onClick={() => navigate("/estimate")}
-                >
+                <Button variant="outline" onClick={() => navigate("/estimate")}>
                   Go Back
                 </Button>
                 <div className="relative">
                   {estimateData?.status === "ACCEPTED" ? (
-                    <Link to={`/estimate/${estimateId}/invoice/new`}>
+                    <Link to={`/invoice/${estimateData.invoice_id}/edit`}>
                       <Button className="bg-orange-500 hover:bg-orange-600">
                         View Invoice
                       </Button>
                     </Link>
                   ) : (
                     <Button
-                      className="bg-green-500 hover:bg-green-500/90"
+                      className="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 text-sm"
                       onClick={() => updateStatus("ACCEPTED")}
                     >
                       Prepare an Estimate
                     </Button>
                   )}
                 </div>
-                <Button
-                  variant="destructive"
-                  className="bg-red-600 hover:bg-red-500"
-                  onClick={() => updateStatus("REJECTED")}
-                >
-                  Reject
-                </Button>
+                {estimateData?.status === "PENDING" && (
+                  <Button
+                    variant="destructive"
+                    className="bg-red-600 hover:bg-red-500"
+                    onClick={() => updateStatus("REJECTED")}
+                  >
+                    Reject
+                  </Button>
+                )}
               </div>
             </div>
           </CardContent>
