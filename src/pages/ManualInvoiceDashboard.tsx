@@ -112,12 +112,12 @@ export default function ManualInvoiceDashboard() {
       case "custom":
         // Reset dates when custom is selected
         setStartDate("");
-        setEndDate(newEndDate);
+        setEndDate("");
         break;
 
       default:
         setStartDate("");
-        setEndDate(newEndDate);
+        setEndDate("");
     }
 
     // Reset to first page when timeframe changes
@@ -216,32 +216,37 @@ export default function ManualInvoiceDashboard() {
 
         {/* Filter Controls */}
         <div className="flex flex-wrap items-center gap-4 p-4">
-          <div className="w-[200px]">
-            <Select value={timeframe} onValueChange={setTimeframe}>
-              <SelectTrigger>
-                <SelectValue placeholder="Time frame" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7d">This Week</SelectItem>
-                <SelectItem value="30d">This Month</SelectItem>
-                <SelectItem value="180d">Last Six Months</SelectItem>
-                <SelectItem value="custom">Specific Date</SelectItem>
-              </SelectContent>
-            </Select>
-            {/* // Add date inputs for custom selection */}
+          <div className="flex items-center gap-4">
+            <div className="w-[200px]">
+              <Select value={timeframe} onValueChange={setTimeframe}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Time frame" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="7d">This Week</SelectItem>
+                  <SelectItem value="30d">This Month</SelectItem>
+                  <SelectItem value="180d">Last Six Months</SelectItem>
+                  <SelectItem value="custom">Specific Date</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {timeframe === "custom" && (
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2 ml-2">
                 <Input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   max={endDate}
+                  className="w-[160px]"
                 />
+                <span className="text-gray-500">to</span>
                 <Input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   min={startDate}
+                  className="w-[160px]"
                 />
               </div>
             )}
@@ -294,8 +299,7 @@ export default function ManualInvoiceDashboard() {
             Search
           </Button>
           <Button
-            variant="secondary"
-            className="bg-[#1a237e] text-white"
+            className="bg-[#1a237e] "
             onClick={() => {
               setSelectedStatus("all");
               setSearchTerm("");
