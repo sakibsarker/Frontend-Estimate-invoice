@@ -58,6 +58,7 @@ import { generateInvoiceNumber } from "@/lib/invoiceUtils";
 import { useNavigate, useParams } from "react-router";
 
 import { toast } from "react-hot-toast";
+import Loader from "../Loader";
 
 interface InvoiceItem {
   id: number;
@@ -110,7 +111,9 @@ export default function EditManualInvoiceForm() {
     },
   ]);
 
-  const { data: invoiceData } = useGetInvoiceByIdQuery(Number(invoiceId));
+  const { data: invoiceData, isLoading } = useGetInvoiceByIdQuery(
+    Number(invoiceId)
+  );
 
   const [updateInvoice] = useUpdateInvoiceMutation();
   const [showCustomerForm, setShowCustomerForm] = useState(false);
@@ -305,6 +308,8 @@ export default function EditManualInvoiceForm() {
       toast.error(errorMessage, { id: toastId });
     }
   };
+
+  if (isLoading) <Loader />;
 
   return (
     <div className="flex min-h-screen">

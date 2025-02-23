@@ -94,12 +94,12 @@ export default function EstimateDashboard() {
       case "custom":
         // Reset dates when custom is selected
         setStartDate("");
-        setEndDate(newEndDate);
+        setEndDate("");
         break;
 
       default:
         setStartDate("");
-        setEndDate(newEndDate);
+        setEndDate("");
     }
 
     // Reset to first page when timeframe changes
@@ -328,7 +328,7 @@ export default function EstimateDashboard() {
           ) : estimatesData ? (
             <>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {estimatesData.results.map((estimate) => (
+                {estimatesData?.results?.map((estimate) => (
                   <div
                     key={estimate.id}
                     className="bg-white rounded-lg p-4 shadow cursor-pointer hover:shadow-md transition-shadow"

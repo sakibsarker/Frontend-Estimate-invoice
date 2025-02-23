@@ -141,75 +141,75 @@ export default function ViewEstimateRequest() {
                 </div>
               </div>
 
-              {/* Customer Attachment */}
+              {/* Customer Attachments */}
               <div className="space-y-2">
-                <h3 className="font-medium">Customer Attachment:</h3>
-                <div className="rounded-md border bg-gray-50/50 p-4">
-                  {estimateData?.estimate_attachments && (
-                    <div className="flex items-center justify-between p-3 bg-white rounded-md shadow-sm">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-full bg-gray-100">
-                          {(() => {
-                            const fileUrl =
-                              estimateData.estimate_attachments.split("?")[0];
-                            const fileName =
-                              fileUrl.split("/").pop() || "attachment";
-                            const fileExtension = fileName
-                              .split(".")
-                              .pop()
-                              ?.toLowerCase();
+                <h3 className="font-medium">Customer Attachments:</h3>
+                <div className="rounded-md border bg-gray-50/50 p-4 space-y-4">
+                  {estimateData?.attachment_urls?.map(
+                    (attachmentUrl, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 bg-white rounded-md shadow-sm"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-full bg-gray-100">
+                            {(() => {
+                              const fileUrl = attachmentUrl.split("?")[0];
+                              const fileName =
+                                fileUrl.split("/").pop() || "attachment";
+                              const fileExtension = fileName
+                                .split(".")
+                                .pop()
+                                ?.toLowerCase();
 
-                            const iconClass = "h-5 w-5 text-gray-600";
-
-                            switch (fileExtension) {
-                              case "pdf":
-                                return <FileText className={iconClass} />;
-                              case "doc":
-                              case "docx":
-                                return <FileType className={iconClass} />;
-                              case "xls":
-                              case "xlsx":
-                                return (
-                                  <FileSpreadsheet className={iconClass} />
-                                );
-                              case "jpg":
-                              case "jpeg":
-                              case "png":
-                                return <Image className={iconClass} />;
-                              default:
-                                return <FileType className={iconClass} />;
-                            }
-                          })()}
+                              const iconClass = "h-5 w-5 text-gray-600";
+                              switch (fileExtension) {
+                                case "pdf":
+                                  return <FileText className={iconClass} />;
+                                case "doc":
+                                case "docx":
+                                  return <FileType className={iconClass} />;
+                                case "xls":
+                                case "xlsx":
+                                  return (
+                                    <FileSpreadsheet className={iconClass} />
+                                  );
+                                case "jpg":
+                                case "jpeg":
+                                case "png":
+                                  return <Image className={iconClass} />;
+                                default:
+                                  return <FileType className={iconClass} />;
+                              }
+                            })()}
+                          </div>
+                          <span className="font-medium text-sm">
+                            {attachmentUrl.split("/").pop()?.split("?")[0]}
+                          </span>
                         </div>
-                        <span className="font-medium text-sm">
-                          {
-                            estimateData.estimate_attachments
-                              .split("/")
-                              .pop()
-                              ?.split("?")[0]
-                          }
-                        </span>
+                        <div className="flex gap-2">
+                          <a
+                            href={attachmentUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1.5 text-sm flex items-center gap-1 bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 transition-colors"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View
+                          </a>
+                          <a
+                            href={attachmentUrl}
+                            download={
+                              attachmentUrl.split("/").pop()?.split("?")[0]
+                            }
+                            className="px-3 py-1.5 text-sm flex items-center gap-1 bg-green-100 text-green-800 rounded-md hover:bg-green-200 transition-colors"
+                          >
+                            <Download className="h-4 w-4" />
+                            Download
+                          </a>
+                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <a
-                          href={estimateData.estimate_attachments}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-3 py-1.5 text-sm flex items-center gap-1 bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 transition-colors"
-                        >
-                          <Eye className="h-4 w-4" />
-                          View
-                        </a>
-                        <a
-                          href={estimateData.estimate_attachments}
-                          download
-                          className="px-3 py-1.5 text-sm flex items-center gap-1 bg-green-100 text-green-800 rounded-md hover:bg-green-200 transition-colors"
-                        >
-                          <Download className="h-4 w-4" />
-                          Download
-                        </a>
-                      </div>
-                    </div>
+                    )
                   )}
                 </div>
               </div>

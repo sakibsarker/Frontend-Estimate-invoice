@@ -11,7 +11,26 @@ interface RepairRequest {
   previous_visits: number;
   status: "PENDING" | "ACCEPTED" | "REJECTED";
   vehicle_name: string;
-  estimate_attachments: string;
+  repair_date: string;
+  sms_sent_3_days: boolean;
+  sms_sent_7_days: boolean;
+  invoice_total: string;
+  created_at: string;
+  updated_at: string;
+  invoice_id: string;
+}
+
+interface RepairRequestbyId {
+  id: number;
+  username: string;
+  email: string;
+  phone_number: string;
+  repair_details: string;
+  repair_status: "NEW" | "VIEWED" | "EXPIRED";
+  previous_visits: number;
+  status: "PENDING" | "ACCEPTED" | "REJECTED";
+  vehicle_name: string;
+  attachment_urls: string[];
   repair_date: string;
   sms_sent_3_days: boolean;
   sms_sent_7_days: boolean;
@@ -31,7 +50,7 @@ interface QueryRepairRequest {
   previous_visits: number;
   status: "PENDING" | "ACCEPTED" | "REJECTED";
   vehicle_name: string;
-  estimate_attachments: string;
+
   repair_date: string;
   sms_sent_3_days: boolean;
   sms_sent_7_days: boolean;
@@ -107,12 +126,12 @@ export const repairRequestApi = createApi({
     }),
 
     // GET - Fetch a single repair request by ID
-    getRepairRequestByID: builder.query<RepairRequest, number>({
+    getRepairRequestByID: builder.query<RepairRequestbyId, number>({
       query: (id) => `estimate/repair-requests/${id}/`,
     }),
 
     // PATCH - Update a repair request
-    updateRepairRequest: builder.mutation<RepairRequest, RepairRequest>({
+    updateRepairRequest: builder.mutation<RepairRequestbyId, RepairRequest>({
       query: (data) => ({
         url: `estimate/repair-requests/${data.id}/update/`,
         method: "PATCH",
