@@ -48,11 +48,11 @@ export const templateApi = createApi({
   endpoints: (builder) => ({
     // POST - Create new Template
 
-    createTemplate: builder.mutation<Template, Omit<Template, "id">>({
-      query: (payload) => ({
+    createTemplate: builder.mutation<Template, FormData>({
+      query: (formData) => ({
         url: "estimate/invoice-template/create/",
         method: "POST",
-        body: payload,
+        body: formData,
       }),
       invalidatesTags: ["Templates"],
     }),
@@ -68,12 +68,15 @@ export const templateApi = createApi({
     }),
 
     // PATCH - Update a Template
-    updateTemplate: builder.mutation<Template, Template>({
-      query: (payload) => ({
-        url: `estimate/invoice-template/${payload.id}/update/`,
-        method: "PUT",
-        body: payload,
-      }),
+    updateTemplate: builder.mutation<Template, FormData>({
+      query: (formData) => {
+        const id = formData.get("id");
+        return {
+          url: `estimate/invoice-template/${id}/update/`,
+          method: "PUT",
+          body: formData,
+        };
+      },
       invalidatesTags: ["Templates"],
     }),
   }),

@@ -15,7 +15,6 @@ import {
 
 import { Textarea } from "@/components/ui/textarea";
 import { InvoicePreview } from "@/components/InvoicePreview/InvoicePreview";
-import { v4 as uuidv4 } from "uuid";
 import {
   Select,
   SelectTrigger,
@@ -85,6 +84,7 @@ export default function Template() {
   >(null);
   const [selectedLayout, setSelectedLayout] = useState("modern");
   const [logo, setLogo] = useState<string | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [templateData, setTemplateData] = useState({
     name: "New Template",
     is_default: false,
@@ -142,7 +142,9 @@ export default function Template() {
     if (selectedTemplate && typeof currentTemplateId === "number") {
       setTemplateData({
         ...templateData,
+        // Map API response fields to local state
         name: selectedTemplate.name,
+
         customerName: selectedTemplate.customer_name,
         billingAddress: selectedTemplate.billing_address,
         phone: selectedTemplate.phone,
@@ -169,6 +171,7 @@ export default function Template() {
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      setLogoFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setLogo(reader.result as string);
@@ -179,65 +182,44 @@ export default function Template() {
 
   const handleSaveTemplate = async () => {
     try {
-      // Convert to API-compatible format
-      const templatePayload: Template = {
-        id: currentTemplateId || uuidv4(),
-        name: templateData.name,
-        selected_layout: selectedLayout,
-        logo: logo,
+      const formData = new FormData();
 
-        customer_name: templateData.customerName,
-        billing_address: templateData.billingAddress,
-        phone: templateData.phone,
-        email: templateData.email,
-        account_number: templateData.accountNumber,
-        po_number: templateData.poNumber,
-        sales_rep: templateData.salesRep,
-        date: templateData.Date,
-        item_name: templateData.itemName,
-        quantity: templateData.quantity,
-        price: templateData.price,
-        type: templateData.type,
-        description: templateData.description,
-        subtotal: templateData.subtotal,
-        tax: templateData.tax,
-        discount: templateData.discount,
-        due_amount: templateData.dueAmount,
-      };
+      // Append logo file if exists
+      if (logoFile) {
+        formData.append("logo", logoFile);
+      }
+
+      // Append other fields
+      formData.append("name", templateData.name);
+      formData.append("selected_layout", selectedLayout);
+      formData.append("customer_name", String(templateData.customerName));
+      formData.append("billing_address", String(templateData.billingAddress));
+      formData.append("phone", String(templateData.phone));
+      formData.append("email", String(templateData.email));
+      formData.append("account_number", String(templateData.accountNumber));
+      formData.append("po_number", String(templateData.poNumber));
+      formData.append("sales_rep", String(templateData.salesRep));
+      formData.append("date", String(templateData.Date));
+      formData.append("item_name", String(templateData.itemName));
+      formData.append("quantity", String(templateData.quantity));
+      formData.append("price", String(templateData.price));
+      formData.append("type", String(templateData.type));
+      formData.append("description", String(templateData.description));
+      formData.append("subtotal", String(templateData.subtotal));
+      formData.append("tax", String(templateData.tax));
+      formData.append("discount", String(templateData.discount));
+      formData.append("due_amount", String(templateData.dueAmount));
 
       if (currentTemplateId) {
-        // Update existing template
-        if (typeof currentTemplateId === "number") {
-          // API template update
-          await updateTemplate(templatePayload).unwrap();
-          toast.success(`Template ${currentTemplateId} updated`);
-        } else {
-          // Local template update
-          setLocalTemplates((prev) =>
-            prev.map((t) => (t.id === currentTemplateId ? templatePayload : t))
-          );
-          toast.success("Template updated");
-        }
+        formData.append("id", currentTemplateId.toString());
+        await updateTemplate(formData).unwrap();
+        toast.success(`Template ${currentTemplateId} updated`);
       } else {
-        // Always create through API first
-        const result = await createTemplate(templatePayload).unwrap();
-
-        // Update local state with API response
+        const result = await createTemplate(formData).unwrap();
         setCurrentTemplateId(result.id);
-
-        // If marked as non-default, also save locally
-        if (!templateData.is_default) {
-          const newLocalTemplate = {
-            ...result,
-            id: `local-${result.id}`, // Maintain reference to API ID
-          };
-          setLocalTemplates((prev) => [...prev, newLocalTemplate]);
-        }
-
         toast.success("Template created successfully");
       }
 
-      // Force reload of API templates
       dispatch(templateApi.util.invalidateTags(["Templates"]));
     } catch (error) {
       console.error("Save failed:", error);
@@ -298,15 +280,40 @@ export default function Template() {
     if (!currentTemplateId) return;
 
     try {
-      const template = allTemplates.find((t) => t.id === currentTemplateId);
-      if (!template) return;
+      const formData = new FormData();
 
-      // Create complete template data object
+      // Append all current fields
+      formData.append("name", templateData.name);
+      formData.append("selected_layout", selectedLayout);
+      formData.append("customer_name", String(templateData.customerName));
+      formData.append("billing_address", String(templateData.billingAddress));
+      formData.append("phone", String(templateData.phone));
+      formData.append("email", String(templateData.email));
+      formData.append("account_number", String(templateData.accountNumber));
+      formData.append("po_number", String(templateData.poNumber));
+      formData.append("sales_rep", String(templateData.salesRep));
+      formData.append("date", String(templateData.Date));
+      formData.append("item_name", String(templateData.itemName));
+      formData.append("quantity", String(templateData.quantity));
+      formData.append("price", String(templateData.price));
+      formData.append("type", String(templateData.type));
+      formData.append("description", String(templateData.description));
+      formData.append("subtotal", String(templateData.subtotal));
+      formData.append("tax", String(templateData.tax));
+      formData.append("discount", String(templateData.discount));
+      formData.append("due_amount", String(templateData.dueAmount));
+
+      // Append logo if exists
+      if (logoFile) {
+        formData.append("logo", logoFile);
+      }
+
+      // For localStorage, keep the data URL version
       const fullTemplateData = {
-        ...template,
-        selected_layout: selectedLayout,
-        logo: logo,
+        id: currentTemplateId,
         name: templateData.name,
+        selected_layout: selectedLayout,
+        logo: logo, // Keep data URL for preview
         customer_name: templateData.customerName,
         billing_address: templateData.billingAddress,
         phone: templateData.phone,
@@ -329,9 +336,10 @@ export default function Template() {
       // Store complete template data in localStorage
       localStorage.setItem("defaultTemplate", JSON.stringify(fullTemplateData));
 
-      // Keep existing API/local template logic
+      // Update server or local template
       if (typeof currentTemplateId === "number") {
-        await updateTemplate(fullTemplateData).unwrap();
+        formData.append("id", currentTemplateId.toString());
+        await updateTemplate(formData).unwrap();
         dispatch(templateApi.util.invalidateTags(["Templates"]));
       } else {
         setLocalTemplates((prev) =>
@@ -339,7 +347,7 @@ export default function Template() {
         );
       }
 
-      toast.success(`Defult Template ${currentTemplateId} set successfully`);
+      toast.success(`Default Template ${currentTemplateId} set successfully`);
     } catch (error) {
       toast.error("Failed to set template");
     }
