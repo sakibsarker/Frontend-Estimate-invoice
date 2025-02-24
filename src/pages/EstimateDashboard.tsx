@@ -158,7 +158,7 @@ export default function EstimateDashboard() {
             onClick={() => navigate("/home")}
           >
             <Home className="h-6 w-6" />
-            <span className="ml-2">Back to Home</span>
+            <span className="ml-2">{t("backToHome")}</span>
           </Button>
 
           {/* Language Selector */}
@@ -184,9 +184,9 @@ export default function EstimateDashboard() {
         <div className="bg-[#E8F4F7] p-6 rounded-lg mx-4">
           <div className="text-2xl font-bold mb-4">{t("estimate")}</div>
           {isLoading ? (
-            <div>Wait statistics is showing...</div>
+            <div>{t("waitStatisticsShowing")}</div>
           ) : error ? (
-            <div>Error loading statistics</div>
+            <div>{t("errorLoadingStatistics")}</div>
           ) : data ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
@@ -221,13 +221,13 @@ export default function EstimateDashboard() {
             <div className="w-[200px]">
               <Select value={timeframe} onValueChange={setTimeframe}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Time frame" />
+                  <SelectValue placeholder={t("timeFrame")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="7d">This Week</SelectItem>
-                  <SelectItem value="30d">This Month</SelectItem>
-                  <SelectItem value="180d">Last Six Months</SelectItem>
-                  <SelectItem value="custom">Specific Date</SelectItem>
+                  <SelectItem value="7d">{t("thisWeek")}</SelectItem>
+                  <SelectItem value="30d">{t("thisMonth")}</SelectItem>
+                  <SelectItem value="180d">{t("lastSixMonths")}</SelectItem>
+                  <SelectItem value="custom">{t("specificDate")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -264,17 +264,17 @@ export default function EstimateDashboard() {
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="NEW">New</SelectItem>
-              <SelectItem value="VIEWED">Viewed</SelectItem>
-              <SelectItem value="EXPIRED">Expired</SelectItem>
+              <SelectItem value="all">{t("all")}</SelectItem>
+              <SelectItem value="NEW">{t("new")}</SelectItem>
+              <SelectItem value="VIEWED">{t("viewed")}</SelectItem>
+              <SelectItem value="EXPIRED">{t("expired")}</SelectItem>
             </SelectContent>
           </Select>
 
           <div className="flex-grow">
             <Input
               type="text"
-              placeholder="Search estimates..."
+              placeholder={t("searchEstimates")}
               className="w-full"
               value={tempSearchTerm}
               onChange={(e) => setTempSearchTerm(e.target.value)}
@@ -295,7 +295,7 @@ export default function EstimateDashboard() {
             }}
           >
             <Search className="h-4 w-4 mr-2" />
-            Search
+            {t("search")}
           </Button>
 
           <Button
@@ -311,7 +311,7 @@ export default function EstimateDashboard() {
               setCurrentPage(1);
             }}
           >
-            Clear Filter
+            {t("clearFilter")}
             <X className="h-4 w-4 ml-2" />
           </Button>
 
@@ -319,7 +319,7 @@ export default function EstimateDashboard() {
             className="bg-orange-500 hover:bg-orange-600"
             onClick={() => navigate("/admin/estimate")}
           >
-            Create Estimate
+            {t("createEstimate")}
           </Button>
         </div>
 
@@ -364,7 +364,7 @@ export default function EstimateDashboard() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem>Edit</DropdownMenuItem>
+                              <DropdownMenuItem>{t("edit")}</DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={async (e) => {
                                   e.stopPropagation(); // Prevent card click event
@@ -388,18 +388,18 @@ export default function EstimateDashboard() {
                                   }
                                 }}
                               >
-                                Delete
+                                {t("delete")}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
                         <div className="text-sm text-gray-800 font-normal mb-2">
-                          Created:{" "}
+                          {t("created")}:{" "}
                           {new Date(estimate.created_at).toLocaleDateString(
                             "en-CA"
                           )}
                           <br />
-                          Repair Date:{" "}
+                          {t("repairDate")}:{" "}
                           {new Date(estimate.repair_date).toLocaleDateString(
                             "en-CA"
                           )}

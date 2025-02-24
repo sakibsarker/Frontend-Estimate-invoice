@@ -149,7 +149,7 @@ export default function ManualInvoiceDashboard() {
             onClick={() => navigate("/home")}
           >
             <Home className="h-6 w-6" />
-            <span className="ml-2">Back to Home</span>
+            <span className="ml-2">{t("backToHome")}</span>
           </Button>
 
           {/* Language Selector */}
@@ -179,7 +179,7 @@ export default function ManualInvoiceDashboard() {
           {isLoading ? (
             <div>Wait Loading Invoice...</div>
           ) : error ? (
-            <div className="text-red-500">Error loading statistics</div>
+            <div className="text-red-500">{t("errorLoadingStatistics")}</div>
           ) : stats ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
@@ -220,13 +220,13 @@ export default function ManualInvoiceDashboard() {
             <div className="w-[200px]">
               <Select value={timeframe} onValueChange={setTimeframe}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Time frame" />
+                  <SelectValue placeholder={t("timeFrame")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="7d">This Week</SelectItem>
-                  <SelectItem value="30d">This Month</SelectItem>
-                  <SelectItem value="180d">Last Six Months</SelectItem>
-                  <SelectItem value="custom">Specific Date</SelectItem>
+                  <SelectItem value="7d">{t("thisWeek")}</SelectItem>
+                  <SelectItem value="30d">{t("thisMonth")}</SelectItem>
+                  <SelectItem value="180d">{t("lastSixMonths")}</SelectItem>
+                  <SelectItem value="custom">{t("specificDate")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -263,20 +263,20 @@ export default function ManualInvoiceDashboard() {
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="DRAFT">Draft</SelectItem>
-              <SelectItem value="SENT">Sent</SelectItem>
-              <SelectItem value="PAID">Paid</SelectItem>
-              <SelectItem value="UNPAID">Unpaid</SelectItem>
-              <SelectItem value="OVERDUE">Overdue</SelectItem>
-              <SelectItem value="CANCELLED">Cancelled</SelectItem>
+              <SelectItem value="all">{t("all")}</SelectItem>
+              <SelectItem value="DRAFT">{t("draft")}</SelectItem>
+              <SelectItem value="SENT">{t("sent")}</SelectItem>
+              <SelectItem value="PAID">{t("paid")}</SelectItem>
+              <SelectItem value="UNPAID">{t("unpaid")}</SelectItem>
+              <SelectItem value="OVERDUE">{t("overdue")}</SelectItem>
+              <SelectItem value="CANCELLED">{t("cancelled")}</SelectItem>
             </SelectContent>
           </Select>
 
           <div className="flex-grow">
             <Input
               type="text"
-              placeholder="Search invoices..."
+              placeholder={t("searchInvoices")}
               className="w-full"
               value={tempSearchTerm}
               onChange={(e) => setTempSearchTerm(e.target.value)}
@@ -296,7 +296,7 @@ export default function ManualInvoiceDashboard() {
             }}
           >
             <Search className="h-4 w-4 mr-2" />
-            Search
+            {t("search")}
           </Button>
           <Button
             className="bg-[#1a237e] "
@@ -310,7 +310,7 @@ export default function ManualInvoiceDashboard() {
               setCurrentPage(1);
             }}
           >
-            Clear Filter
+            {t("clearFilter")}
             <X className="h-4 w-4 ml-2" />
           </Button>
 
@@ -318,7 +318,7 @@ export default function ManualInvoiceDashboard() {
             onClick={() => navigate("/invoice/new")}
             className="bg-orange-500 hover:bg-orange-600"
           >
-            Create Invoice
+            {t("createInvoice")}
           </Button>
         </div>
 
@@ -359,7 +359,7 @@ export default function ManualInvoiceDashboard() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem>Edit</DropdownMenuItem>
+                              <DropdownMenuItem>{t("edit")}</DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={async (e) => {
                                   e.stopPropagation(); // Prevent card click event
@@ -381,13 +381,13 @@ export default function ManualInvoiceDashboard() {
                                   }
                                 }}
                               >
-                                Delete
+                                {t("delete")}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
                         <div className="text-sm text-gray-800 font-normal mb-2">
-                          Created:{" "}
+                          {t("created")}:{" "}
                           {new Date(invoice.created_at).toLocaleDateString()}
                         </div>
                         <div className="flex items-center gap-2">
@@ -408,7 +408,8 @@ export default function ManualInvoiceDashboard() {
                                 : "text-gray-600"
                             }`}
                           >
-                            Total: ${parseFloat(invoice.total).toFixed(2)}
+                            {t("total")}: $
+                            {parseFloat(invoice.total).toFixed(2)}
                           </div>
                           <div
                             className={`font-semibold ${
@@ -421,7 +422,8 @@ export default function ManualInvoiceDashboard() {
                                 : "text-gray-600"
                             }`}
                           >
-                            Due: ${parseFloat(invoice.amount_due).toFixed(2)}
+                            {t("due")}: $
+                            {parseFloat(invoice.amount_due).toFixed(2)}
                           </div>
                         </div>
                       </div>
