@@ -31,6 +31,7 @@ import {
 import toast, { Toaster } from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { templateApi } from "@/features/server/templateSlice";
+import { useTranslation } from "react-i18next";
 
 const layouts = [
   {
@@ -85,6 +86,7 @@ export default function Template() {
   const [selectedLayout, setSelectedLayout] = useState("modern");
   const [logo, setLogo] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const { t } = useTranslation();
   const [templateData, setTemplateData] = useState({
     name: "New Template",
     is_default: false,
@@ -401,7 +403,7 @@ export default function Template() {
         {/* Left Panel - Configuration */}
         <div className="w-[600px] border-r bg-white p-6 overflow-y-auto">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-semibold">Template Manager</h1>
+            <h1 className="text-2xl font-semibold">{t("templateManager")}</h1>
           </div>
 
           <div className="flex items-center gap-4 mb-6">
@@ -442,7 +444,7 @@ export default function Template() {
               onClick={handleSaveTemplate}
               className="w-full sm:w-auto bg-blue-600 hover:bg-blue-800"
             >
-              {currentTemplateId ? "Save Changes" : "Save New"}
+              {currentTemplateId ? t("saveChanges") : t("saveNew")}
             </Button>
 
             {currentTemplateId && (
@@ -451,14 +453,14 @@ export default function Template() {
                 onClick={handleSetDefault}
                 className="min-w-[120px]"
               >
-                Set as Default
+                {t("setAsDefault")}
               </Button>
             )}
           </div>
 
           {/* Template Name Input */}
           <div className="mb-6">
-            <Label htmlFor="templateName">Template Name</Label>
+            <Label htmlFor="templateName">{t("templateName")}</Label>
             <Input
               id="templateName"
               value={templateData.name}
@@ -472,7 +474,7 @@ export default function Template() {
               onClick={handleNewTemplate}
               className="mt-2 w-full"
             >
-              Create New Template
+              {t("createNewTemplate")}
             </Button>
           </div>
 
@@ -480,13 +482,13 @@ export default function Template() {
             {/* Design Section */}
             <AccordionItem value="design">
               <AccordionTrigger className="text-sm font-semibold">
-                DESIGN
+                {t("design")}
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-4">
                   {/* Logo Upload */}
                   <div className="space-y-2">
-                    <Label>Logo</Label>
+                    <Label>{t("logo")}</Label>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="border rounded-lg p-4 flex items-center justify-center bg-gray-50">
                         {logo ? (
@@ -516,10 +518,10 @@ export default function Template() {
                           >
                             <Upload className="h-6 w-6 text-gray-400" />
                             <span className="text-sm text-gray-600">
-                              Upload Image
+                              {t("uploadImage")}
                             </span>
                             <span className="text-xs text-gray-400">
-                              Files supported: PNG, JPG
+                              {t("filesSupported")}
                             </span>
                           </label>
                         </div>
@@ -529,7 +531,7 @@ export default function Template() {
 
                   {/* Layout Selection */}
                   <div className="space-y-2">
-                    <Label>Layout</Label>
+                    <Label>{t("layout")}</Label>
                     <div className="grid grid-cols-4 gap-4">
                       {layouts.map((layout) => (
                         <div
@@ -553,13 +555,13 @@ export default function Template() {
             {/* Options Section */}
             <AccordionItem value="options">
               <AccordionTrigger className="text-sm font-semibold">
-                OPTIONS
+                {t("options")}
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-4">
                   {/* invoice Info */}
                   <div className="space-y-2">
-                    <Label>Invoice information</Label>
+                    <Label>{t("invoiceInformation")}</Label>
                     <div className="space-y-2">
                       {booleanFields.map((field) => (
                         <div

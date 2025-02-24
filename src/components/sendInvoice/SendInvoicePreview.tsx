@@ -1,4 +1,4 @@
-import { Mail, Phone, Link, FileText } from "lucide-react";
+import { Link, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 interface PreviewProps {
@@ -159,14 +159,12 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                   <div className="pt-2 space-y-1">
                     {props.templateData.email && (
                       <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Mail className="h-4 w-4" />
-                        {props.customerId.email_address}
+                        {t("email")}: {props.customerId.email_address}
                       </div>
                     )}
                     {props.templateData.phone && (
                       <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Phone className="h-4 w-4" />
-                        {props.customerId.phone_number}
+                        {t("phone")}: {props.customerId.phone_number}
                       </div>
                     )}
                   </div>

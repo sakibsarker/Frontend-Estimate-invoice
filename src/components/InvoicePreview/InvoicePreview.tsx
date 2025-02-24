@@ -1,5 +1,6 @@
-import { Mail, Phone, Link, FileText } from "lucide-react";
+import { Link, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface InvoicePreviewProps {
   logo: string | null;
@@ -30,6 +31,7 @@ export function InvoicePreview({
   layout,
   templateData,
 }: InvoicePreviewProps) {
+  const { t } = useTranslation();
   return (
     <div
       className={cn(
@@ -94,17 +96,17 @@ export function InvoicePreview({
           >
             <div
               className={cn(
-                "font-bold text-primary-600",
+                "font-bold text-primary-600 uppercase",
                 layout === "impact" ? "text-3xl" : "text-2xl",
                 layout === "modern" && "text-xl"
               )}
             >
-              INVOICE
+              {t("invoice")}
             </div>
             <div className="space-y-1 text-sm text-gray-500">
               {templateData.customerName && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Customer Name:</span>
+                  <span className="text-gray-600">{t("customerName")}:</span>
                   <span className="text-gray-900">Auto Gig Shop</span>
                 </div>
               )}
@@ -123,13 +125,13 @@ export function InvoicePreview({
               )}
               {templateData.poNumber && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">PO Number:</span>
+                  <span className="text-gray-600">{t("poNumber")}:</span>
                   <span className="text-gray-900">PO-123456</span>
                 </div>
               )}
               {templateData.salesRep && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Sales Rep:</span>
+                  <span className="text-gray-600">{t("salesRep")}:</span>
                   <span className="text-gray-900">John Doe</span>
                 </div>
               )}
@@ -151,7 +153,7 @@ export function InvoicePreview({
                 layout === "modern" && "text-xl"
               )}
             >
-              Bill To
+              {t("billTo")}
             </div>
             <div className="space-y-1 text-sm text-gray-500">
               {templateData.billingAddress && (
@@ -160,7 +162,8 @@ export function InvoicePreview({
                   <div>San Francisco, CA 94107</div>
                   {templateData.accountNumber && (
                     <div className="mt-2">
-                      <span className="font-medium">Account #:</span> 123-45678
+                      <span className="font-medium">{t("account")} #:</span>{" "}
+                      123-45678
                     </div>
                   )}
                 </div>
@@ -168,14 +171,12 @@ export function InvoicePreview({
               <div className="pt-2 space-y-1">
                 {templateData.email && (
                   <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Mail className="h-4 w-4" />
-                    customer@email.com
+                    {t("email")}: customer@email.com
                   </div>
                 )}
                 {templateData.phone && (
                   <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Phone className="h-4 w-4" />
-                    (123) 456-7890
+                    {t("phone")}: (123) 456-7890
                   </div>
                 )}
               </div>
@@ -198,31 +199,31 @@ export function InvoicePreview({
             <tr>
               {templateData.Date && (
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                  Date
+                  {t("date")}
                 </th>
               )}
               {templateData.itemName && (
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Item
+                  {t("item")}
                 </th>
               )}
               {templateData.type && (
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                  Type
+                  {t("type")}
                 </th>
               )}
               {templateData.quantity && (
                 <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Qty
+                  {t("qty")}
                 </th>
               )}
               {templateData.price && (
                 <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Price
+                  {t("price")}
                 </th>
               )}
               <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Amount
+                {t("amount")}
               </th>
             </tr>
           </thead>
@@ -286,19 +287,19 @@ export function InvoicePreview({
         <div className="max-w-xs ml-auto space-y-3">
           {templateData.subtotal && (
             <div className="flex justify-between text-sm font-semibold">
-              <span className="text-gray-600">Subtotal:</span>
+              <span className="text-gray-600">{t("subtotal")}:</span>
               <span className="text-gray-900">$2,000.00</span>
             </div>
           )}
           {templateData.tax && (
             <div className="flex justify-between text-sm font-semibold">
-              <span className="text-gray-600">Tax (10%):</span>
+              <span className="text-gray-600"> {t("tax")} (10%):</span>
               <span className="text-gray-900">$200.00</span>
             </div>
           )}
           {templateData.discount && (
             <div className="flex justify-between font-semibold text-sm text-gray-600">
-              <span className="text-gray-600">Discount:</span>
+              <span className="text-gray-600"> {t("discount")}:</span>
               <span className="text-gray-900">$50.00</span>
             </div>
           )}
@@ -308,7 +309,7 @@ export function InvoicePreview({
           </div>
           {templateData.dueAmount && (
             <div className="flex justify-between ">
-              <span>Due Amount:</span>
+              <span>{t("dueAmount")}:</span>
               <span>$2,150.00</span>
             </div>
           )}
