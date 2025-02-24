@@ -29,6 +29,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { useGetCustomersQuery } from "@/features/server/customerSlice";
 import { useCreateRepairRequestMutation } from "@/features/server/repairRequestSlice";
+import { useTranslation } from "react-i18next";
 
 // Add this type definition
 type User = {
@@ -50,6 +51,7 @@ export default function AdminCreateEstimate() {
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslation();
 
   const navigate = useNavigate();
 
@@ -173,14 +175,14 @@ export default function AdminCreateEstimate() {
       <Card className="mx-auto max-w-4xl">
         <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
           <CardTitle className="text-2xl font-semibold">
-            Create Estimate
+            {t("createEstimate")}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username">Name:</Label>
+                <Label htmlFor="username">{t("name")}:</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -188,18 +190,18 @@ export default function AdminCreateEstimate() {
                       role="combobox"
                       className="w-full justify-between"
                     >
-                      {username ? username : "Select name..."}
+                      {username ? username : t("searchName")}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0">
                     <Command>
-                      <CommandInput placeholder="Search name..." />
+                      <CommandInput placeholder={t("searchName")} />
                       <CommandList>
                         {isLoading ? (
-                          <CommandEmpty>Loading customers...</CommandEmpty>
+                          <CommandEmpty>{t("loadingCustomers")}</CommandEmpty>
                         ) : (
-                          <CommandEmpty>No name found.</CommandEmpty>
+                          <CommandEmpty>{t("noNameFound")}.</CommandEmpty>
                         )}
                         <CommandGroup>
                           {uniqueUsers.map((user) => (
@@ -236,7 +238,7 @@ export default function AdminCreateEstimate() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email:</Label>
+                <Label htmlFor="email">{t("email")}:</Label>
                 <Input
                   id="email"
                   type="email"
@@ -248,7 +250,7 @@ export default function AdminCreateEstimate() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone:</Label>
+                <Label htmlFor="phone">{t("phone")}:</Label>
                 <Input
                   id="phone"
                   type="tel"
@@ -259,7 +261,7 @@ export default function AdminCreateEstimate() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="vehicle_year">Vehicle Year</Label>
+                <Label htmlFor="vehicle_year">{t("vehicleYear")}</Label>
                 <select
                   id="vehicle_year"
                   className="w-full border rounded-lg p-2"
@@ -283,7 +285,7 @@ export default function AdminCreateEstimate() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="vehicle_make">Vehicle Make</Label>
+                <Label htmlFor="vehicle_make">{t("vehicleMake")}</Label>
                 <select
                   id="vehicle_make"
                   className="w-full border rounded-lg p-2"
@@ -308,7 +310,7 @@ export default function AdminCreateEstimate() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="vehicle_model">Vehicle Model</Label>
+                <Label htmlFor="vehicle_model">{t("vehicleModel")}</Label>
                 <select
                   id="vehicle_model"
                   className="w-full border rounded-lg p-2"
@@ -330,7 +332,7 @@ export default function AdminCreateEstimate() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="attachments">Attachments:</Label>
+                <Label htmlFor="attachments">{t("attachments")}:</Label>
                 <Input
                   id="attachments"
                   type="file"
@@ -341,12 +343,11 @@ export default function AdminCreateEstimate() {
                   accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.mp4,.mov,.avi,.jpg,.jpeg,.png,.gif,.webp,.bmp,.tiff,image/*,video/*"
                 />
                 <p className="text-sm text-muted-foreground">
-                  Upload supporting documents (PDF, DOC/DOCX, XLS/XLSX, images,
-                  videos up to 25MB each)
+                  {t("uploadDocuments")}
                 </p>
                 {selectedFiles.length > 0 && (
                   <div className="mt-2">
-                    <p className="text-sm font-medium">Selected files:</p>
+                    <p className="text-sm font-medium">{t("selectedFiles")}:</p>
                     <ul className="list-disc pl-5 text-sm text-gray-600">
                       {selectedFiles.map((file, index) => (
                         <li key={index}>
@@ -358,13 +359,13 @@ export default function AdminCreateEstimate() {
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="repair_date">Expire date :</Label>
+                <Label htmlFor="repair_date">{t("expireDate")} :</Label>
                 <DateTimePicker date={repairDate} setDate={setRepairDate} />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="repair_details">Repair Details:</Label>
+              <Label htmlFor="repair_details">{t("repairDetails")}:</Label>
               <Textarea
                 id="repair_details"
                 name="repair_details"
@@ -376,7 +377,7 @@ export default function AdminCreateEstimate() {
 
             <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
               <Button variant="outline" onClick={() => navigate("/estimate")}>
-                Go Back
+                {t("goBack")}
               </Button>
 
               <Button
@@ -384,7 +385,7 @@ export default function AdminCreateEstimate() {
                 className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600"
                 disabled={isLoadingRepairRequest}
               >
-                {isLoadingRepairRequest ? "Submitting..." : "Submit Estimate"}
+                {isLoadingRepairRequest ? t("submitting") : t("submitEstimate")}
               </Button>
 
               <Button
@@ -392,7 +393,7 @@ export default function AdminCreateEstimate() {
                 type="button"
                 className="w-full sm:w-auto bg-blue-600 hover:bg-blue-800"
               >
-                Create Account
+                {t("createAccount")}
               </Button>
             </div>
           </form>

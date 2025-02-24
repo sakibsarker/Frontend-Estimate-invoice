@@ -31,6 +31,7 @@ interface RepairRequestbyId {
   previous_visits: number;
   status: "PENDING" | "ACCEPTED" | "REJECTED";
   vehicle_name: string;
+  attachments: string;
   attachment_urls: string[];
   repair_date: string;
   sms_sent_3_days: boolean;

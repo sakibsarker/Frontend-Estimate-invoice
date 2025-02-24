@@ -19,6 +19,7 @@ import { useGetInvoicePreviwByIdQuery } from "@/features/server/invoiceSlice";
 import { cn } from "@/lib/utils";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import { useTranslation } from "react-i18next";
 // Add this static data object above the component
 const staticPreviewData = {
   logo: "https://placehold.co/200x50.png",
@@ -53,6 +54,7 @@ export default function SendInvoice() {
     isError,
   } = useGetInvoicePreviwByIdQuery(Number(invoiceId)); // Pass the invoice ID (44 in this case)
   const [sendMethod, setSendMethod] = useState<"email" | "text">("email");
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Get default template from localStorage or use static data
@@ -203,7 +205,7 @@ export default function SendInvoice() {
     <div className="fixed inset-0 bg-background">
       <div className="h-screen flex flex-col">
         <div className="flex items-center justify-between border-b px-6 py-4">
-          <h2 className="text-xl font-semibold">Send Invoice</h2>
+          <h2 className="text-xl font-semibold">{t("sendInvoice")}</h2>
           <Button variant="ghost" size="icon">
             <X className="h-4 w-4" />
           </Button>
@@ -214,7 +216,7 @@ export default function SendInvoice() {
           <div className="w-[500px] bg-background p-6 overflow-y-auto">
             <div className="space-y-6">
               <div>
-                <h3 className="mb-2 text-sm font-medium">Send as</h3>
+                <h3 className="mb-2 text-sm font-medium">{t("sendAs")}</h3>
                 <div className="flex gap-2">
                   <Button
                     variant={sendMethod === "email" ? "default" : "outline"}
@@ -225,7 +227,7 @@ export default function SendInvoice() {
                     )}
                     onClick={() => setSendMethod("email")}
                   >
-                    Email
+                    {t("email")}
                   </Button>
                   <Button
                     variant={sendMethod === "text" ? "default" : "outline"}
@@ -236,19 +238,19 @@ export default function SendInvoice() {
                     )}
                     onClick={() => setSendMethod("text")}
                   >
-                    Text
+                    {t("text")}
                   </Button>
                 </div>
               </div>
 
               {sendMethod === "email" ? (
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium">Email</h3>
+                  <h3 className="text-sm font-medium"> {t("email")}</h3>
                   <div className="space-y-4">
                     <div>
                       <div className="flex items-center justify-between">
                         <Label htmlFor="to" className="text-sm">
-                          To <span className="text-red-500">*</span>
+                          {t("to")} <span className="text-red-500">*</span>
                         </Label>
                         <Button
                           variant="link"
@@ -262,7 +264,7 @@ export default function SendInvoice() {
 
                     <div>
                       <Label htmlFor="reply-to" className="text-sm">
-                        Reply to
+                        {t("replyTo")}
                       </Label>
                       <Select defaultValue="john-saba">
                         <SelectTrigger className="mt-1.5">
@@ -276,7 +278,7 @@ export default function SendInvoice() {
 
                     <div>
                       <Label htmlFor="subject" className="text-sm">
-                        Subject
+                        {t("subject")}
                       </Label>
                       <Input
                         id="subject"
@@ -288,11 +290,8 @@ export default function SendInvoice() {
                     <div>
                       <div className="flex items-center justify-between">
                         <Label htmlFor="body" className="text-sm">
-                          Body
+                          {t("body")}
                         </Label>
-                        <Button variant="ghost" size="icon" className="h-4 w-4">
-                          <span className="sr-only">Help</span>ⓘ
-                        </Button>
                       </div>
                       <Textarea
                         id="body"
@@ -312,11 +311,12 @@ Auto Gig Shop`}
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium">Text Message</h3>
+                  <h3 className="text-sm font-medium">{t("textMessage")}</h3>
                   <div className="space-y-4">
                     <div>
                       <Label htmlFor="phone" className="text-sm">
-                        Phone Number <span className="text-red-500">*</span>
+                        {t("phoneNumber")}{" "}
+                        <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="phone"
@@ -329,11 +329,8 @@ Auto Gig Shop`}
                     <div>
                       <div className="flex items-center justify-between">
                         <Label htmlFor="text-body" className="text-sm">
-                          Message
+                          {t("message")}
                         </Label>
-                        <Button variant="ghost" size="icon" className="h-4 w-4">
-                          <span className="sr-only">Help</span>ⓘ
-                        </Button>
                       </div>
                       <Textarea
                         id="text-body"
@@ -356,10 +353,10 @@ View invoice: [Link]`}
                     variant="outline"
                     onClick={() => navigate("/template")}
                   >
-                    Edit Invoice
+                    {t("editInvoice")}
                   </Button>
                   <Button className="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 text-sm">
-                    {sendMethod === "email" ? "Send Email" : "Send Text"}
+                    {sendMethod === "email" ? t("sendEmail") : t("sendText")}
                   </Button>
                 </div>
               </div>

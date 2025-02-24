@@ -16,6 +16,7 @@ import {
   useGetRepairRequestByIDQuery,
   useUpdateRepairRequestMutation,
 } from "../../features/server/repairRequestSlice";
+import { useTranslation } from "react-i18next";
 
 export default function ViewEstimateRequest() {
   const { estimateId } = useParams<{ estimateId: string }>();
@@ -26,6 +27,7 @@ export default function ViewEstimateRequest() {
     refetch,
   } = useGetRepairRequestByIDQuery(Number(estimateId));
   const [updateRepairRequest] = useUpdateRepairRequestMutation();
+  const { t } = useTranslation();
 
   const formatDate = (isoString: string) => {
     const date = new Date(isoString);
@@ -72,7 +74,7 @@ export default function ViewEstimateRequest() {
         <Card className="mx-auto max-w-4xl">
           <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
             <CardTitle className="text-2xl font-semibold">
-              Estimate Request {estimateData?.id}
+              {t("estimateRequest")} {estimateData?.id}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -81,13 +83,13 @@ export default function ViewEstimateRequest() {
               <div className="grid grid-cols-2 gap-x-12 gap-y-2">
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <div className="text-sm text-gray-500">Name:</div>
+                    <div className="text-sm text-gray-500">{t("name")}:</div>
                     <div>{estimateData?.username}</div>
                   </div>
 
                   <div className="space-y-1">
                     <div className="text-sm text-gray-500 flex items-center gap-1">
-                      Phone:
+                      {t("phone")}:
                       <Phone className="h-4 w-4" />
                     </div>
                     <div>{estimateData?.phone_number}</div>
@@ -95,7 +97,7 @@ export default function ViewEstimateRequest() {
 
                   <div className="space-y-1">
                     <div className="text-sm text-gray-500 flex items-center gap-1">
-                      Email:
+                      {t("email")}:
                       <Mail className="h-4 w-4" />
                     </div>
                     <div>{estimateData?.email}</div>
@@ -103,7 +105,7 @@ export default function ViewEstimateRequest() {
 
                   <div className="space-y-1">
                     <div className="text-sm text-gray-500">
-                      Estimate Submitted on:
+                      {t("estimateSubmittedOn")}:
                     </div>
                     <div>
                       {estimateData?.created_at &&
@@ -112,7 +114,7 @@ export default function ViewEstimateRequest() {
                   </div>
 
                   <div className="space-y-1">
-                    <div className="text-sm text-gray-500">Vehicle:</div>
+                    <div className="text-sm text-gray-500">{t("vehicle")}:</div>
                     <div>{estimateData?.vehicle_name}</div>
                   </div>
                 </div>
@@ -120,13 +122,15 @@ export default function ViewEstimateRequest() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-500">
-                      Previous visits:
+                      {t("previousVisits")}:
                     </div>
                     <div>{estimateData?.previous_visits}</div>
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-500">Total Spending:</div>
+                    <div className="text-sm text-gray-500">
+                      {t("totalSpending")}:
+                    </div>
                     <div>${estimateData?.invoice_total ?? 0}</div>
                   </div>
                 </div>
@@ -134,7 +138,7 @@ export default function ViewEstimateRequest() {
 
               {/* Customer Comment */}
               <div className="space-y-2">
-                <h3 className="font-medium">Customer Comment:</h3>
+                <h3 className="font-medium">{t("customerComment")}:</h3>
                 <div className="rounded-md border bg-gray-50/50 p-4">
                   {estimateData?.repair_details}
                 </div>
@@ -142,7 +146,7 @@ export default function ViewEstimateRequest() {
 
               {/* Customer Attachments */}
               <div className="space-y-2">
-                <h3 className="font-medium">Customer Attachments:</h3>
+                <h3 className="font-medium">{t("customerAttachments")}:</h3>
                 <div className="rounded-md border bg-gray-50/50 p-4 space-y-4">
                   {estimateData?.attachment_urls?.map(
                     (attachmentUrl, index) => (
@@ -194,7 +198,7 @@ export default function ViewEstimateRequest() {
                             className="px-3 py-1.5 text-sm flex items-center gap-1 bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 transition-colors"
                           >
                             <Eye className="h-4 w-4" />
-                            View/ Download
+                            {t("viewDownload")}
                           </a>
                         </div>
                       </div>
@@ -206,13 +210,13 @@ export default function ViewEstimateRequest() {
               {/* Action Buttons */}
               <div className="relative flex items-center gap-4 pt-4">
                 <Button variant="outline" onClick={() => navigate("/estimate")}>
-                  Go Back
+                  {t("goBack")}
                 </Button>
                 <div className="relative">
                   {estimateData?.status === "ACCEPTED" ? (
                     <Link to={`/invoice/${estimateData.invoice_id}/edit`}>
                       <Button className="bg-orange-500 hover:bg-orange-600">
-                        View Invoice
+                        {t("viewInvoice")}
                       </Button>
                     </Link>
                   ) : (
@@ -220,7 +224,7 @@ export default function ViewEstimateRequest() {
                       className="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 text-sm"
                       onClick={() => updateStatus("ACCEPTED")}
                     >
-                      Prepare an Estimate
+                      {t("prepareAnEstimate")}
                     </Button>
                   )}
                 </div>
@@ -230,7 +234,7 @@ export default function ViewEstimateRequest() {
                     className="bg-red-600 hover:bg-red-500"
                     onClick={() => updateStatus("REJECTED")}
                   >
-                    Reject
+                    {t("reject")}
                   </Button>
                 )}
               </div>
