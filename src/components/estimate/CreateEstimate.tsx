@@ -17,7 +17,7 @@ export default function CreateEstimate() {
   const [selectedYear, setSelectedYear] = useState<string>("");
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
-  const [files, setFiles] = useState<FileList | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const navigate = useNavigate();
@@ -37,6 +37,13 @@ export default function CreateEstimate() {
   }, {} as Record<string, Record<string, string[]>>);
 
   const [createRepairRequest, { isLoading }] = useCreateRepairRequestMutation();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      setSelectedFiles((prev) => [...prev, ...newFiles]);
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -79,19 +86,17 @@ export default function CreateEstimate() {
       formData.append("repair_date", repairDate.toISOString());
     }
 
-    // Add files - CRUCIAL FIX HERE
-    if (fileInputRef.current?.files) {
-      const files = fileInputRef.current.files;
-      for (let i = 0; i < files.length; i++) {
-        formData.append("attachments", files[i]); // Same field name for all files
-      }
-    }
+    // Add all accumulated files
+    selectedFiles.forEach((file) => {
+      formData.append("attachments", file);
+    });
 
     try {
       await createRepairRequest(formData).unwrap();
       toast.success("Estimate request submitted successfully!");
 
-      // Reset form
+      // Clear files after successful upload
+      setSelectedFiles([]);
       if (fileInputRef.current) fileInputRef.current.value = "";
       setSelectedYear("");
       setSelectedMake("");
@@ -220,17 +225,33 @@ export default function CreateEstimate() {
 
               <div className="space-y-2">
                 <Label htmlFor="attachments">Attachments:</Label>
+
                 <Input
                   id="attachments"
                   type="file"
                   multiple
                   ref={fileInputRef}
+                  onChange={handleFileChange}
                   className="w-full border rounded-lg p-2"
-                  accept=".pdf,.jpg,.jpeg,.png"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.mp4,.mov,.avi,.jpg,.jpeg,.png,.gif,.webp,.bmp,.tiff,image/*,video/*"
                 />
                 <p className="text-sm text-muted-foreground">
-                  Upload supporting documents (PDF, JPG, PNG up to 10MB each)
+                  Upload supporting documents (PDF, DOC/DOCX, XLS/XLSX, images,
+                  videos up to 25MB each)
                 </p>
+
+                {selectedFiles.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-sm font-medium">Selected files:</p>
+                    <ul className="list-disc pl-5 text-sm text-gray-600">
+                      {selectedFiles.map((file, index) => (
+                        <li key={index}>
+                          {file.name} ({Math.round(file.size / 1024)} KB)
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
