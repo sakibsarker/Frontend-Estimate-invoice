@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -48,6 +48,8 @@ export default function AdminCreateEstimate() {
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [showCustomerForm, setShowCustomerForm] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const navigate = useNavigate();
 
@@ -97,18 +99,12 @@ export default function AdminCreateEstimate() {
         (form.elements.namedItem("repair_details") as HTMLTextAreaElement)
           ?.value
       );
-
       formData.append("status", "ACCEPTED");
 
-      // Append files
-      const fileInput = form.elements.namedItem(
-        "estimate_attachments"
-      ) as HTMLInputElement;
-      if (fileInput.files) {
-        Array.from(fileInput.files).forEach((file) => {
-          formData.append("estimate_attachments", file);
-        });
-      }
+      // Append files from state
+      selectedFiles.forEach((file) => {
+        formData.append("attachments", file);
+      });
 
       // Append date
       if (repairDate) {
@@ -117,17 +113,18 @@ export default function AdminCreateEstimate() {
 
       // Use RTK Query mutation
       const result = await createRepairRequest(formData).unwrap();
-
       toast.success("Repair request created successfully!");
 
-      navigate(`/estimate/${result.id}/invoice/new/`);
-
-      // Reset form
+      // Reset form and files
+      setSelectedFiles([]);
+      if (fileInputRef.current) fileInputRef.current.value = "";
       form.reset();
       setUsername("");
       setEmail("");
       setPhone("");
       setRepairDate(undefined);
+
+      navigate(`/estimate/${result.id}/invoice/new/`);
     } catch (error: any) {
       toast.error(error.data?.message || "Failed to create repair request");
     }
@@ -160,6 +157,14 @@ export default function AdminCreateEstimate() {
     }
     return acc;
   }, []);
+
+  // Add file change handler
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      setSelectedFiles((prev) => [...prev, ...newFiles]);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -325,14 +330,32 @@ export default function AdminCreateEstimate() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="estimate_attachments">File Attachment</Label>
+                <Label htmlFor="attachments">Attachments:</Label>
                 <Input
-                  id="estimate_attachments"
-                  name="estimate_attachments"
+                  id="attachments"
                   type="file"
-                  accept="image/*"
                   multiple
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="w-full border rounded-lg p-2"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.mp4,.mov,.avi,.jpg,.jpeg,.png,.gif,.webp,.bmp,.tiff,image/*,video/*"
                 />
+                <p className="text-sm text-muted-foreground">
+                  Upload supporting documents (PDF, DOC/DOCX, XLS/XLSX, images,
+                  videos up to 25MB each)
+                </p>
+                {selectedFiles.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-sm font-medium">Selected files:</p>
+                    <ul className="list-disc pl-5 text-sm text-gray-600">
+                      {selectedFiles.map((file, index) => (
+                        <li key={index}>
+                          {file.name} ({Math.round(file.size / 1024)} KB)
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="repair_date">Expire date :</Label>

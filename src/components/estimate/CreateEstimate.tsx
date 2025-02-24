@@ -102,6 +102,8 @@ export default function CreateEstimate() {
       setSelectedMake("");
       setSelectedModel("");
       setRepairDate(undefined);
+      // Add page reload after successful submission
+      window.location.reload();
     } catch (error: any) {
       toast.error(error.data?.message || "Failed to submit estimate request");
     }
