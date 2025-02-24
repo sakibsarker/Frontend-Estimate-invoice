@@ -11,6 +11,7 @@ interface RepairRequest {
   previous_visits: number;
   status: "PENDING" | "ACCEPTED" | "REJECTED";
   vehicle_name: string;
+  attachments: string;
   repair_date: string;
   sms_sent_3_days: boolean;
   sms_sent_7_days: boolean;
@@ -50,7 +51,7 @@ interface QueryRepairRequest {
   previous_visits: number;
   status: "PENDING" | "ACCEPTED" | "REJECTED";
   vehicle_name: string;
-
+  attachment_urls: string[];
   repair_date: string;
   sms_sent_3_days: boolean;
   sms_sent_7_days: boolean;
@@ -86,12 +87,12 @@ export const repairRequestApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Repairrequests"],
+  // tagTypes: ["Repairrequests"],
   endpoints: (builder) => ({
     // POST - Create new repair request
     createRepairRequest: builder.mutation<RepairRequest, FormData>({
       query: (formData) => ({
-        url: "estimate/repair-requests/create/",
+        url: "estimate/repair-requests/create/new/",
         method: "POST",
         body: formData,
       }),
@@ -117,7 +118,7 @@ export const repairRequestApi = createApi({
           end_date: params.end_date,
         },
       }),
-      providesTags: ["Repairrequests"],
+      // providesTags: ["Repairrequests"],
     }),
 
     // Get all estimate statistics
@@ -144,7 +145,7 @@ export const repairRequestApi = createApi({
         url: `estimate/repair-requests/${id}/delete/`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Repairrequests"],
+      // invalidatesTags: ["Repairrequests"],
     }),
   }),
 });

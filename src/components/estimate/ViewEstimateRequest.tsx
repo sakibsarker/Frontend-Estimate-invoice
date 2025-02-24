@@ -8,7 +8,6 @@ import {
   FileSpreadsheet,
   Image,
   Eye,
-  Download,
 } from "lucide-react";
 import { useParams, useNavigate, Link } from "react-router";
 import toast, { Toaster } from "react-hot-toast";
@@ -195,17 +194,7 @@ export default function ViewEstimateRequest() {
                             className="px-3 py-1.5 text-sm flex items-center gap-1 bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 transition-colors"
                           >
                             <Eye className="h-4 w-4" />
-                            View
-                          </a>
-                          <a
-                            href={attachmentUrl}
-                            download={
-                              attachmentUrl.split("/").pop()?.split("?")[0]
-                            }
-                            className="px-3 py-1.5 text-sm flex items-center gap-1 bg-green-100 text-green-800 rounded-md hover:bg-green-200 transition-colors"
-                          >
-                            <Download className="h-4 w-4" />
-                            Download
+                            View/ Download
                           </a>
                         </div>
                       </div>

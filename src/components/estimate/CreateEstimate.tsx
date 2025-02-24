@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,8 @@ export default function CreateEstimate() {
   const [selectedYear, setSelectedYear] = useState<string>("");
   const [selectedMake, setSelectedMake] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
+  const [files, setFiles] = useState<FileList | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const navigate = useNavigate();
 
@@ -47,14 +49,23 @@ export default function CreateEstimate() {
       formData.append("repair_date", repairDate.toISOString().split("T")[0]);
     }
 
+    if (fileInputRef.current?.files) {
+      Array.from(fileInputRef.current.files).forEach((file) => {
+        formData.append("attachments", file);
+      });
+    }
+
     try {
       await createRepairRequest(formData).unwrap();
 
       toast.success("Estimate request submitted successfully!");
-      // Refresh the page after success
-      window.location.reload();
+
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      setSelectedYear("");
+      setSelectedMake("");
+      setSelectedModel("");
+      setRepairDate(undefined);
     } catch (error: any) {
-      // Show detailed error message from server if available
       toast.error(error.data?.message || "Failed to submit estimate request");
     }
   };
@@ -176,14 +187,18 @@ export default function CreateEstimate() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="estimate_attachments">File Attachment</Label>
+                <Label htmlFor="attachments">Attachments:</Label>
                 <Input
-                  id="estimate_attachments"
-                  name="estimate_attachments"
+                  id="attachments"
                   type="file"
-                  accept="image/*"
                   multiple
+                  ref={fileInputRef}
+                  className="w-full border rounded-lg p-2"
+                  accept=".pdf,.jpg,.jpeg,.png"
                 />
+                <p className="text-sm text-muted-foreground">
+                  Upload supporting documents (PDF, JPG, PNG up to 10MB each)
+                </p>
               </div>
 
               <div className="space-y-2">
