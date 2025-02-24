@@ -40,26 +40,58 @@ export default function CreateEstimate() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const vehicleName = `${selectedYear} ${selectedMake} ${selectedModel}`;
+    const formData = new FormData();
 
+    // Add text fields
+    formData.append(
+      "username",
+      (event.currentTarget.elements.namedItem("username") as HTMLInputElement)
+        .value
+    );
+    formData.append(
+      "email",
+      (event.currentTarget.elements.namedItem("email") as HTMLInputElement)
+        .value
+    );
+    formData.append(
+      "phone_number",
+      (
+        event.currentTarget.elements.namedItem(
+          "phone_number"
+        ) as HTMLInputElement
+      ).value
+    );
+    formData.append(
+      "repair_details",
+      (
+        event.currentTarget.elements.namedItem(
+          "repair_details"
+        ) as HTMLTextAreaElement
+      ).value
+    );
+
+    // Add vehicle info
+    const vehicleName = `${selectedYear} ${selectedMake} ${selectedModel}`;
     formData.append("vehicle_name", vehicleName);
 
+    // Add repair date
     if (repairDate) {
-      formData.append("repair_date", repairDate.toISOString().split("T")[0]);
+      formData.append("repair_date", repairDate.toISOString());
     }
 
+    // Add files - CRUCIAL FIX HERE
     if (fileInputRef.current?.files) {
-      Array.from(fileInputRef.current.files).forEach((file) => {
-        formData.append("attachments", file);
-      });
+      const files = fileInputRef.current.files;
+      for (let i = 0; i < files.length; i++) {
+        formData.append("attachments", files[i]); // Same field name for all files
+      }
     }
 
     try {
       await createRepairRequest(formData).unwrap();
-
       toast.success("Estimate request submitted successfully!");
 
+      // Reset form
       if (fileInputRef.current) fileInputRef.current.value = "";
       setSelectedYear("");
       setSelectedMake("");
