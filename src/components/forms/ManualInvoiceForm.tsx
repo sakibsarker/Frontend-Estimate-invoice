@@ -53,6 +53,7 @@ import { cn } from "@/lib/utils";
 import { useCreateInvoiceMutation } from "@/features/server/invoiceSlice";
 import { generateInvoiceNumber } from "@/lib/invoiceUtils";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 
 import { toast } from "react-hot-toast";
 
@@ -133,6 +134,7 @@ export default function ManualInvoiceForm() {
   const [poNumber, setPoNumber] = useState("");
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     setInvoiceNumber(generateInvoiceNumber());
@@ -326,7 +328,7 @@ export default function ManualInvoiceForm() {
       {/* Form Section */}
       <div className="flex-1 p-8 border-r overflow-y-auto pb-20">
         <div className="flex items-start justify-between mb-8">
-          <h1 className="text-2xl font-semibold">New Estimate Invoice</h1>
+          <h1 className="text-2xl font-semibold">{t("newInvoice")}</h1>
           <Button variant="ghost" size="icon">
             <X className="h-5 w-5" />
           </Button>
@@ -337,7 +339,7 @@ export default function ManualInvoiceForm() {
           <div className="space-y-4">
             <div className="flex items-center">
               <Label className="text-sm font-medium text-red-500 mr-2">*</Label>
-              <Label>Customer</Label>
+              <Label>{t("customer")}</Label>
             </div>
             <div className="flex gap-2 items-center">
               <div className="flex-1">
@@ -351,19 +353,19 @@ export default function ManualInvoiceForm() {
                       {selectedCustomer
                         ? customers.find((c) => c.id === selectedCustomer)
                             ?.customer_display_name
-                        : "Select customer..."}
+                        : t("selectCustomer")}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0">
                     <Command>
                       <CommandInput
-                        placeholder="Search customers..."
+                        placeholder={t("searchCustomers")}
                         value={customerSearch}
                         onValueChange={setCustomerSearch}
                       />
                       <CommandList>
-                        <CommandEmpty>No customers found.</CommandEmpty>
+                        <CommandEmpty>{t("noCustomersFound")}.</CommandEmpty>
                         <CommandGroup>
                           {customers
                             .filter((customer) =>
@@ -399,7 +401,7 @@ export default function ManualInvoiceForm() {
                             className="text-indigo-600"
                           >
                             <UserPlus className="mr-2 h-4 w-4" />
-                            Add New Customer
+                            {t("addNewCustomer")}
                           </CommandItem>
                         </CommandGroup>
                       </CommandList>
@@ -414,7 +416,7 @@ export default function ManualInvoiceForm() {
               >
                 <Plus className="h-4 w-4" />
                 <span className="text-xs whitespace-nowrap">
-                  Add New Customer
+                  {t("addNewCustomer")}
                 </span>
               </Button>
             </div>
@@ -426,7 +428,7 @@ export default function ManualInvoiceForm() {
                 <div className="grid grid-cols-3 gap-4 flex-1">
                   <div>
                     <Label className="text-sm text-gray-500">
-                      Contact Name
+                      {t("contactName")}
                     </Label>
                     <p className="font-medium">
                       {customers.find((c) => c.id === selectedCustomer)
@@ -437,7 +439,7 @@ export default function ManualInvoiceForm() {
                   </div>
                   <div>
                     <Label className="text-sm text-gray-500">
-                      Phone Number
+                      {t("phoneNumber")}
                     </Label>
                     <p className="font-medium">
                       {customers.find((c) => c.id === selectedCustomer)
@@ -446,7 +448,7 @@ export default function ManualInvoiceForm() {
                   </div>
                   <div>
                     <Label className="text-sm text-gray-500">
-                      Email Address
+                      {t("emailAddress")}
                     </Label>
                     <p className="font-medium">
                       {customers.find((c) => c.id === selectedCustomer)
@@ -461,7 +463,7 @@ export default function ManualInvoiceForm() {
                   onClick={() => setEditShowCustomer(true)}
                 >
                   <Pencil className="h-4 w-4 mr-2" />
-                  Edit
+                  {t("edit")}
                 </Button>
               </div>
             </div>
@@ -469,18 +471,18 @@ export default function ManualInvoiceForm() {
 
           {/* Invoice Details Section */}
           <div className="space-y-6">
-            <h2 className="text-lg font-semibold">Estimate details</h2>
+            <h2 className="text-lg font-semibold">{t("invoiceDetails")}</h2>
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <Label>Invoice number</Label>
+                  <Label>{t("invoiceNumber")}</Label>
                 </div>
                 <Input value={invoiceNumber} readOnly />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <Label>PO number</Label>
+                  <Label>{t("poNumber")}</Label>
                 </div>
                 <Input
                   value={poNumber}
@@ -490,7 +492,7 @@ export default function ManualInvoiceForm() {
 
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <Label>Sales rep</Label>
+                  <Label>{t("salesRep")}</Label>
                 </div>
                 <Input
                   value={salesRep}
@@ -502,17 +504,19 @@ export default function ManualInvoiceForm() {
 
           {/* Items Section */}
           <div className="space-y-6">
-            <h2 className="text-lg font-semibold">Items</h2>
+            <h2 className="text-lg font-semibold">{t("items")}</h2>
             <div className="space-y-6">
               {items.map((item, index) => (
                 <div key={item.id} className="space-y-4">
                   <div className="text-left font-semibold">
-                    Item-{index + 1}
+                    {t("items")}-{index + 1}
                   </div>
                   <div className="flex gap-4 items-center">
                     {/* Type Selector */}
                     <div className="space-y-1">
-                      <Label className="text-sm font-medium block">Type</Label>
+                      <Label className="text-sm font-medium block">
+                        {t("type")}
+                      </Label>
                       <Select
                         value={item.type}
                         onValueChange={(value: "labor" | "parts" | "other") =>
@@ -527,9 +531,9 @@ export default function ManualInvoiceForm() {
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="labor">Labor</SelectItem>
-                          <SelectItem value="parts">Parts</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
+                          <SelectItem value="labor">{t("labor")}</SelectItem>
+                          <SelectItem value="parts">{t("parts")}</SelectItem>
+                          <SelectItem value="other">{t("other")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -537,7 +541,7 @@ export default function ManualInvoiceForm() {
                     {/* Search Items */}
                     <div className="flex-1">
                       <Label className="text-sm font-medium mb-1 block">
-                        Item
+                        {t("items")}
                       </Label>
                       <Popover>
                         <PopoverTrigger asChild>
@@ -550,14 +554,14 @@ export default function ManualInvoiceForm() {
                               ? itemsList.find(
                                   (i) => i.id === item.selectedItemId
                                 )?.item_name
-                              : "Search items..."}
+                              : t("searchItems")}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-full p-0">
                           <Command>
                             <CommandInput
-                              placeholder="Search items..."
+                              placeholder={t("searchItems")}
                               value={itemSearch}
                               onValueChange={setItemSearch}
                             />
@@ -604,7 +608,7 @@ export default function ManualInvoiceForm() {
                                   className="text-indigo-600"
                                 >
                                   <SquarePlus className="mr-2 h-4 w-4" />
-                                  Add New Item
+                                  {t("addNewItem")}
                                 </CommandItem>
                               </CommandGroup>
                             </CommandList>
@@ -616,7 +620,7 @@ export default function ManualInvoiceForm() {
                     {/* Description */}
                     <div className="flex-1">
                       <Label className="text-sm font-medium mb-1 block">
-                        Description
+                        {t("description")}
                       </Label>
                       <Input
                         value={item.description}
@@ -635,7 +639,7 @@ export default function ManualInvoiceForm() {
                     {/* Quantity */}
                     <div>
                       <Label className="text-sm font-medium mb-1 block">
-                        Quantity
+                        {t("quantity")}
                       </Label>
                       <Input
                         type="number"
@@ -656,7 +660,7 @@ export default function ManualInvoiceForm() {
                     {/* Price */}
                     <div>
                       <Label className="text-sm font-medium mb-1 block">
-                        Price
+                        {t("price")}
                       </Label>
                       <Input
                         type="number"
@@ -676,7 +680,9 @@ export default function ManualInvoiceForm() {
 
                     {/* Checkboxes */}
                     <div className="space-y-1">
-                      <Label className="text-sm font-medium block">Paid</Label>
+                      <Label className="text-sm font-medium block">
+                        {t("paid")}
+                      </Label>
                       <Checkbox
                         checked={item.paid}
                         onCheckedChange={(checked) =>
@@ -691,7 +697,9 @@ export default function ManualInvoiceForm() {
                     </div>
 
                     <div className="space-y-1">
-                      <Label className="text-sm font-medium block">Tax</Label>
+                      <Label className="text-sm font-medium block">
+                        {t("tax")}
+                      </Label>
                       <Checkbox
                         checked={item.hasTax}
                         onCheckedChange={(checked) =>
@@ -707,7 +715,7 @@ export default function ManualInvoiceForm() {
 
                     <div className="space-y-1">
                       <Label className="text-sm font-medium block">
-                        Discount
+                        {t("discount")}
                       </Label>
                       <Checkbox
                         checked={item.hasDiscount}
@@ -726,7 +734,9 @@ export default function ManualInvoiceForm() {
 
                     {/* Total & Delete */}
                     <div className="space-y-1">
-                      <Label className="text-sm font-medium block">Total</Label>
+                      <Label className="text-sm font-medium block">
+                        {t("total")}
+                      </Label>
                       <div className="flex items-center gap-2 w-[140px]">
                         <div className="flex-1">
                           <Label>${calculateRowTotal(item)}</Label>
@@ -752,7 +762,7 @@ export default function ManualInvoiceForm() {
                 className="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 text-sm"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Service
+                {t("addService")}
               </Button>
             </div>
 
@@ -763,7 +773,7 @@ export default function ManualInvoiceForm() {
               </div>
 
               <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
-                <span>Tax</span>
+                <span>{t("tax")}</span>
                 <div className="w-[200px]">
                   <Popover>
                     <PopoverTrigger asChild>
@@ -774,14 +784,14 @@ export default function ManualInvoiceForm() {
                       >
                         {selectedTax
                           ? taxes.find((t) => t.id === selectedTax)?.tax_name
-                          : "Select tax..."}
+                          : t("selectTax")}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-full p-0">
                       <Command>
                         <CommandInput
-                          placeholder="Search taxes..."
+                          placeholder={t("searchTaxes")}
                           value={taxSearch}
                           onValueChange={setTaxSearch}
                         />
@@ -817,7 +827,7 @@ export default function ManualInvoiceForm() {
                               className="text-indigo-600"
                             >
                               <Plus className="mr-2 h-4 w-4" />
-                              Add Tax Rate
+                              {t("addTaxRate")}
                             </CommandItem>
                           </CommandGroup>
                         </CommandList>
@@ -835,7 +845,7 @@ export default function ManualInvoiceForm() {
               </div>
 
               <div className="grid grid-cols-[1fr_200px_1fr] items-center gap-4">
-                <span>Discount</span>
+                <span>{t("discount")}</span>
                 <div className="w-[200px]">
                   <Popover>
                     <PopoverTrigger asChild>
@@ -847,14 +857,14 @@ export default function ManualInvoiceForm() {
                         {selectedDiscount
                           ? discounts.find((d) => d.id === selectedDiscount)
                               ?.discount_name
-                          : "Select discount..."}
+                          : t("selectDiscount")}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-full p-0">
                       <Command>
                         <CommandInput
-                          placeholder="Search discounts..."
+                          placeholder={t("searchDiscount")}
                           value={discountSearch}
                           onValueChange={setDiscountSearch}
                         />
@@ -893,7 +903,7 @@ export default function ManualInvoiceForm() {
                               className="text-indigo-600"
                             >
                               <Plus className="mr-2 h-4 w-4" />
-                              Add Discount
+                              {t("addDiscount")}
                             </CommandItem>
                           </CommandGroup>
                         </CommandList>
@@ -911,12 +921,12 @@ export default function ManualInvoiceForm() {
                 </span>
               </div>
               <div className="flex justify-between border-t pt-4 font-semibold">
-                <span>Total</span>
+                <span>{t("total")}</span>
                 <span>${calculateTotal().toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between border-t pt-4 font-semibold">
-                <span>Amount due</span>
+                <span>{t("amountDue")}</span>
                 <span>${calculateAmountDue().toFixed(2)}</span>
               </div>
             </div>
@@ -924,9 +934,9 @@ export default function ManualInvoiceForm() {
             {/* Message and Attachments in one row */}
             <div className="grid grid-cols-2 gap-6 mt-8">
               <div className="space-y-2">
-                <Label>Message on invoice</Label>
+                <Label>{t("messageOnInvoice")}</Label>
                 <Textarea
-                  placeholder="Enter a message that will be displayed on the invoice"
+                  placeholder={t("enterMessageOnInvoice")}
                   rows={6}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
@@ -934,7 +944,7 @@ export default function ManualInvoiceForm() {
               </div>
 
               <div className="space-y-2">
-                <Label>Attachments</Label>
+                <Label>{t("attachments")}</Label>
                 <div
                   className="border-2 border-dashed rounded-lg p-6 text-center h-[160px] flex flex-col items-center justify-center relative"
                   onDrop={(e) => {
@@ -961,7 +971,7 @@ export default function ManualInvoiceForm() {
                     <Plus className="h-6 w-6 text-indigo-600" />
                   </div>
                   <div className="text-sm text-gray-600">
-                    Drag and drop or upload files
+                    {t("dragDropUpload")}
                   </div>
                   <div className="text-xs text-gray-500 mt-1">
                     PDF, JPG, PNG, CSV, XLS, XLSX
@@ -981,7 +991,7 @@ export default function ManualInvoiceForm() {
         <div className="fixed bottom-0 left-0 right-0 border-t bg-gray-100 p-5">
           <div className="flex items-center justify-between max-w-full">
             <div className="text-2xl font-semibold">
-              Amount due:{" "}
+              {t("amountDue")}:{" "}
               <span className="text-2xl font-bold">
                 ${calculateAmountDue().toFixed(2)}
               </span>
@@ -993,7 +1003,7 @@ export default function ManualInvoiceForm() {
                 onClick={handleSaveDraft}
                 disabled={isLoading}
               >
-                {isLoading ? "Saving.." : "Save Draft"}
+                {isLoading ? "Saving.." : t("saveDraft")}
               </Button>
               <Button
                 type="button"
@@ -1001,7 +1011,7 @@ export default function ManualInvoiceForm() {
                 onClick={handleCreateInvoice}
                 disabled={isLoading}
               >
-                {isLoading ? "Creating.." : "Review & Send"}
+                {isLoading ? "Creating.." : t("reviewAndSend")}
               </Button>
             </div>
           </div>

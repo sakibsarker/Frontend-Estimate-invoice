@@ -342,7 +342,7 @@ export default function NewInvoiceForm() {
           <div className="space-y-4">
             <div className="flex items-center">
               <Label className="text-sm font-medium text-red-500 mr-2">*</Label>
-              <Label>Customer</Label>
+              <Label>{t("customer")}</Label>
             </div>
             <div className="flex gap-2 items-center">
               <div className="flex-1">
@@ -368,7 +368,7 @@ export default function NewInvoiceForm() {
                         onValueChange={setCustomerSearch}
                       />
                       <CommandList>
-                        <CommandEmpty>No customers found.</CommandEmpty>
+                        <CommandEmpty>{t("noCustomersFound")}</CommandEmpty>
                         <CommandGroup>
                           {customers
                             .filter((customer) =>
@@ -431,7 +431,7 @@ export default function NewInvoiceForm() {
                 <div className="grid grid-cols-3 gap-4 flex-1">
                   <div>
                     <Label className="text-sm text-gray-500">
-                      Contact Name
+                      {t("contactName")}
                     </Label>
                     <p className="font-medium">
                       {customers.find((c) => c.id === selectedCustomer)
@@ -442,7 +442,7 @@ export default function NewInvoiceForm() {
                   </div>
                   <div>
                     <Label className="text-sm text-gray-500">
-                      Phone Number
+                      {t("phoneNumber")}
                     </Label>
                     <p className="font-medium">
                       {customers.find((c) => c.id === selectedCustomer)
@@ -451,7 +451,7 @@ export default function NewInvoiceForm() {
                   </div>
                   <div>
                     <Label className="text-sm text-gray-500">
-                      Email Address
+                      {t("emailAddress")}
                     </Label>
                     <p className="font-medium">
                       {customers.find((c) => c.id === selectedCustomer)
@@ -466,7 +466,7 @@ export default function NewInvoiceForm() {
                   onClick={() => setEditShowCustomer(true)}
                 >
                   <Pencil className="h-4 w-4 mr-2" />
-                  Edit
+                  {t("edit")}
                 </Button>
               </div>
             </div>

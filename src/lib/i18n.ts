@@ -145,6 +145,8 @@ const resources = {
       saveChanges: "Save Changes",
       //new invoice
       newEstimateInvoice: "New Estimate Invoice",
+      newInvoice: "New Invoice",
+      invoiceDetails: "Invoice details",
       estimateDetails: "Estimate details",
       invoiceNumber: "Invoice number",
       addService: "Add Service",
@@ -171,6 +173,10 @@ const resources = {
       enterMessageOnInvoice:
         "Enter a message that will be displayed on the invoice",
       dragDropOrUpload: "Drag and drop or upload files",
+      customer: "Customer",
+      noCustomersFound: "No customers found",
+      contactName: "Contact Name",
+      emailAddress: "Email Address",
     },
   },
   es: {
@@ -310,10 +316,13 @@ const resources = {
       saveChanges: "Guardar cambios",
       //new invoice
       newEstimateInvoice: "Nueva factura de presupuesto",
+      newInvoice: "Nueva factura",
+      invoiceDetails: "Detalles de la factura",
       estimateDetails: "Detalles del presupuesto",
       invoiceNumber: "Número de factura",
       items: "Artículos",
       addService: "Agregar servicio",
+      messageOnInvoice: "Mensaje en la factura",
       saveDraft: "Guardar borrador",
       reviewAndSend: "Revisar y enviar",
       addNewCustomer: "Agregar nuevo cliente",
@@ -335,6 +344,10 @@ const resources = {
       other: "Otro",
       enterMessageOnInvoice: "Ingrese un mensaje que se mostrará en la factura",
       dragDropOrUpload: "Arrastrar y soltar o subir archivos",
+      customer: "Cliente",
+      noCustomersFound: "No se encontraron clientes",
+      contactName: "Nombre de contacto",
+      emailAddress: "Dirección de correo electrónico",
     },
   },
 };
