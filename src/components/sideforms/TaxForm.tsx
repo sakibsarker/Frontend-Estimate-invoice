@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/sheet";
 import toast, { Toaster } from "react-hot-toast";
 import { useCreateTaxMutation } from "@/features/server/taxSlice";
-
+import { useTranslation } from "react-i18next";
 interface TaxFormProps {
   open: boolean;
   onClose: () => void;
@@ -20,6 +20,7 @@ interface TaxFormProps {
 export function TaxForm({ open, onClose }: TaxFormProps) {
   const [taxName, setTaxName] = useState("");
   const [taxRate, setTaxRate] = useState("");
+  const { t } = useTranslation();
 
   const [createTax, { isLoading }] = useCreateTaxMutation();
 
@@ -50,7 +51,7 @@ export function TaxForm({ open, onClose }: TaxFormProps) {
           <div className="h-full flex flex-col">
             <SheetHeader className="p-6 border-b">
               <div className="flex items-center justify-between">
-                <SheetTitle>New Tax</SheetTitle>
+                <SheetTitle>{t("newTax")}</SheetTitle>
               </div>
             </SheetHeader>
             <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
@@ -59,19 +60,19 @@ export function TaxForm({ open, onClose }: TaxFormProps) {
                   <div className="space-y-2">
                     <div className="flex items-center gap-1">
                       <span className="text-destructive">*</span>
-                      <Label htmlFor="taxName">Tax Name</Label>
+                      <Label htmlFor="taxName">{t("taxName")}</Label>
                     </div>
                     <Input
                       id="taxName"
                       value={taxName}
                       onChange={(e) => setTaxName(e.target.value)}
-                      placeholder="e.g., GST"
+                      placeholder={t("exampleTaxName")}
                     />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-1">
                       <span className="text-destructive">*</span>
-                      <Label htmlFor="taxRate">Tax Rate (%)</Label>
+                      <Label htmlFor="taxRate">{t("taxRate")} (%)</Label>
                     </div>
                     <Input
                       id="taxRate"
@@ -80,7 +81,7 @@ export function TaxForm({ open, onClose }: TaxFormProps) {
                       step="0.01"
                       value={taxRate}
                       onChange={(e) => setTaxRate(e.target.value)}
-                      placeholder="e.g., 18.00"
+                      placeholder={t("exampleTaxRate")}
                     />
                   </div>
                 </div>
@@ -93,7 +94,7 @@ export function TaxForm({ open, onClose }: TaxFormProps) {
                   size="lg"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Creating..." : "Create Tax"}
+                  {isLoading ? t("creating") : t("createTax")}
                 </Button>
               </div>
             </form>

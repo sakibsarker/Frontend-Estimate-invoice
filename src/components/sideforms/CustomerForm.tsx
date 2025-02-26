@@ -18,13 +18,14 @@ import {
 } from "@/components/ui/select";
 import toast, { Toaster } from "react-hot-toast";
 import { useCreateCustomerMutation } from "@/features/server/customerSlice";
-
+import { useTranslation } from "react-i18next";
 interface CustomerFormProps {
   open: boolean;
   onClose: () => void;
 }
 
 export function CustomerForm({ open, onClose }: CustomerFormProps) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     customer_display_name: "",
     company_name: "",
@@ -94,7 +95,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
         <div className="h-full flex flex-col min-h-0">
           <SheetHeader className="p-6 border-b">
             <div className="flex items-center justify-between">
-              <SheetTitle>New Customer</SheetTitle>
+              <SheetTitle>{t("newCustomer")}</SheetTitle>
             </div>
           </SheetHeader>
           <form
@@ -103,13 +104,13 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
           >
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               <div className="space-y-4">
-                <h2 className="text-sm font-semibold">Contact details</h2>
+                <h2 className="text-sm font-semibold">{t("contactDetail")}</h2>
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex items-center gap-1">
                       <span className="text-destructive">*</span>
                       <Label htmlFor="customer_display_name">
-                        Display Name
+                        {t("displayName")}
                       </Label>
                     </div>
                     <Input
@@ -124,7 +125,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="company_name">Company Name</Label>
+                    <Label htmlFor="company_name">{t("companyName")}</Label>
                     <Input
                       id="company_name"
                       value={formData.company_name}
@@ -138,7 +139,9 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="contact_first_name">First Name</Label>
+                      <Label htmlFor="contact_first_name">
+                        {t("firstName")}
+                      </Label>
                       <Input
                         id="contact_first_name"
                         value={formData.contact_first_name}
@@ -151,7 +154,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="contact_last_name">Last Name</Label>
+                      <Label htmlFor="contact_last_name">{t("lastName")}</Label>
                       <Input
                         id="contact_last_name"
                         value={formData.contact_last_name}
@@ -165,7 +168,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email_address">Email</Label>
+                    <Label htmlFor="email_address">{t("email")}</Label>
                     <Input
                       id="email_address"
                       type="email"
@@ -179,7 +182,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone_number">Phone</Label>
+                    <Label htmlFor="phone_number">{t("phone")}</Label>
                     <Input
                       id="phone_number"
                       type="tel"
@@ -196,10 +199,10 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
               </div>
 
               <div className="space-y-4">
-                <h2 className="text-sm font-semibold">Billing Address</h2>
+                <h2 className="text-sm font-semibold">{t("billingAddress")}</h2>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Country</Label>
+                    <Label>{t("country")}</Label>
                     <Select
                       value={formData.billing_country}
                       onValueChange={(value) =>
@@ -218,7 +221,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="billing_address_line1">
-                      Address Line 1
+                      {t("addressLine1")}
                     </Label>
                     <Input
                       id="billing_address_line1"
@@ -233,7 +236,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="billing_address_line2">
-                      Address Line 2
+                      {t("addressLine2")}
                     </Label>
                     <Input
                       id="billing_address_line2"
@@ -247,7 +250,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="billing_city">City</Label>
+                    <Label htmlFor="billing_city">{t("city")}</Label>
                     <Input
                       id="billing_city"
                       value={formData.billing_city}
@@ -261,7 +264,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="billing_state">State</Label>
+                      <Label htmlFor="billing_state">{t("state")}</Label>
                       <Input
                         id="billing_state"
                         value={formData.billing_state}
@@ -274,7 +277,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="billing_zip_code">ZIP Code</Label>
+                      <Label htmlFor="billing_zip_code">{t("zipCode")}</Label>
                       <Input
                         id="billing_zip_code"
                         value={formData.billing_zip_code}
@@ -291,10 +294,12 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
               </div>
 
               <div className="space-y-4">
-                <h2 className="text-sm font-semibold">Shipping Address</h2>
+                <h2 className="text-sm font-semibold">
+                  {t("shippingAddress")}{" "}
+                </h2>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Country</Label>
+                    <Label>{t("country")}</Label>
                     <Select
                       value={formData.shipping_country}
                       onValueChange={(value) =>
@@ -313,7 +318,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="shipping_address_line1">
-                      Address Line 1
+                      {t("addressLine1")}
                     </Label>
                     <Input
                       id="shipping_address_line1"
@@ -328,7 +333,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="shipping_address_line2">
-                      Address Line 2
+                      {t("addressLine2")}
                     </Label>
                     <Input
                       id="shipping_address_line2"
@@ -342,7 +347,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="shipping_city">City</Label>
+                    <Label htmlFor="shipping_city">{t("city")}</Label>
                     <Input
                       id="shipping_city"
                       value={formData.shipping_city}
@@ -356,7 +361,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="shipping_state">State</Label>
+                      <Label htmlFor="shipping_state">{t("state")} </Label>
                       <Input
                         id="shipping_state"
                         value={formData.shipping_state}
@@ -369,7 +374,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="shipping_zip_code">ZIP Code</Label>
+                      <Label htmlFor="shipping_zip_code">{t("zipCode")}</Label>
                       <Input
                         id="shipping_zip_code"
                         value={formData.shipping_zip_code}
@@ -387,11 +392,13 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
 
               <div className="space-y-4">
                 <h2 className="text-sm font-semibold">
-                  Additional Information
+                  {t("additionalInformation")}
                 </h2>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="account_number">Account Number</Label>
+                    <Label htmlFor="account_number">
+                      {t("accountNumber")}{" "}
+                    </Label>
                     <Input
                       id="account_number"
                       value={formData.account_number}
@@ -405,7 +412,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="notes">Notes</Label>
+                    <Label htmlFor="notes">{t("notes")}</Label>
                     <textarea
                       id="notes"
                       value={formData.notes}
@@ -426,7 +433,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                 size="lg"
                 disabled={isLoading}
               >
-                {isLoading ? "Adding..." : "Add New Customer"}
+                {isLoading ? t("adding") : t("addNewCustomer")}
               </Button>
             </div>
           </form>

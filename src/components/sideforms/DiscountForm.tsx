@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sheet";
 import toast, { Toaster } from "react-hot-toast";
 import { useCreateDiscountMutation } from "@/features/server/discountSlice";
+import { useTranslation } from "react-i18next";
 
 interface DiscountFormProps {
   open: boolean;
@@ -21,6 +22,7 @@ export function DiscountForm({ open, onClose }: DiscountFormProps) {
   const [discountName, setDiscountName] = useState("");
   const [discountRate, setDiscountRate] = useState("");
   const [createDiscount, { isLoading }] = useCreateDiscountMutation();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +51,7 @@ export function DiscountForm({ open, onClose }: DiscountFormProps) {
           <div className="h-full flex flex-col">
             <SheetHeader className="p-6 border-b">
               <div className="flex items-center justify-between">
-                <SheetTitle>New Discount</SheetTitle>
+                <SheetTitle>{t("newDiscount")}</SheetTitle>
               </div>
             </SheetHeader>
             <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
@@ -58,19 +60,21 @@ export function DiscountForm({ open, onClose }: DiscountFormProps) {
                   <div className="space-y-2">
                     <div className="flex items-center gap-1">
                       <span className="text-destructive">*</span>
-                      <Label htmlFor="discountName">Discount Name</Label>
+                      <Label htmlFor="discountName">{t("discountName")}</Label>
                     </div>
                     <Input
                       id="discountName"
                       value={discountName}
                       onChange={(e) => setDiscountName(e.target.value)}
-                      placeholder="e.g., Early Bird Special"
+                      placeholder={t("exampleDiscountName")}
                     />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-1">
                       <span className="text-destructive">*</span>
-                      <Label htmlFor="discountRate">Discount Rate (%)</Label>
+                      <Label htmlFor="discountRate">
+                        {t("discountRate")} (%)
+                      </Label>
                     </div>
                     <Input
                       id="discountRate"
@@ -79,7 +83,7 @@ export function DiscountForm({ open, onClose }: DiscountFormProps) {
                       step="0.01"
                       value={discountRate}
                       onChange={(e) => setDiscountRate(e.target.value)}
-                      placeholder="e.g., 10.00"
+                      placeholder={t("exampleDiscountRate")}
                     />
                   </div>
                 </div>
@@ -92,7 +96,7 @@ export function DiscountForm({ open, onClose }: DiscountFormProps) {
                   size="lg"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Creating..." : "Create Discount"}
+                  {isLoading ? t("creating") : t("createDiscount")}
                 </Button>
               </div>
             </form>

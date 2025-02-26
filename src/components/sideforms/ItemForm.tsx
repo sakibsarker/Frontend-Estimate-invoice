@@ -11,13 +11,14 @@ import {
 } from "@/components/ui/sheet";
 import toast, { Toaster } from "react-hot-toast";
 import { useCreateItemMutation } from "@/features/server/itemSlice";
-
+import { useTranslation } from "react-i18next";
 interface ItemFormProps {
   open: boolean;
   onClose: () => void;
 }
 
 export function ItemForm({ open, onClose }: ItemFormProps) {
+  const { t } = useTranslation();
   const [itemName, setItemName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -60,14 +61,14 @@ export function ItemForm({ open, onClose }: ItemFormProps) {
           <div className="h-full flex flex-col">
             <SheetHeader className="p-6 border-b">
               <div className="flex items-center justify-between">
-                <SheetTitle>New Item</SheetTitle>
+                <SheetTitle>{t("newItem")}</SheetTitle>
               </div>
             </SheetHeader>
             <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="type">Item Type *</Label>
+                    <Label htmlFor="type">{t("itemType")} *</Label>
                     <select
                       id="type"
                       value={type}
@@ -76,40 +77,40 @@ export function ItemForm({ open, onClose }: ItemFormProps) {
                       }
                       className="w-full p-2 border rounded-md"
                     >
-                      <option value="PARTS">Parts</option>
-                      <option value="LABOR">Labor</option>
-                      <option value="OTHER">Other</option>
+                      <option value="PARTS">{t("parts")}</option>
+                      <option value="LABOR">{t("labor")}</option>
+                      <option value="OTHER">{t("other")}</option>
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="itemName">Item Name *</Label>
+                    <Label htmlFor="itemName">{t("itemName")} *</Label>
                     <Input
                       id="itemName"
                       value={itemName}
                       onChange={(e) => setItemName(e.target.value)}
-                      placeholder="e.g., Premium Windshield Wiper"
+                      placeholder={t("exampleItem")}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
+                    <Label htmlFor="description">{t("description")}</Label>
                     <textarea
                       id="description"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Item description"
+                      placeholder={t("itemDescription")}
                       className="flex h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       rows={3}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="price">Price ($) *</Label>
+                    <Label htmlFor="price">{t("price")} ($) *</Label>
                     <Input
                       id="price"
                       type="number"
                       step="0.01"
                       value={price}
                       onChange={(e) => setPrice(e.target.value)}
-                      placeholder="e.g., 24.99"
+                      placeholder={t("examplePrice")}
                     />
                   </div>
                 </div>
@@ -122,7 +123,7 @@ export function ItemForm({ open, onClose }: ItemFormProps) {
                   size="lg"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Creating..." : "Create Item"}
+                  {isLoading ? t("creating") : t("addItem")}
                 </Button>
               </div>
             </form>
