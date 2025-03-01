@@ -27,7 +27,6 @@ interface CustomerFormProps {
 export function CustomerForm({ open, onClose }: CustomerFormProps) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
-    customer_display_name: "",
     company_name: "",
     contact_first_name: "",
     contact_last_name: "",
@@ -54,7 +53,6 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
       toast.success("Customer created successfully!");
 
       setFormData({
-        customer_display_name: "",
         company_name: "",
         contact_first_name: "",
         contact_last_name: "",
@@ -94,39 +92,9 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
               <div className="space-y-4">
                 <h2 className="text-sm font-semibold">{t("contactDetail")}</h2>
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-1">
-                      <span className="text-destructive">*</span>
-                      <Label htmlFor="customer_display_name">
-                        {t("displayName")}
-                      </Label>
-                    </div>
-                    <Input
-                      id="customer_display_name"
-                      value={formData.customer_display_name}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          customer_display_name: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="company_name">{t("companyName")}</Label>
-                    <Input
-                      id="company_name"
-                      value={formData.company_name}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          company_name: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
+                      <span className="text-destructive">*</span>
                       <Label htmlFor="contact_first_name">
                         {t("firstName")}
                       </Label>
@@ -142,6 +110,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                       />
                     </div>
                     <div className="space-y-2">
+                      <span className="text-destructive">*</span>
                       <Label htmlFor="contact_last_name">{t("lastName")}</Label>
                       <Input
                         id="contact_last_name"
@@ -156,6 +125,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                     </div>
                   </div>
                   <div className="space-y-2">
+                    <span className="text-destructive">*</span>
                     <Label htmlFor="email_address">{t("email")}</Label>
                     <Input
                       id="email_address"
@@ -170,6 +140,7 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                     />
                   </div>
                   <div className="space-y-2">
+                    <span className="text-destructive">*</span>
                     <Label htmlFor="phone_number">{t("phone")}</Label>
                     <Input
                       id="phone_number"
@@ -179,6 +150,19 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                         setFormData({
                           ...formData,
                           phone_number: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="company_name">{t("companyName")}</Label>
+                    <Input
+                      id="company_name"
+                      value={formData.company_name}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          company_name: e.target.value,
                         })
                       }
                     />

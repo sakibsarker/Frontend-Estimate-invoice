@@ -24,7 +24,6 @@ import {
 
 interface Customer {
   id: number;
-  customer_display_name: string;
   company_name: string;
   contact_first_name: string;
   contact_last_name: string;
@@ -63,7 +62,6 @@ export function EditCustomerForm({
     useUpdateCustomerMutation();
 
   const [formData, setFormData] = useState<Omit<Customer, "id">>({
-    customer_display_name: "",
     company_name: "",
     contact_first_name: "",
     contact_last_name: "",
@@ -82,7 +80,6 @@ export function EditCustomerForm({
   useEffect(() => {
     if (customer) {
       setFormData({
-        customer_display_name: customer.customer_display_name,
         company_name: customer.company_name,
         contact_first_name: customer.contact_first_name,
         contact_last_name: customer.contact_last_name,
@@ -135,39 +132,9 @@ export function EditCustomerForm({
               <div className="space-y-4">
                 <h2 className="text-sm font-semibold">Contact details</h2>
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-1">
-                      <span className="text-destructive">*</span>
-                      <Label htmlFor="customer_display_name">
-                        Display Name
-                      </Label>
-                    </div>
-                    <Input
-                      id="customer_display_name"
-                      value={formData.customer_display_name}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          customer_display_name: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="company_name">Company Name</Label>
-                    <Input
-                      id="company_name"
-                      value={formData.company_name}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          company_name: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
+                      <span className="text-destructive">*</span>
                       <Label htmlFor="contact_first_name">First Name</Label>
                       <Input
                         id="contact_first_name"
@@ -181,6 +148,7 @@ export function EditCustomerForm({
                       />
                     </div>
                     <div className="space-y-2">
+                      <span className="text-destructive">*</span>
                       <Label htmlFor="contact_last_name">Last Name</Label>
                       <Input
                         id="contact_last_name"
@@ -195,6 +163,7 @@ export function EditCustomerForm({
                     </div>
                   </div>
                   <div className="space-y-2">
+                    <span className="text-destructive">*</span>
                     <Label htmlFor="email_address">Email</Label>
                     <Input
                       id="email_address"
@@ -209,6 +178,7 @@ export function EditCustomerForm({
                     />
                   </div>
                   <div className="space-y-2">
+                    <span className="text-destructive">*</span>
                     <Label htmlFor="phone_number">Phone</Label>
                     <Input
                       id="phone_number"
@@ -218,6 +188,19 @@ export function EditCustomerForm({
                         setFormData({
                           ...formData,
                           phone_number: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="company_name">Company Name</Label>
+                    <Input
+                      id="company_name"
+                      value={formData.company_name}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          company_name: e.target.value,
                         })
                       }
                     />

@@ -237,19 +237,23 @@ export const invoiceApi = createApi({
         method: "POST",
         body: formData,
       }),
+      invalidatesTags: ["Invoice"], // Add this to refresh cache
     }),
     // Get all statistics
     getInvoiceStatistics: builder.query<InvoiceStatistics, void>({
       query: () => "estimate/invoice-statistics/",
+      providesTags: ["Invoice"],
     }),
 
     // Get single invoice by ID
     getInvoiceById: builder.query<GetInvoice, number>({
       query: (id) => `estimate/invoices/${id}/`,
+      providesTags: ["Invoice"],
     }),
     // Get invoice Preview by ID
     getInvoicePreviwById: builder.query<InvoicePreview, number>({
       query: (id) => `estimate/invoices/detail/${id}/`,
+      providesTags: ["Invoice"],
     }),
 
     // Update invoice

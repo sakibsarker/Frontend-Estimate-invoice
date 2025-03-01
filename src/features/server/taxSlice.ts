@@ -20,6 +20,7 @@ export const taxApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ["Tax"],
   endpoints: (builder) => ({
     // POST - Create new tax
     createTax: builder.mutation<Tax, FormData>({
@@ -28,14 +29,17 @@ export const taxApi = createApi({
         method: "POST",
         body: formData,
       }),
+      invalidatesTags: ["Tax"],
     }),
     // Get all tax
     getTaxs: builder.query<Tax[], void>({
       query: () => "estimate/taxes/",
+      providesTags: ["Tax"],
     }),
     // GET - Fetch a single tax by ID
     getTaxById: builder.query<Tax, number>({
       query: (id) => `estimate/taxes/${id}/`,
+      providesTags: ["Tax"],
     }),
 
     // PATCH - Update a tax
@@ -45,6 +49,7 @@ export const taxApi = createApi({
         method: "PATCH",
         body: data,
       }),
+      invalidatesTags: ["Tax"],
     }),
   }),
 });

@@ -65,6 +65,7 @@ export const templateApi = createApi({
     // GET - Fetch a single Template by ID
     getTemplatesByID: builder.query<Template, number>({
       query: (id) => `estimate/invoice-template/${id}/`,
+      providesTags: ["Templates"],
     }),
 
     // PATCH - Update a Template

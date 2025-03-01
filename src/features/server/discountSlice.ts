@@ -20,6 +20,7 @@ export const discountApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ["Discount"],
   endpoints: (builder) => ({
     // POST - Create new Discounts
     createDiscount: builder.mutation<Discount, FormData>({
@@ -28,14 +29,17 @@ export const discountApi = createApi({
         method: "POST",
         body: formData,
       }),
+      invalidatesTags: ["Discount"],
     }),
     // Get all Discounts
     getDiscounts: builder.query<Discount[], void>({
       query: () => "estimate/discounts/",
+      providesTags: ["Discount"],
     }),
     // GET - Fetch a single Discounts by ID
     getDiscountById: builder.query<Discount, number>({
       query: (id) => `estimate/discounts/${id}/`,
+      providesTags: ["Discount"],
     }),
 
     // PATCH - Update a Discounts
@@ -45,6 +49,7 @@ export const discountApi = createApi({
         method: "PATCH",
         body: data,
       }),
+      invalidatesTags: ["Discount"],
     }),
   }),
 });

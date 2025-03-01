@@ -2,7 +2,6 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 interface Customer {
   id: number;
-  customer_display_name: string;
   company_name: string;
   contact_first_name: string;
   contact_last_name: string;
@@ -30,15 +29,18 @@ export const customerApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ["Customer"],
   endpoints: (builder) => ({
     // Get all customers
     getCustomers: builder.query<Customer[], void>({
       query: () => "estimate/customers/",
+      providesTags: ["Customer"],
     }),
 
     // Get single customer by ID
     getCustomerById: builder.query<Customer, number>({
       query: (id) => `estimate/customers/${id}/`,
+      providesTags: ["Customer"],
     }),
 
     // Create new customer
@@ -48,6 +50,7 @@ export const customerApi = createApi({
         method: "POST",
         body: newCustomer,
       }),
+      invalidatesTags: ["Customer"], // Add this to refresh cache
     }),
 
     // Update customer
@@ -60,6 +63,7 @@ export const customerApi = createApi({
         method: "PUT",
         body: patch,
       }),
+      invalidatesTags: ["Customer"], // Add this to refresh cache
     }),
 
     // Delete customer
@@ -68,6 +72,7 @@ export const customerApi = createApi({
         url: `estimate/customers/${id}/`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Customer"], // Add this to refresh cache
     }),
   }),
 });

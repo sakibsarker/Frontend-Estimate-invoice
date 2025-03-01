@@ -201,9 +201,6 @@ export default function EstimateDashboard() {
                 <div className="text-gray-600">
                   {t("expiredEstimates")}: {data.total_expired_requests}
                 </div>
-                <div className="text-gray-600">
-                  {t("approvalRates")}: {data.accepted_percentage.toFixed(1)}%
-                </div>
               </div>
               <div>
                 <div className="text-gray-600">
@@ -354,7 +351,7 @@ export default function EstimateDashboard() {
                           </Badge>
 
                           <span className="text-blue-600">
-                            (#{estimate.id}) {estimate.repair_details}
+                            (#{estimate.id}) {estimate.username}
                           </span>
 
                           <DropdownMenu>

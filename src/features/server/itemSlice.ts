@@ -22,6 +22,7 @@ export const itemApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ["Iteams"],
   endpoints: (builder) => ({
     // POST - Create new Items
     createItem: builder.mutation<Item, FormData>({
@@ -30,14 +31,17 @@ export const itemApi = createApi({
         method: "POST",
         body: formData,
       }),
+      invalidatesTags: ["Iteams"], // Add this to refresh cache
     }),
     // Get all Items
     getItems: builder.query<Item[], void>({
       query: () => "estimate/new-item/",
+      providesTags: ["Iteams"],
     }),
     // GET - Fetch a single Items by ID
     getItemById: builder.query<Item, number>({
       query: (id) => `estimate/new-item/create/${id}/`,
+      providesTags: ["Iteams"],
     }),
 
     // PATCH - Update a Items
@@ -47,6 +51,7 @@ export const itemApi = createApi({
         method: "PATCH",
         body: data,
       }),
+      invalidatesTags: ["Iteams"], // Add this to refresh cache
     }),
   }),
 });

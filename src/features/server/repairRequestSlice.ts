@@ -97,6 +97,7 @@ export const repairRequestApi = createApi({
         method: "POST",
         body: formData,
       }),
+      invalidatesTags: ["Repairrequests"],
     }),
     // Get all estimate
     getRepiarRequst: builder.query<
@@ -125,11 +126,13 @@ export const repairRequestApi = createApi({
     // Get all estimate statistics
     getRepiarStatistics: builder.query<RepairRequestStatistics, void>({
       query: () => "estimate/repair-requests/statistics/",
+      providesTags: ["Repairrequests"],
     }),
 
     // GET - Fetch a single repair request by ID
     getRepairRequestByID: builder.query<RepairRequestbyId, number>({
       query: (id) => `estimate/repair-requests/${id}/`,
+      providesTags: ["Repairrequests"],
     }),
 
     // PATCH - Update a repair request
@@ -139,6 +142,7 @@ export const repairRequestApi = createApi({
         method: "PATCH",
         body: data,
       }),
+      invalidatesTags: ["Repairrequests"],
     }),
     // Delete repair request
     deleteRepairRequest: builder.mutation<void, number>({
