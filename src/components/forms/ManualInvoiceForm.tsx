@@ -364,6 +364,14 @@ export default function ManualInvoiceForm() {
                         value={customerSearch}
                         onValueChange={setCustomerSearch}
                       />
+                      <CommandItem
+                        value="add-customer"
+                        onSelect={() => setShowCustomerForm(true)}
+                        className="text-indigo-600"
+                      >
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        {t("addNewCustomer")}
+                      </CommandItem>
                       <CommandList>
                         <CommandEmpty>{t("noCustomersFound")}.</CommandEmpty>
                         <CommandGroup>
@@ -396,14 +404,6 @@ export default function ManualInvoiceForm() {
                                 </span>
                               </CommandItem>
                             ))}
-                          <CommandItem
-                            value="add-customer"
-                            onSelect={() => setShowCustomerForm(true)}
-                            className="text-indigo-600"
-                          >
-                            <UserPlus className="mr-2 h-4 w-4" />
-                            {t("addNewCustomer")}
-                          </CommandItem>
                         </CommandGroup>
                       </CommandList>
                     </Command>
@@ -566,6 +566,14 @@ export default function ManualInvoiceForm() {
                               value={itemSearch}
                               onValueChange={setItemSearch}
                             />
+                            <CommandItem
+                              value="add-item"
+                              onSelect={() => setShowItemForm(true)}
+                              className="text-indigo-600"
+                            >
+                              <SquarePlus className="mr-2 h-4 w-4" />
+                              {t("addNewItem")}
+                            </CommandItem>
                             <CommandList>
                               <CommandEmpty>No items found.</CommandEmpty>
                               <CommandGroup>
@@ -603,14 +611,6 @@ export default function ManualInvoiceForm() {
                                       </div>
                                     </CommandItem>
                                   ))}
-                                <CommandItem
-                                  value="add-item"
-                                  onSelect={() => setShowItemForm(true)}
-                                  className="text-indigo-600"
-                                >
-                                  <SquarePlus className="mr-2 h-4 w-4" />
-                                  {t("addNewItem")}
-                                </CommandItem>
                               </CommandGroup>
                             </CommandList>
                           </Command>
@@ -796,6 +796,14 @@ export default function ManualInvoiceForm() {
                           value={taxSearch}
                           onValueChange={setTaxSearch}
                         />
+                        <CommandItem
+                          value="add-tax"
+                          onSelect={() => setShowTaxForm(true)}
+                          className="text-indigo-600"
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          {t("addTaxRate")}
+                        </CommandItem>
                         <CommandList>
                           <CommandEmpty>No taxes found.</CommandEmpty>
                           <CommandGroup>
@@ -822,14 +830,6 @@ export default function ManualInvoiceForm() {
                                   {tax.tax_name} ({tax.tax_rate}%)
                                 </CommandItem>
                               ))}
-                            <CommandItem
-                              value="add-tax"
-                              onSelect={() => setShowTaxForm(true)}
-                              className="text-indigo-600"
-                            >
-                              <Plus className="mr-2 h-4 w-4" />
-                              {t("addTaxRate")}
-                            </CommandItem>
                           </CommandGroup>
                         </CommandList>
                       </Command>
@@ -869,6 +869,14 @@ export default function ManualInvoiceForm() {
                           value={discountSearch}
                           onValueChange={setDiscountSearch}
                         />
+                        <CommandItem
+                          value="add-discount"
+                          onSelect={() => setShowDiscountForm(true)}
+                          className="text-indigo-600"
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          {t("addDiscount")}
+                        </CommandItem>
                         <CommandList>
                           <CommandEmpty>No discounts found.</CommandEmpty>
                           <CommandGroup>
@@ -898,14 +906,6 @@ export default function ManualInvoiceForm() {
                                   {discount.discount_rate}%)
                                 </CommandItem>
                               ))}
-                            <CommandItem
-                              value="add-discount"
-                              onSelect={() => setShowDiscountForm(true)}
-                              className="text-indigo-600"
-                            >
-                              <Plus className="mr-2 h-4 w-4" />
-                              {t("addDiscount")}
-                            </CommandItem>
                           </CommandGroup>
                         </CommandList>
                       </Command>
