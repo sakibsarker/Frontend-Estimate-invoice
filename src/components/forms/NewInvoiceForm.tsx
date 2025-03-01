@@ -367,6 +367,14 @@ export default function NewInvoiceForm() {
                         value={customerSearch}
                         onValueChange={setCustomerSearch}
                       />
+                      <CommandItem
+                        value="add-customer"
+                        onSelect={() => setShowCustomerForm(true)}
+                        className="text-indigo-600"
+                      >
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        {t("addNewCustomer")}
+                      </CommandItem>
                       <CommandList>
                         <CommandEmpty>{t("noCustomersFound")}</CommandEmpty>
                         <CommandGroup>
@@ -380,9 +388,14 @@ export default function NewInvoiceForm() {
                               <CommandItem
                                 key={customer.id}
                                 value={customer.contact_first_name}
-                                onSelect={() =>
-                                  setSelectedCustomer(customer.id)
-                                }
+                                onSelect={() => {
+                                  setSelectedCustomer(customer.id);
+                                  document.dispatchEvent(
+                                    new KeyboardEvent("keydown", {
+                                      key: "Escape",
+                                    })
+                                  );
+                                }}
                               >
                                 <Check
                                   className={cn(
@@ -399,14 +412,6 @@ export default function NewInvoiceForm() {
                                 </span>
                               </CommandItem>
                             ))}
-                          <CommandItem
-                            value="add-customer"
-                            onSelect={() => setShowCustomerForm(true)}
-                            className="text-indigo-600"
-                          >
-                            <UserPlus className="mr-2 h-4 w-4" />
-                            {t("addNewCustomer")}
-                          </CommandItem>
                         </CommandGroup>
                       </CommandList>
                     </Command>
@@ -602,6 +607,14 @@ export default function NewInvoiceForm() {
                               value={itemSearch}
                               onValueChange={setItemSearch}
                             />
+                            <CommandItem
+                              value="add-item"
+                              onSelect={() => setShowItemForm(true)}
+                              className="text-indigo-600"
+                            >
+                              <SquarePlus className="mr-2 h-4 w-4" />
+                              {t("addNewItem")}
+                            </CommandItem>
                             <CommandList>
                               <CommandEmpty>No items found.</CommandEmpty>
                               <CommandGroup>
@@ -618,12 +631,17 @@ export default function NewInvoiceForm() {
                                     <CommandItem
                                       key={listItem.id}
                                       value={listItem.item_name}
-                                      onSelect={() =>
+                                      onSelect={() => {
                                         handleItemSelect(
                                           item.id,
                                           listItem.id.toString()
-                                        )
-                                      }
+                                        );
+                                        document.dispatchEvent(
+                                          new KeyboardEvent("keydown", {
+                                            key: "Escape",
+                                          })
+                                        );
+                                      }}
                                     >
                                       <Check
                                         className={cn(
@@ -639,14 +657,6 @@ export default function NewInvoiceForm() {
                                       </div>
                                     </CommandItem>
                                   ))}
-                                <CommandItem
-                                  value="add-item"
-                                  onSelect={() => setShowItemForm(true)}
-                                  className="text-indigo-600"
-                                >
-                                  <SquarePlus className="mr-2 h-4 w-4" />
-                                  {t("addNewItem")}
-                                </CommandItem>
                               </CommandGroup>
                             </CommandList>
                           </Command>
@@ -812,6 +822,14 @@ export default function NewInvoiceForm() {
                           value={taxSearch}
                           onValueChange={setTaxSearch}
                         />
+                        <CommandItem
+                          value="add-tax"
+                          onSelect={() => setShowTaxForm(true)}
+                          className="text-indigo-600"
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          {t("addTaxRate")}
+                        </CommandItem>
                         <CommandList>
                           <CommandEmpty>No taxes found.</CommandEmpty>
                           <CommandGroup>
@@ -825,7 +843,14 @@ export default function NewInvoiceForm() {
                                 <CommandItem
                                   key={tax.id}
                                   value={tax.tax_name}
-                                  onSelect={() => setSelectedTax(tax.id)}
+                                  onSelect={() => {
+                                    setSelectedTax(tax.id);
+                                    document.dispatchEvent(
+                                      new KeyboardEvent("keydown", {
+                                        key: "Escape",
+                                      })
+                                    );
+                                  }}
                                 >
                                   <Check
                                     className={cn(
@@ -838,14 +863,6 @@ export default function NewInvoiceForm() {
                                   {tax.tax_name} ({tax.tax_rate}%)
                                 </CommandItem>
                               ))}
-                            <CommandItem
-                              value="add-tax"
-                              onSelect={() => setShowTaxForm(true)}
-                              className="text-indigo-600"
-                            >
-                              <Plus className="mr-2 h-4 w-4" />
-                              {t("addTaxRate")}
-                            </CommandItem>
                           </CommandGroup>
                         </CommandList>
                       </Command>
@@ -885,6 +902,14 @@ export default function NewInvoiceForm() {
                           value={discountSearch}
                           onValueChange={setDiscountSearch}
                         />
+                        <CommandItem
+                          value="add-discount"
+                          onSelect={() => setShowDiscountForm(true)}
+                          className="text-indigo-600"
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          {t("addDiscount")}
+                        </CommandItem>
                         <CommandList>
                           <CommandEmpty>No discounts found.</CommandEmpty>
                           <CommandGroup>
@@ -898,9 +923,14 @@ export default function NewInvoiceForm() {
                                 <CommandItem
                                   key={discount.id}
                                   value={discount.discount_name}
-                                  onSelect={() =>
-                                    setSelectedDiscount(discount.id)
-                                  }
+                                  onSelect={() => {
+                                    setSelectedDiscount(discount.id);
+                                    document.dispatchEvent(
+                                      new KeyboardEvent("keydown", {
+                                        key: "Escape",
+                                      })
+                                    );
+                                  }}
                                 >
                                   <Check
                                     className={cn(
@@ -914,14 +944,6 @@ export default function NewInvoiceForm() {
                                   {discount.discount_rate}%)
                                 </CommandItem>
                               ))}
-                            <CommandItem
-                              value="add-discount"
-                              onSelect={() => setShowDiscountForm(true)}
-                              className="text-indigo-600"
-                            >
-                              <Plus className="mr-2 h-4 w-4" />
-                              {t("addDiscount")}
-                            </CommandItem>
                           </CommandGroup>
                         </CommandList>
                       </Command>

@@ -385,9 +385,15 @@ export default function ManualInvoiceForm() {
                               <CommandItem
                                 key={customer.id}
                                 value={customer.contact_first_name}
-                                onSelect={() =>
-                                  setSelectedCustomer(customer.id)
-                                }
+                                onSelect={() => {
+                                  setSelectedCustomer(customer.id);
+
+                                  document.dispatchEvent(
+                                    new KeyboardEvent("keydown", {
+                                      key: "Escape",
+                                    })
+                                  );
+                                }}
                               >
                                 <Check
                                   className={cn(
@@ -590,12 +596,17 @@ export default function ManualInvoiceForm() {
                                     <CommandItem
                                       key={listItem.id}
                                       value={listItem.item_name}
-                                      onSelect={() =>
+                                      onSelect={() => {
                                         handleItemSelect(
                                           item.id,
                                           listItem.id.toString()
-                                        )
-                                      }
+                                        );
+                                        document.dispatchEvent(
+                                          new KeyboardEvent("keydown", {
+                                            key: "Escape",
+                                          })
+                                        );
+                                      }}
                                     >
                                       <Check
                                         className={cn(
@@ -817,7 +828,14 @@ export default function ManualInvoiceForm() {
                                 <CommandItem
                                   key={tax.id}
                                   value={tax.tax_name}
-                                  onSelect={() => setSelectedTax(tax.id)}
+                                  onSelect={() => {
+                                    setSelectedTax(tax.id);
+                                    document.dispatchEvent(
+                                      new KeyboardEvent("keydown", {
+                                        key: "Escape",
+                                      })
+                                    );
+                                  }}
                                 >
                                   <Check
                                     className={cn(
@@ -890,9 +908,14 @@ export default function ManualInvoiceForm() {
                                 <CommandItem
                                   key={discount.id}
                                   value={discount.discount_name}
-                                  onSelect={() =>
-                                    setSelectedDiscount(discount.id)
-                                  }
+                                  onSelect={() => {
+                                    setSelectedDiscount(discount.id);
+                                    document.dispatchEvent(
+                                      new KeyboardEvent("keydown", {
+                                        key: "Escape",
+                                      })
+                                    );
+                                  }}
                                 >
                                   <Check
                                     className={cn(
