@@ -36,12 +36,6 @@ interface Customer {
   billing_city: string;
   billing_state: string;
   billing_zip_code: string;
-  shipping_country: string;
-  shipping_address_line1: string;
-  shipping_address_line2: string;
-  shipping_city: string;
-  shipping_state: string;
-  shipping_zip_code: string;
   notes: string;
   account_number: string;
 }
@@ -81,12 +75,6 @@ export function EditCustomerForm({
     billing_city: "",
     billing_state: "",
     billing_zip_code: "",
-    shipping_country: "US",
-    shipping_address_line1: "",
-    shipping_address_line2: "",
-    shipping_city: "",
-    shipping_state: "",
-    shipping_zip_code: "",
     notes: "",
     account_number: "",
   });
@@ -106,12 +94,6 @@ export function EditCustomerForm({
         billing_city: customer.billing_city,
         billing_state: customer.billing_state,
         billing_zip_code: customer.billing_zip_code,
-        shipping_country: customer.shipping_country,
-        shipping_address_line1: customer.shipping_address_line1,
-        shipping_address_line2: customer.shipping_address_line2,
-        shipping_city: customer.shipping_city,
-        shipping_state: customer.shipping_state,
-        shipping_zip_code: customer.shipping_zip_code,
         notes: customer.notes,
         account_number: customer.account_number,
       });
@@ -330,101 +312,6 @@ export function EditCustomerForm({
                           setFormData({
                             ...formData,
                             billing_zip_code: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h2 className="text-sm font-semibold">Shipping Address</h2>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Country</Label>
-                    <Select
-                      value={formData.shipping_country}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, shipping_country: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select country" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="US">United States</SelectItem>
-                        <SelectItem value="CA">Canada</SelectItem>
-                        <SelectItem value="UK">United Kingdom</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="shipping_address_line1">
-                      Address Line 1
-                    </Label>
-                    <Input
-                      id="shipping_address_line1"
-                      value={formData.shipping_address_line1}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          shipping_address_line1: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="shipping_address_line2">
-                      Address Line 2
-                    </Label>
-                    <Input
-                      id="shipping_address_line2"
-                      value={formData.shipping_address_line2}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          shipping_address_line2: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="shipping_city">City</Label>
-                    <Input
-                      id="shipping_city"
-                      value={formData.shipping_city}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          shipping_city: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="shipping_state">State</Label>
-                      <Input
-                        id="shipping_state"
-                        value={formData.shipping_state}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            shipping_state: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="shipping_zip_code">ZIP Code</Label>
-                      <Input
-                        id="shipping_zip_code"
-                        value={formData.shipping_zip_code}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            shipping_zip_code: e.target.value,
                           })
                         }
                       />

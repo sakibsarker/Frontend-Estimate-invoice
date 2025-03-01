@@ -39,12 +39,6 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
     billing_city: "",
     billing_state: "",
     billing_zip_code: "",
-    shipping_country: "US",
-    shipping_address_line1: "",
-    shipping_address_line2: "",
-    shipping_city: "",
-    shipping_state: "",
-    shipping_zip_code: "",
     notes: "",
     account_number: "",
   });
@@ -72,12 +66,6 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
         billing_city: "",
         billing_state: "",
         billing_zip_code: "",
-        shipping_country: "US",
-        shipping_address_line1: "",
-        shipping_address_line2: "",
-        shipping_city: "",
-        shipping_state: "",
-        shipping_zip_code: "",
         notes: "",
         account_number: "",
       });
@@ -285,103 +273,6 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                           setFormData({
                             ...formData,
                             billing_zip_code: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h2 className="text-sm font-semibold">
-                  {t("shippingAddress")}{" "}
-                </h2>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>{t("country")}</Label>
-                    <Select
-                      value={formData.shipping_country}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, shipping_country: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select country" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="US">United States</SelectItem>
-                        <SelectItem value="CA">Canada</SelectItem>
-                        <SelectItem value="UK">United Kingdom</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="shipping_address_line1">
-                      {t("addressLine1")}
-                    </Label>
-                    <Input
-                      id="shipping_address_line1"
-                      value={formData.shipping_address_line1}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          shipping_address_line1: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="shipping_address_line2">
-                      {t("addressLine2")}
-                    </Label>
-                    <Input
-                      id="shipping_address_line2"
-                      value={formData.shipping_address_line2}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          shipping_address_line2: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="shipping_city">{t("city")}</Label>
-                    <Input
-                      id="shipping_city"
-                      value={formData.shipping_city}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          shipping_city: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="shipping_state">{t("state")} </Label>
-                      <Input
-                        id="shipping_state"
-                        value={formData.shipping_state}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            shipping_state: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="shipping_zip_code">{t("zipCode")}</Label>
-                      <Input
-                        id="shipping_zip_code"
-                        value={formData.shipping_zip_code}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            shipping_zip_code: e.target.value,
                           })
                         }
                       />

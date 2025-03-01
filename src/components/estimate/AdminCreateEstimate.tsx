@@ -276,11 +276,13 @@ export default function AdminCreateEstimate() {
                   <option value="" disabled>
                     Select a year
                   </option>
-                  {Object.keys(vehicleOptions).map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
+                  {Object.keys(vehicleOptions)
+                    .sort((a, b) => parseInt(b) - parseInt(a))
+                    .map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
                 </select>
               </div>
 
