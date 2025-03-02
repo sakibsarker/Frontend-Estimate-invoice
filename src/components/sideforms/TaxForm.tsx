@@ -20,12 +20,31 @@ interface TaxFormProps {
 export function TaxForm({ open, onClose }: TaxFormProps) {
   const [taxName, setTaxName] = useState("");
   const [taxRate, setTaxRate] = useState("");
+  const [errors, setErrors] = useState({
+    taxName: false,
+    taxRate: false,
+  });
   const { t } = useTranslation();
 
   const [createTax, { isLoading }] = useCreateTaxMutation();
 
+  const validateForm = () => {
+    const newErrors = {
+      taxName: !taxName.trim(),
+      taxRate:
+        !taxRate.trim() || isNaN(Number(taxRate)) || Number(taxRate) <= 0,
+    };
+    setErrors(newErrors);
+    return Object.values(newErrors).some((error) => error);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (validateForm()) {
+      toast.error(t("error.fillRequiredFields"));
+      return;
+    }
 
     try {
       const formData = new FormData();
@@ -65,9 +84,18 @@ export function TaxForm({ open, onClose }: TaxFormProps) {
                     <Input
                       id="taxName"
                       value={taxName}
-                      onChange={(e) => setTaxName(e.target.value)}
+                      onChange={(e) => {
+                        setTaxName(e.target.value);
+                        setErrors((prev) => ({ ...prev, taxName: false }));
+                      }}
                       placeholder={t("exampleTaxName")}
+                      className={errors.taxName ? "border-red-500" : ""}
                     />
+                    {errors.taxName && (
+                      <p className="text-red-500 text-sm">
+                        {t("error.taxNameRequired")}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-1">
@@ -80,9 +108,18 @@ export function TaxForm({ open, onClose }: TaxFormProps) {
                       min="0"
                       step="0.01"
                       value={taxRate}
-                      onChange={(e) => setTaxRate(e.target.value)}
+                      onChange={(e) => {
+                        setTaxRate(e.target.value);
+                        setErrors((prev) => ({ ...prev, taxRate: false }));
+                      }}
                       placeholder={t("exampleTaxRate")}
+                      className={errors.taxRate ? "border-red-500" : ""}
                     />
+                    {errors.taxRate && (
+                      <p className="text-red-500 text-sm">
+                        {t("error.taxRateRequired")}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

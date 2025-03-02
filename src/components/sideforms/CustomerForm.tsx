@@ -44,8 +44,31 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
 
   const [createCustomer, { isLoading }] = useCreateCustomerMutation();
 
+  const [errors, setErrors] = useState({
+    contact_first_name: false,
+    contact_last_name: false,
+    email_address: false,
+    phone_number: false,
+  });
+
+  const validateForm = () => {
+    const newErrors = {
+      contact_first_name: !formData.contact_first_name.trim(),
+      contact_last_name: !formData.contact_last_name.trim(),
+      email_address: !formData.email_address.trim(),
+      phone_number: !formData.phone_number.trim(),
+    };
+    setErrors(newErrors);
+    return Object.values(newErrors).some((error) => error);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (validateForm()) {
+      toast.error(t("error.fillRequiredFields"));
+      return;
+    }
 
     try {
       await createCustomer(formData).unwrap();
@@ -101,13 +124,25 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                       <Input
                         id="contact_first_name"
                         value={formData.contact_first_name}
-                        onChange={(e) =>
+                        onChange={(e) => {
                           setFormData({
                             ...formData,
                             contact_first_name: e.target.value,
-                          })
+                          });
+                          setErrors((prev) => ({
+                            ...prev,
+                            contact_first_name: false,
+                          }));
+                        }}
+                        className={
+                          errors.contact_first_name ? "border-red-500" : ""
                         }
                       />
+                      {errors.contact_first_name && (
+                        <p className="text-red-500 text-sm">
+                          {t("error.firstNameRequired")}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <span className="text-destructive">*</span>
@@ -115,13 +150,25 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                       <Input
                         id="contact_last_name"
                         value={formData.contact_last_name}
-                        onChange={(e) =>
+                        onChange={(e) => {
                           setFormData({
                             ...formData,
                             contact_last_name: e.target.value,
-                          })
+                          });
+                          setErrors((prev) => ({
+                            ...prev,
+                            contact_last_name: false,
+                          }));
+                        }}
+                        className={
+                          errors.contact_last_name ? "border-red-500" : ""
                         }
                       />
+                      {errors.contact_last_name && (
+                        <p className="text-red-500 text-sm">
+                          {t("error.lastNameRequired")}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -131,13 +178,23 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                       id="email_address"
                       type="email"
                       value={formData.email_address}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setFormData({
                           ...formData,
                           email_address: e.target.value,
-                        })
-                      }
+                        });
+                        setErrors((prev) => ({
+                          ...prev,
+                          email_address: false,
+                        }));
+                      }}
+                      className={errors.email_address ? "border-red-500" : ""}
                     />
+                    {errors.email_address && (
+                      <p className="text-red-500 text-sm">
+                        {t("error.emailRequired")}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <span className="text-destructive">*</span>
@@ -146,13 +203,20 @@ export function CustomerForm({ open, onClose }: CustomerFormProps) {
                       id="phone_number"
                       type="tel"
                       value={formData.phone_number}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setFormData({
                           ...formData,
                           phone_number: e.target.value,
-                        })
-                      }
+                        });
+                        setErrors((prev) => ({ ...prev, phone_number: false }));
+                      }}
+                      className={errors.phone_number ? "border-red-500" : ""}
                     />
+                    {errors.phone_number && (
+                      <p className="text-red-500 text-sm">
+                        {t("error.phoneRequired")}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="company_name">{t("companyName")}</Label>

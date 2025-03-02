@@ -22,13 +22,31 @@ export function ItemForm({ open, onClose }: ItemFormProps) {
   const [itemName, setItemName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [errors, setErrors] = useState({
+    itemName: false,
+    price: false,
+  });
 
   const [type, setType] = useState<"LABOR" | "PARTS" | "OTHER">("PARTS");
 
   const [createItem, { isLoading }] = useCreateItemMutation();
 
+  const validateForm = () => {
+    const newErrors = {
+      itemName: !itemName.trim(),
+      price: !price.trim() || isNaN(Number(price)) || Number(price) <= 0,
+    };
+    setErrors(newErrors);
+    return Object.values(newErrors).some((error) => error);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (validateForm()) {
+      toast.error(t("error.fillRequiredFields"));
+      return;
+    }
 
     try {
       const formData = new FormData();
@@ -87,9 +105,18 @@ export function ItemForm({ open, onClose }: ItemFormProps) {
                     <Input
                       id="itemName"
                       value={itemName}
-                      onChange={(e) => setItemName(e.target.value)}
+                      onChange={(e) => {
+                        setItemName(e.target.value);
+                        setErrors((prev) => ({ ...prev, itemName: false }));
+                      }}
                       placeholder={t("exampleItem")}
+                      className={errors.itemName ? "border-red-500" : ""}
                     />
+                    {errors.itemName && (
+                      <p className="text-red-500 text-sm">
+                        {t("error.itemNameRequired")}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="description">{t("description")}</Label>
@@ -109,9 +136,18 @@ export function ItemForm({ open, onClose }: ItemFormProps) {
                       type="number"
                       step="0.01"
                       value={price}
-                      onChange={(e) => setPrice(e.target.value)}
+                      onChange={(e) => {
+                        setPrice(e.target.value);
+                        setErrors((prev) => ({ ...prev, price: false }));
+                      }}
                       placeholder={t("examplePrice")}
+                      className={errors.price ? "border-red-500" : ""}
                     />
+                    {errors.price && (
+                      <p className="text-red-500 text-sm">
+                        {t("error.priceRequired")}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

@@ -21,11 +21,32 @@ interface DiscountFormProps {
 export function DiscountForm({ open, onClose }: DiscountFormProps) {
   const [discountName, setDiscountName] = useState("");
   const [discountRate, setDiscountRate] = useState("");
+  const [errors, setErrors] = useState({
+    discountName: false,
+    discountRate: false,
+  });
   const [createDiscount, { isLoading }] = useCreateDiscountMutation();
   const { t } = useTranslation();
 
+  const validateForm = () => {
+    const newErrors = {
+      discountName: !discountName.trim(),
+      discountRate:
+        !discountRate.trim() ||
+        isNaN(Number(discountRate)) ||
+        Number(discountRate) <= 0,
+    };
+    setErrors(newErrors);
+    return Object.values(newErrors).some((error) => error);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (validateForm()) {
+      toast.error(t("error.fillRequiredFields"));
+      return;
+    }
 
     try {
       const formData = new FormData();
@@ -65,9 +86,18 @@ export function DiscountForm({ open, onClose }: DiscountFormProps) {
                     <Input
                       id="discountName"
                       value={discountName}
-                      onChange={(e) => setDiscountName(e.target.value)}
+                      onChange={(e) => {
+                        setDiscountName(e.target.value);
+                        setErrors((prev) => ({ ...prev, discountName: false }));
+                      }}
                       placeholder={t("exampleDiscountName")}
+                      className={errors.discountName ? "border-red-500" : ""}
                     />
+                    {errors.discountName && (
+                      <p className="text-red-500 text-sm">
+                        {t("error.discountNameRequired")}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-1">
@@ -82,9 +112,18 @@ export function DiscountForm({ open, onClose }: DiscountFormProps) {
                       min="0"
                       step="0.01"
                       value={discountRate}
-                      onChange={(e) => setDiscountRate(e.target.value)}
+                      onChange={(e) => {
+                        setDiscountRate(e.target.value);
+                        setErrors((prev) => ({ ...prev, discountRate: false }));
+                      }}
                       placeholder={t("exampleDiscountRate")}
+                      className={errors.discountRate ? "border-red-500" : ""}
                     />
+                    {errors.discountRate && (
+                      <p className="text-red-500 text-sm">
+                        {t("error.discountRateRequired")}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

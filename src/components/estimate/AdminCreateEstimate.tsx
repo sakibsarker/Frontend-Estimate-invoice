@@ -70,7 +70,7 @@ export default function AdminCreateEstimate() {
       setUsers(
         customers.map((customer) => ({
           id: customer.id,
-          username: customer.customer_display_name,
+          username: `${customer.contact_first_name}${customer.contact_last_name}`,
           email: customer.email_address,
           phone_number: customer.phone_number,
         }))
