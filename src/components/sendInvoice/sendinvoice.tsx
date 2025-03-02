@@ -206,7 +206,7 @@ export default function SendInvoice() {
       <div className="h-screen flex flex-col">
         <div className="flex items-center justify-between border-b px-6 py-4">
           <h2 className="text-xl font-semibold">{t("sendInvoice")}</h2>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" onClick={() => navigate(`/home`)}>
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -351,7 +351,7 @@ View invoice: [Link]`}
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
-                    onClick={() => navigate("/template")}
+                    onClick={() => navigate(`/invoice/${invoiceId}/edit`)}
                   >
                     {t("editInvoice")}
                   </Button>
@@ -367,6 +367,12 @@ View invoice: [Link]`}
           <div className="flex-1 bg-gray-50 overflow-y-auto">
             <div className="flex h-12 items-center justify-end border-b px-4 print:hidden">
               <div className="flex items-center gap-2">
+                <Button
+                  className="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 text-sm"
+                  onClick={() => navigate("/template")}
+                >
+                  Edit Template
+                </Button>
                 <Button variant="ghost" size="icon" onClick={handlePrint}>
                   <Printer className="h-4 w-4" />
                 </Button>
@@ -382,6 +388,7 @@ View invoice: [Link]`}
             </div>
 
             {/* Preview content with padding */}
+
             <div className="p-6 relative overflow-visible" ref={contentRef}>
               {isLoading ? (
                 <div className="flex justify-center items-center space-x-2">
