@@ -216,7 +216,7 @@ export default function ViewEstimateRequest() {
                   {estimateData?.status === "ACCEPTED" ? (
                     <Link to={`/invoice/${estimateData.invoice_id}/edit`}>
                       <Button className="bg-orange-500 hover:bg-orange-600">
-                        {t("viewInvoice")}
+                        View Estimate
                       </Button>
                     </Link>
                   ) : (
