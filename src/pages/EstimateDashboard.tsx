@@ -361,7 +361,14 @@ export default function EstimateDashboard() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem>{t("edit")}</DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/estimate/${estimate.id}/view`);
+                                }}
+                              >
+                                {t("edit")}
+                              </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={async (e) => {
                                   e.stopPropagation(); // Prevent card click event
@@ -414,7 +421,9 @@ export default function EstimateDashboard() {
                           <Badge
                             className={getEstimateStatusColor(estimate.status)}
                           >
-                            {estimate.status}
+                            {estimate.status === "ACCEPTED"
+                              ? "SENT"
+                              : estimate.status}
                           </Badge>
                         </div>
                       </div>
