@@ -350,7 +350,7 @@ export default function ManualInvoiceDashboard() {
                             {invoice.invoice_status}
                           </Badge>
                           <span className="text-blue-600">
-                            {invoice.invoice_number}
+                            (#{invoice.id}) {invoice.invoice_number}
                           </span>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>

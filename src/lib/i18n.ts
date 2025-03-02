@@ -232,6 +232,19 @@ const resources = {
         vehicleModelRequired: "Vehicle model is required",
         expireDateRequired: "Expire date is required",
       },
+      //email
+      dear: "Dear",
+      serviceDetails: "Service Details",
+      totalDue: "Total Due",
+      viewFullInvoice: "View Full Invoice",
+      thanksMessage: "Thank you for your business",
+      yourTeam: "Your Team",
+      //sms
+      dueDate: "Due Date",
+      paymentMethods: "Payment Methods",
+      payNowButton: "Pay Now",
+      paymentReminder: "Please pay by the due date to avoid late fees",
+      smsInvoiceReady: "Invoice Ready",
     },
   },
   es: {
@@ -458,6 +471,20 @@ const resources = {
         vehicleModelRequired: "El modelo del vehículo es obligatorio",
         expireDateRequired: "La fecha de vencimiento es obligatoria",
       },
+      //email
+      dear: "Estimado/a",
+      serviceDetails: "Detalles del Servicio",
+      totalDue: "Total Adeudado",
+      viewFullInvoice: "Ver Factura Completa",
+      thanksMessage: "Gracias por su negocio",
+      yourTeam: "Su Equipo",
+      //sms
+      dueDate: "Fecha de Vencimiento",
+      paymentMethods: "Métodos de Pago",
+      payNowButton: "Pagar Ahora",
+      paymentReminder:
+        "Por favor pague antes de la fecha de vencimiento para evitar recargos",
+      smsInvoiceReady: "Factura Lista",
     },
   },
 };

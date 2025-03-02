@@ -93,17 +93,6 @@ export default function ManualInvoiceForm() {
       hasDiscount: true,
       paid: true,
     },
-    {
-      id: 3,
-      type: "other",
-      selectedItemId: null,
-      description: "",
-      quantity: 1,
-      price: 0,
-      hasTax: true,
-      hasDiscount: true,
-      paid: true,
-    },
   ]);
 
   const [createInvoice, { isLoading }] = useCreateInvoiceMutation();
@@ -265,6 +254,7 @@ export default function ManualInvoiceForm() {
 
       await createInvoice(formData).unwrap();
       toast.success("Draft saved successfully!", { id: toastId });
+      navigate("/invoice");
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to save draft";

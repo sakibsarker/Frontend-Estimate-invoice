@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { useTranslation } from "react-i18next";
+
 // Add this static data object above the component
 const staticPreviewData = {
   logo: "https://placehold.co/200x50.png",
@@ -283,7 +284,10 @@ export default function SendInvoice() {
                       <Input
                         id="subject"
                         className="mt-1.5"
-                        defaultValue="Invoice 001 due Jan 07, 2025 | Auto Gig Shop"
+                        readOnly
+                        value={`${t("invoice")}-${
+                          invoiceData?.invoice_number
+                        } | Auto Gig Shop`}
                       />
                     </div>
 
@@ -296,15 +300,43 @@ export default function SendInvoice() {
                       <Textarea
                         id="body"
                         className="mt-1.5 min-h-[200px]"
-                        defaultValue={`Jose, here's your invoice from Auto Gig Shop
-
-Invoice: 001
-Amount due: $106.00
-Due: Jan 07, 2025
-(Invoice Button)
-
-Thanks,
-Auto Gig Shop`}
+                        readOnly
+                        value={
+                          invoiceData
+                            ? `${t("dear")} ${
+                                invoiceData.customerId?.contact_first_name
+                              } ${
+                                invoiceData.customerId?.contact_last_name
+                              },\n\n` +
+                              `${t("invoiceNumber")}: ${
+                                invoiceData.invoice_number
+                              }\n` +
+                              `Due Date: ${new Date(
+                                invoiceData.created_at
+                              ).toLocaleDateString()}\n` +
+                              `${t("serviceDetails")}:\n` +
+                              `- ${t("subtotal")}: $${parseFloat(
+                                invoiceData.subtotal
+                              ).toFixed(2)}\n` +
+                              `- ${t("discount")} (${
+                                invoiceData.discount.discount_rate
+                              }%): -$${parseFloat(
+                                invoiceData.discount.discount_rate
+                              ).toFixed(2)}\n` +
+                              `- ${t("tax")} (${
+                                invoiceData.tax.tax_rate
+                              }%): $${parseFloat(
+                                invoiceData.tax.tax_rate
+                              ).toFixed(2)}\n` +
+                              `- ${t("totalDue")}: $${parseFloat(
+                                invoiceData.amount_due
+                              ).toFixed(2)}\n\n` +
+                              `${t("viewFullInvoice")}: [Invoice Link]\n\n` +
+                              `${t("thanksMessage")},\n` +
+                              `${t("yourTeam")}\n` +
+                              `Auto Gig Shop`
+                            : ""
+                        }
                       />
                     </div>
                   </div>
@@ -335,12 +367,32 @@ Auto Gig Shop`}
                       <Textarea
                         id="text-body"
                         className="mt-1.5 min-h-[200px]"
-                        defaultValue={`Your invoice from Auto Gig Shop is ready.
-
-Amount due: $106.00
-Due: Jan 07, 2025
-
-View invoice: [Link]`}
+                        defaultValue={
+                          invoiceData
+                            ? `${t("smsInvoiceReady")}:\n` +
+                              `${t("amountDue")}: $${parseFloat(
+                                invoiceData?.amount_due ?? "0"
+                              ).toFixed(2)}\n` +
+                              `${t("createdDate")}: ${
+                                new Date(invoiceData?.created_at)
+                                  .toISOString()
+                                  .split("T")[0]
+                              }\n` +
+                              `${t("subtotal")}: $${parseFloat(
+                                invoiceData.subtotal
+                              ).toFixed(2)}\n` +
+                              `${t("discount")}: $${parseFloat(
+                                invoiceData.discount.discount_rate
+                              ).toFixed(2)}\n` +
+                              `${t("tax")}: $${parseFloat(
+                                invoiceData.tax.tax_rate
+                              ).toFixed(2)}\n` +
+                              `${t("total")}: $${parseFloat(
+                                invoiceData.total
+                              ).toFixed(2)}\n\n` +
+                              `${t("viewInvoice")}: [View Link]`
+                            : ""
+                        }
                       />
                     </div>
                   </div>

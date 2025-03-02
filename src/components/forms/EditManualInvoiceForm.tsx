@@ -75,41 +75,7 @@ interface InvoiceItem {
 export default function EditManualInvoiceForm() {
   const { invoiceId } = useParams<{ invoiceId: string }>();
 
-  const [items, setItems] = useState<InvoiceItem[]>([
-    {
-      id: 1,
-      type: "labor",
-      selectedItemId: null,
-      description: "",
-      quantity: 1,
-      price: 0,
-      hasTax: true,
-      hasDiscount: true,
-      paid: true,
-    },
-    {
-      id: 2,
-      type: "parts",
-      selectedItemId: null,
-      description: "",
-      quantity: 1,
-      price: 0,
-      hasTax: true,
-      hasDiscount: true,
-      paid: true,
-    },
-    {
-      id: 3,
-      type: "other",
-      selectedItemId: null,
-      description: "",
-      quantity: 1,
-      price: 0,
-      hasTax: true,
-      hasDiscount: true,
-      paid: true,
-    },
-  ]);
+  const [items, setItems] = useState<InvoiceItem[]>([]);
 
   const { data: invoiceData, isLoading } = useGetInvoiceByIdQuery(
     Number(invoiceId)
@@ -339,7 +305,7 @@ export default function EditManualInvoiceForm() {
                       className="w-full justify-between"
                     >
                       {selectedCustomer
-                        ? invoiceData?.customerId.customer_display_name
+                        ? invoiceData?.customerId.contact_first_name
                         : "Select customer..."}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -356,14 +322,14 @@ export default function EditManualInvoiceForm() {
                         <CommandGroup>
                           {customers
                             .filter((customer) =>
-                              customer.customer_display_name
+                              customer.contact_first_name
                                 ?.toLowerCase()
                                 .includes(customerSearch.toLowerCase())
                             )
                             .map((customer) => (
                               <CommandItem
                                 key={customer.id}
-                                value={customer.customer_display_name}
+                                value={customer.contact_first_name}
                                 onSelect={() =>
                                   setSelectedCustomer(customer.id)
                                 }
@@ -376,7 +342,8 @@ export default function EditManualInvoiceForm() {
                                       : "opacity-0"
                                   )}
                                 />
-                                {customer.customer_display_name}
+                                {customer.contact_first_name}
+                                {""} {customer.contact_last_name}
                                 <span className="text-xs text-muted-foreground">
                                   #{customer.email_address}
                                 </span>

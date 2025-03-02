@@ -29,7 +29,8 @@ interface PreviewProps {
 interface InvoiceDataProps {
   // Invoice content
   customerId: {
-    customer_display_name: string;
+    contact_first_name: string;
+    contact_last_name: string;
     billing_address_line1: string;
     billing_city: string;
     billing_state: string;
@@ -196,7 +197,8 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                         {t("customerName")}:
                       </span>
                       <span className="text-gray-900">
-                        {props.customerId.customer_display_name}
+                        {props.customerId.contact_first_name}{" "}
+                        {props.customerId.contact_last_name}
                       </span>
                     </div>
                   )}
@@ -363,12 +365,7 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                     {t("tax")} ({props.tax.tax_rate ?? "0"}%):
                   </span>
                   <span className="text-gray-900">
-                    $
-                    {(
-                      (parseFloat(props.subtotal) *
-                        parseFloat(props.tax.tax_rate ?? "0")) /
-                      100
-                    ).toFixed(2)}
+                    ${parseFloat(props.tax.tax_rate ?? "0").toFixed(2)}
                   </span>
                 </div>
               )}
@@ -379,11 +376,7 @@ export function SendInvoicePreview(props: PreviewProps & InvoiceDataProps) {
                   </span>
                   <span className="text-gray-900">
                     $
-                    {(
-                      (parseFloat(props.subtotal) *
-                        parseFloat(props.discount.discount_rate ?? "0")) /
-                      100
-                    ).toFixed(2)}
+                    {parseFloat(props.discount.discount_rate ?? "0").toFixed(2)}
                   </span>
                 </div>
               )}
