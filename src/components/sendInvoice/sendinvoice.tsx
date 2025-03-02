@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { useTranslation } from "react-i18next";
+import { useGetTemplateQuery } from "@/features/server/templateSlice";
 
 // Add this static data object above the component
 const staticPreviewData = {
@@ -189,6 +190,9 @@ export default function SendInvoice() {
       });
     }
   };
+
+  const { data: templates = [], isLoading: templatesLoading } =
+    useGetTemplateQuery();
 
   // Add error state
   if (isError) {
@@ -429,11 +433,39 @@ export default function SendInvoice() {
           <div className="flex-1 bg-gray-50 overflow-y-auto">
             <div className="flex h-12 items-center justify-end border-b px-4 print:hidden">
               <div className="flex items-center gap-2">
+                <Select
+                  onValueChange={(value) => {
+                    const selected = templates.find(
+                      (t) => t.selected_layout === value
+                    );
+                    if (selected) {
+                      localStorage.setItem(
+                        "defaultTemplate",
+                        JSON.stringify(selected)
+                      );
+                      window.location.reload(); // Refresh to apply changes
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Select Template" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templates.map((template) => (
+                      <SelectItem
+                        key={template.id}
+                        value={template.selected_layout}
+                      >
+                        {template.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Button
                   className="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 text-sm"
                   onClick={() => navigate("/template")}
                 >
-                  Edit Template
+                  {t("editTemplate")}
                 </Button>
                 <Button variant="ghost" size="icon" onClick={handlePrint}>
                   <Printer className="h-4 w-4" />
