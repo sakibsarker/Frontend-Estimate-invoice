@@ -260,7 +260,12 @@ export default function SendInvoice() {
                           cc
                         </Button>
                       </div>
-                      <Input id="to" className="mt-1.5" />
+                      <Input
+                        id="to"
+                        className="mt-1.5"
+                        value={invoiceData?.customerId?.email_address || ""}
+                        readOnly
+                      />
                     </div>
 
                     <div>
@@ -272,7 +277,7 @@ export default function SendInvoice() {
                           <SelectValue placeholder="Select a contact" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="john-saba">John Saba</SelectItem>
+                          <SelectItem value="auto-shop">Auto Shop</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -353,8 +358,9 @@ export default function SendInvoice() {
                       <Input
                         id="phone"
                         type="tel"
-                        placeholder="(000) 000-0000"
                         className="mt-1.5"
+                        value={invoiceData?.customerId?.phone_number || ""}
+                        readOnly
                       />
                     </div>
 
