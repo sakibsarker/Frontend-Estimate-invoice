@@ -101,17 +101,6 @@ export default function NewInvoiceForm() {
       hasDiscount: true,
       paid: true,
     },
-    {
-      id: 3,
-      type: "other",
-      selectedItemId: null,
-      description: "",
-      quantity: 1,
-      price: 0,
-      hasTax: true,
-      hasDiscount: true,
-      paid: true,
-    },
   ]);
   const { estimateId } = useParams<{ estimateId: string }>();
   const [createInvoice, { isLoading }] = useCreateInvoiceMutation();
@@ -269,6 +258,7 @@ export default function NewInvoiceForm() {
 
       await createInvoice(formData).unwrap();
       toast.success("Draft saved successfully!", { id: toastId });
+      navigate("/estimate");
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to save draft";
@@ -318,7 +308,7 @@ export default function NewInvoiceForm() {
 
       const result = await createInvoice(formData).unwrap();
       toast.success("Invoice Created successfully!", { id: toastId });
-      navigate(`/invoice/${result.id}/send`);
+      navigate(`/estimate/${result.id}/send`);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to create invoice";

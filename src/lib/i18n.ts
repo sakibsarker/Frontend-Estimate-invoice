@@ -239,6 +239,9 @@ const resources = {
       viewFullInvoice: "View Full Invoice",
       thanksMessage: "Thank you for your business",
       yourTeam: "Your Team",
+      sendEstimate: "Send Estimate",
+      editEstimate: "Edit Estimate",
+
       //sms
       dueDate: "Due Date",
       paymentMethods: "Payment Methods",
@@ -478,6 +481,8 @@ const resources = {
       viewFullInvoice: "Ver Factura Completa",
       thanksMessage: "Gracias por su negocio",
       yourTeam: "Su Equipo",
+      sendEstimate: "Enviar Presupuesto",
+      editEstimate: "Editar Presupuesto",
       //sms
       dueDate: "Fecha de Vencimiento",
       paymentMethods: "Métodos de Pago",

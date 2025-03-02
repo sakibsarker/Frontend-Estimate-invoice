@@ -15,6 +15,8 @@ import EditManualInvoiceForm from "@/components/forms/EditManualInvoiceForm";
 import ManualInvoiceForm from "@/components/forms/ManualInvoiceForm";
 import TemplateOne from "@/components/InvoiceTemplate/TemplateOne";
 import SendInvoice from "@/components/sendInvoice/sendinvoice";
+import SendEstimate from "@/components/sendEstimate/sendEstimate";
+import EditEstimateInvoiceForm from "@/components/forms/EditEstimateInvoiceForm";
 export const AppRoutes = () => {
   return (
     <Routes>
@@ -39,15 +41,24 @@ export const AppRoutes = () => {
         />
         {/* invoice create */}
         <Route path="/invoice" element={<ManualInvoiceDashboard />} />
+        {/* invoice edit */}
         <Route
           path="/invoice/:invoiceId/edit"
           element={<EditManualInvoiceForm />}
+        />
+        {/* estimate edit */}
+        <Route
+          path="/estimate/:invoiceId/edit"
+          element={<EditEstimateInvoiceForm />}
         />
         <Route path="/invoice/new" element={<ManualInvoiceForm />} />
         {/* tempalte */}
         <Route path="/template" element={<Template />} />
         <Route path="/template/one" element={<TemplateOne />} />
+        {/* invoice */}
         <Route path="/invoice/:invoiceId/send" element={<SendInvoice />} />
+        {/* estimate */}
+        <Route path="/estimate/:invoiceId/send" element={<SendEstimate />} />
       </Route>
     </Routes>
   );

@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { SendInvoicePreview } from "./SendInvoicePreview";
+import { SendEstimatePreview } from "./SendEstimatePreview";
 import { useNavigate, useParams } from "react-router";
 import { useGetInvoicePreviwByIdQuery } from "@/features/server/invoiceSlice";
 import { cn } from "@/lib/utils";
@@ -46,7 +46,7 @@ const staticPreviewData = {
   },
 };
 
-export default function SendInvoice() {
+export default function SendEstimate() {
   const { invoiceId } = useParams<{ invoiceId: string }>();
   // Add the query hook
   const {
@@ -195,7 +195,7 @@ export default function SendInvoice() {
     return (
       <div className="fixed inset-0 bg-background flex items-center justify-center">
         <div className="text-red-500 text-center">
-          <h2 className="text-xl font-semibold mb-2">Error loading invoice</h2>
+          <h2 className="text-xl font-semibold mb-2">Error loading estimate</h2>
           <p>Please try again later</p>
         </div>
       </div>
@@ -206,11 +206,11 @@ export default function SendInvoice() {
     <div className="fixed inset-0 bg-background">
       <div className="h-screen flex flex-col">
         <div className="flex items-center justify-between border-b px-6 py-4">
-          <h2 className="text-xl font-semibold">{t("sendInvoice")}</h2>
+          <h2 className="text-xl font-semibold">{t("sendEstimate")}</h2>
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate(`/invoice`)}
+            onClick={() => navigate(`/estimate`)}
           >
             <X className="h-4 w-4" />
           </Button>
@@ -413,9 +413,9 @@ export default function SendInvoice() {
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
-                    onClick={() => navigate(`/invoice/${invoiceId}/edit`)}
+                    onClick={() => navigate(`/estimate/${invoiceId}/edit`)}
                   >
-                    {t("editInvoice")}
+                    {t("editEstimate")}
                   </Button>
                   <Button className="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 text-sm">
                     {sendMethod === "email" ? t("sendEmail") : t("sendText")}
@@ -456,15 +456,15 @@ export default function SendInvoice() {
                 <div className="flex justify-center items-center space-x-2">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a237e] "></div>
                   <p className="text-[#1a237e] font-medium">
-                    PDF Generating...
+                    Estimate PDF Generating...
                   </p>
                 </div>
               ) : invoiceData ? (
-                <SendInvoicePreview {...mergedPreviewData} {...invoiceData} />
+                <SendEstimatePreview {...mergedPreviewData} {...invoiceData} />
               ) : (
                 <div className="text-red-500 text-center">
                   <h2 className="text-xl font-semibold mb-2">
-                    Error loading invoice
+                    Error loading estimate pdf
                   </h2>
                   <p>Please try again later</p>
                 </div>
