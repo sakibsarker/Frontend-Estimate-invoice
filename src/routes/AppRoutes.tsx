@@ -21,13 +21,13 @@ export const AppRoutes = () => {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
       </Route>
 
       <Route element={<LayoutPage />}>
-        <Route path="/home" element={<App />} />
+        <Route path="/" element={<App />} />
+
         <Route path="/estimate" element={<EstimateDashboard />} />
         <Route path="/estimate/new" element={<CreateEstimate />} />
         <Route path="/admin/estimate" element={<AdminCreateEstimate />} />

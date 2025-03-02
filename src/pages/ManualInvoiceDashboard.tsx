@@ -146,7 +146,7 @@ export default function ManualInvoiceDashboard() {
           <Button
             variant="ghost"
             className="text-gray-700 hover:bg-blue-100"
-            onClick={() => navigate("/home")}
+            onClick={() => navigate("/")}
           >
             <Home className="h-6 w-6" />
             <span className="ml-2">{t("backToHome")}</span>

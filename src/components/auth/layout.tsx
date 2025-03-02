@@ -11,7 +11,7 @@ export default function Layout() {
 
     if (isLoggedIn) {
       // Redirect to the profile page if logged in
-      navigate("/home");
+      navigate("/");
     } else {
       setIsChecking(false); // Allow rendering of the outlet
     }

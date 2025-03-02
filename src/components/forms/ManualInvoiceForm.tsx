@@ -319,7 +319,11 @@ export default function ManualInvoiceForm() {
       <div className="flex-1 p-8 border-r overflow-y-auto pb-20">
         <div className="flex items-start justify-between mb-8">
           <h1 className="text-2xl font-semibold">{t("newInvoice")}</h1>
-          <Button variant="ghost" size="icon">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate(`/invoice`)}
+          >
             <X className="h-5 w-5" />
           </Button>
         </div>

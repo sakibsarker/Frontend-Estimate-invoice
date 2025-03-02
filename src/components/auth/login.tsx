@@ -34,7 +34,7 @@ const Login: React.FC = () => {
       localStorage.setItem("token", data.token);
 
       console.log("Login successful!");
-      navigate("/home");
+      navigate("/");
       // Redirect or update UI as needed
     } catch (err: any) {
       setError(err.message);

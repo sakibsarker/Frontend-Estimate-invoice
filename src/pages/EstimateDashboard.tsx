@@ -155,7 +155,7 @@ export default function EstimateDashboard() {
           <Button
             variant="ghost"
             className="text-gray-700 hover:bg-blue-100"
-            onClick={() => navigate("/home")}
+            onClick={() => navigate("/")}
           >
             <Home className="h-6 w-6" />
             <span className="ml-2">{t("backToHome")}</span>
@@ -338,7 +338,7 @@ export default function EstimateDashboard() {
                       <div
                         className="flex-1"
                         onClick={() =>
-                          navigate(`/estimate/${estimate.id}/view`)
+                          navigate(`/estimate/${estimate.invoice_id}/edit`)
                         }
                       >
                         <div className="flex items-center gap-2 mb-2">
@@ -424,7 +424,7 @@ export default function EstimateDashboard() {
                             variant="ghost"
                             size="sm"
                             onClick={() =>
-                              navigate(`/invoice/${estimate.invoice_id}/send`)
+                              navigate(`/estimate/${estimate.invoice_id}/send`)
                             }
                           >
                             <Printer className="h-4 w-4" />
