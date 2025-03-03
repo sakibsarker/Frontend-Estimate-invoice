@@ -56,7 +56,7 @@ import {
 } from "@/features/server/invoiceSlice";
 import { generateInvoiceNumber } from "@/lib/invoiceUtils";
 import { useNavigate, useParams } from "react-router";
-
+import { useTranslation } from "react-i18next";
 import { toast } from "react-hot-toast";
 import Loader from "../Loader";
 
@@ -109,6 +109,7 @@ export default function EditEstimateInvoiceForm() {
   const [poNumber, setPoNumber] = useState("");
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (invoiceData) {
@@ -275,6 +276,14 @@ export default function EditEstimateInvoiceForm() {
     }
   };
 
+  const formatDate = (isoString: string) => {
+    const date = new Date(isoString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   if (isLoading) <Loader />;
 
   return (
@@ -425,28 +434,61 @@ export default function EditEstimateInvoiceForm() {
 
           {/* Invoice Details Section */}
           <div className="space-y-6">
-            <h2 className="text-lg font-semibold">Estimate details</h2>
+            <h2 className="text-lg font-semibold">{t("estimateDetails")}</h2>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <Label>Invoice number</Label>
+                  <Label className="text-sm font-medium text-red-500 mr-2">
+                    *
+                  </Label>
+                  <Label>{t("estimateNumber")}</Label>
                 </div>
-                <Input value={invoiceNumber} readOnly />
+                <Input
+                  value={invoiceData?.repair_request}
+                  readOnly
+                  className="cursor-not-allowed"
+                />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <Label>PO number</Label>
+                  <Label className="text-sm font-medium text-red-500 mr-2">
+                    *
+                  </Label>
+                  <Label>{t("estimateDate")}</Label>
                 </div>
                 <Input
-                  value={poNumber}
-                  onChange={(e) => setPoNumber(e.target.value)}
+                  type="date"
+                  value={
+                    invoiceData
+                      ? formatDate(invoiceData.repair_request_created_at)
+                      : ""
+                  }
+                  readOnly
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <Label className="text-sm font-medium text-red-500 mr-2">
+                    *
+                  </Label>
+                  <Label>{t("expirationDate")}</Label>
+                </div>
+
+                <Input
+                  type="date"
+                  value={
+                    invoiceData
+                      ? formatDate(invoiceData.repair_request_repair_date)
+                      : ""
+                  }
+                  readOnly
                 />
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center">
-                  <Label>Sales rep</Label>
+                  <Label>{t("salesRep")}</Label>
                 </div>
                 <Input
                   value={salesRep}

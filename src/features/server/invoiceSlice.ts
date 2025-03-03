@@ -174,7 +174,9 @@ interface GetInvoiceItem {
 interface GetInvoice {
   id: number;
   customerId: GetCustomer;
-  repair_request: number | null;
+  repair_request: number;
+  repair_request_repair_date: string;
+  repair_request_created_at: string;
   discount: GetDiscount | null;
   tax: GetTax | null;
   invoice_number: string | null;
