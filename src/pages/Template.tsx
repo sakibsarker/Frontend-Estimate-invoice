@@ -341,7 +341,7 @@ export default function Template() {
       // Update server or local template
       if (typeof currentTemplateId === "number") {
         formData.append("id", currentTemplateId.toString());
-        await updateTemplate(formData).unwrap();
+        // await updateTemplate(formData).unwrap();
         dispatch(templateApi.util.invalidateTags(["Templates"]));
       } else {
         setLocalTemplates((prev) =>
