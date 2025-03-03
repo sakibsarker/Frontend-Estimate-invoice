@@ -445,7 +445,7 @@ export default function EditEstimateInvoiceForm() {
                   <Label>{t("estimateNumber")}</Label>
                 </div>
                 <Input
-                  value={invoiceData?.repair_request}
+                  value={invoiceData?.estimate_number}
                   readOnly
                   className="cursor-not-allowed"
                 />

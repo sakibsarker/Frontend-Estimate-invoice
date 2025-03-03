@@ -20,10 +20,10 @@ import EditEstimateInvoiceForm from "@/components/forms/EditEstimateInvoiceForm"
 export const AppRoutes = () => {
   return (
     <Routes>
+      <Route path="/estimate/new" element={<CreateEstimate />} />
       <Route element={<Layout />}>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/estimate/new" element={<CreateEstimate />} />
       </Route>
 
       <Route element={<LayoutPage />}>

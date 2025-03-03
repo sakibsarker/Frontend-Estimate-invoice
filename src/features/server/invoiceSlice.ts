@@ -177,6 +177,7 @@ interface GetInvoice {
   repair_request: number;
   repair_request_repair_date: string;
   repair_request_created_at: string;
+  estimate_number: string;
   discount: GetDiscount | null;
   tax: GetTax | null;
   invoice_number: string | null;

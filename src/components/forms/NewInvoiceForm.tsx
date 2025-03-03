@@ -217,7 +217,7 @@ export default function NewInvoiceForm() {
   };
 
   const handleSaveDraft = async () => {
-    const toastId = toast.loading("Saving draft...");
+    const toastId = toast.loading("Saving estimate draft...");
     try {
       if (!selectedCustomer) throw new Error("Customer selection is required");
       if (items.length === 0) throw new Error("At least one item is required");
@@ -257,7 +257,7 @@ export default function NewInvoiceForm() {
       });
 
       await createInvoice(formData).unwrap();
-      toast.success("Draft saved successfully!", { id: toastId });
+      toast.success("Estimate draft saved successfully!", { id: toastId });
       navigate("/estimate");
     } catch (error) {
       const errorMessage =
@@ -267,7 +267,7 @@ export default function NewInvoiceForm() {
   };
 
   const handleCreateInvoice = async () => {
-    const toastId = toast.loading("Creating new invoice...");
+    const toastId = toast.loading("Creating new estimate...");
     try {
       if (!selectedCustomer) throw new Error("Customer selection is required");
       if (items.length === 0) throw new Error("At least one item is required");
@@ -307,11 +307,11 @@ export default function NewInvoiceForm() {
       });
 
       const result = await createInvoice(formData).unwrap();
-      toast.success("Invoice Created successfully!", { id: toastId });
+      toast.success("Estimate Created successfully!", { id: toastId });
       navigate(`/estimate/${result.id}/send`);
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to create invoice";
+        error instanceof Error ? error.message : "Failed to create estimate";
       toast.error(errorMessage, { id: toastId });
     }
   };
@@ -485,7 +485,7 @@ export default function NewInvoiceForm() {
                   <Label>{t("estimateNumber")}</Label>
                 </div>
                 <Input
-                  value={estimateId}
+                  value={estimateData?.estimate_number}
                   readOnly
                   className="cursor-not-allowed"
                 />

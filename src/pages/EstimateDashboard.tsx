@@ -337,9 +337,11 @@ export default function EstimateDashboard() {
                     <div className="flex items-start justify-between">
                       <div
                         className="flex-1"
-                        onClick={() =>
-                          navigate(`/estimate/${estimate.invoice_id}/edit`)
-                        }
+                        onClick={() => {
+                          estimate.invoice_id
+                            ? navigate(`/estimate/${estimate.invoice_id}/edit`)
+                            : navigate(`/estimate/${estimate.id}/view`);
+                        }}
                       >
                         <div className="flex items-center gap-2 mb-2">
                           <Badge
@@ -351,7 +353,7 @@ export default function EstimateDashboard() {
                           </Badge>
 
                           <span className="text-blue-600">
-                            (#{estimate.id}) {estimate.username}
+                            (#{estimate.estimate_number})-{estimate.username}
                           </span>
 
                           <DropdownMenu>

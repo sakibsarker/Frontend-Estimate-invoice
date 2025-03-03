@@ -34,6 +34,7 @@ interface RepairRequestbyId {
   attachments: string;
   attachment_urls: string[];
   repair_date: string;
+  estimate_number: string;
   sms_sent_3_days: boolean;
   sms_sent_7_days: boolean;
   invoice_total: string;
@@ -54,6 +55,7 @@ interface QueryRepairRequest {
   vehicle_name: string;
   attachment_urls: string[];
   repair_date: string;
+  estimate_number: string;
   sms_sent_3_days: boolean;
   sms_sent_7_days: boolean;
   created_at: string;
