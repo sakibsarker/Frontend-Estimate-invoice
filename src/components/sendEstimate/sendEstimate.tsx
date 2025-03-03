@@ -191,8 +191,7 @@ export default function SendEstimate() {
     }
   };
 
-  const { data: templates = [], isLoading: templatesLoading } =
-    useGetTemplateQuery();
+  const { data: templates = [] } = useGetTemplateQuery();
 
   // Add error state
   if (isError) {
