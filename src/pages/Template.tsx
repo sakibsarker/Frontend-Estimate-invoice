@@ -408,18 +408,21 @@ export default function Template() {
 
           <div className="flex items-center gap-4 mb-6">
             <Select
-              value={currentTemplateId?.toString()}
+              // value={currentTemplateId?.toString()}
               onValueChange={(value) => {
                 const id = value.includes("local-") ? value : Number(value);
                 handleSelectTemplate(id);
               }}
             >
               <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Select Template">
-                  {currentTemplateId
-                    ? allTemplates.find((t) => t.id === currentTemplateId)?.name
-                    : "Select Template"}
-                </SelectValue>
+                <SelectValue
+                  placeholder={
+                    localStorage.getItem("defaultTemplate")
+                      ? JSON.parse(localStorage.getItem("defaultTemplate")!)
+                          .name
+                      : "Select Template"
+                  }
+                ></SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {allTemplates.map((template) => (

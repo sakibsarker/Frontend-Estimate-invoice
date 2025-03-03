@@ -23,13 +23,14 @@ export const AppRoutes = () => {
       <Route element={<Layout />}>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/estimate/new" element={<CreateEstimate />} />
       </Route>
 
       <Route element={<LayoutPage />}>
         <Route path="/" element={<App />} />
 
         <Route path="/estimate" element={<EstimateDashboard />} />
-        <Route path="/estimate/new" element={<CreateEstimate />} />
+
         <Route path="/admin/estimate" element={<AdminCreateEstimate />} />
         <Route
           path="/estimate/:estimateId/view"

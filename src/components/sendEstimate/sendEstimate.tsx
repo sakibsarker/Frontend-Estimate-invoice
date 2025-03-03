@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import { useTranslation } from "react-i18next";
+import { useGetTemplateQuery } from "@/features/server/templateSlice";
 
 // Add this static data object above the component
 const staticPreviewData = {
@@ -190,12 +191,15 @@ export default function SendEstimate() {
     }
   };
 
+  const { data: templates = [], isLoading: templatesLoading } =
+    useGetTemplateQuery();
+
   // Add error state
   if (isError) {
     return (
       <div className="fixed inset-0 bg-background flex items-center justify-center">
         <div className="text-red-500 text-center">
-          <h2 className="text-xl font-semibold mb-2">Error loading estimate</h2>
+          <h2 className="text-xl font-semibold mb-2">Error loading invoice</h2>
           <p>Please try again later</p>
         </div>
       </div>
@@ -429,11 +433,46 @@ export default function SendEstimate() {
           <div className="flex-1 bg-gray-50 overflow-y-auto">
             <div className="flex h-12 items-center justify-end border-b px-4 print:hidden">
               <div className="flex items-center gap-2">
+                <Select
+                  onValueChange={(value) => {
+                    const selected = templates.find(
+                      (t) => t.selected_layout === value
+                    );
+                    if (selected) {
+                      localStorage.setItem(
+                        "defaultTemplate",
+                        JSON.stringify(selected)
+                      );
+                      window.location.reload(); // Refresh to apply changes
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue
+                      placeholder={
+                        localStorage.getItem("defaultTemplate")
+                          ? JSON.parse(localStorage.getItem("defaultTemplate")!)
+                              .name
+                          : "Select Template"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templates.map((template) => (
+                      <SelectItem
+                        key={template.id}
+                        value={template.selected_layout}
+                      >
+                        {template.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Button
                   className="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 text-sm"
                   onClick={() => navigate("/template")}
                 >
-                  Edit Template
+                  {t("editTemplate")}
                 </Button>
                 <Button variant="ghost" size="icon" onClick={handlePrint}>
                   <Printer className="h-4 w-4" />
@@ -456,7 +495,7 @@ export default function SendEstimate() {
                 <div className="flex justify-center items-center space-x-2">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1a237e] "></div>
                   <p className="text-[#1a237e] font-medium">
-                    Estimate PDF Generating...
+                    PDF Generating...
                   </p>
                 </div>
               ) : invoiceData ? (
@@ -464,7 +503,7 @@ export default function SendEstimate() {
               ) : (
                 <div className="text-red-500 text-center">
                   <h2 className="text-xl font-semibold mb-2">
-                    Error loading estimate pdf
+                    Error loading Estimate
                   </h2>
                   <p>Please try again later</p>
                 </div>

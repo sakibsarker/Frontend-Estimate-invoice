@@ -248,6 +248,7 @@ const resources = {
       payNowButton: "Pay Now",
       paymentReminder: "Please pay by the due date to avoid late fees",
       smsInvoiceReady: "Invoice Ready",
+      editTemplate: "Edit Template",
     },
   },
   es: {
@@ -490,6 +491,7 @@ const resources = {
       paymentReminder:
         "Por favor pague antes de la fecha de vencimiento para evitar recargos",
       smsInvoiceReady: "Factura Lista",
+      editTemplate: "Editar plantilla",
     },
   },
 };

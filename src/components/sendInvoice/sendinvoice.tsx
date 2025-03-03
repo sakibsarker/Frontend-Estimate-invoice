@@ -448,7 +448,14 @@ export default function SendInvoice() {
                   }}
                 >
                   <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Select Template" />
+                    <SelectValue
+                      placeholder={
+                        localStorage.getItem("defaultTemplate")
+                          ? JSON.parse(localStorage.getItem("defaultTemplate")!)
+                              .name
+                          : "Select Template"
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {templates.map((template) => (
