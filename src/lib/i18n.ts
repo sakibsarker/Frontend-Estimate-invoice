@@ -200,6 +200,7 @@ const resources = {
       itemType: "Item Type",
       itemDescription: "Item description",
       examplePrice: "e.g.50.99",
+      addItem: "Add Item",
       //tax
       newTax: "New Tax",
       taxName: "Tax Name",
@@ -443,6 +444,7 @@ const resources = {
       itemType: "Tipo de artículo",
       itemDescription: "Descripción del artículo",
       examplePrice: "p. ej.50.99",
+      addItem: "Agregar artículo",
       //tax
       newTax: "Nuevo impuesto",
       taxName: "Nombre del impuesto",

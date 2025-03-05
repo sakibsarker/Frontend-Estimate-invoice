@@ -188,7 +188,7 @@ export function SendEstimatePreview(props: PreviewProps & InvoiceDataProps) {
                     props.layout === "modern" && "text-xl"
                   )}
                 >
-                  {t("invoice")}
+                  {t("estimate")}
                 </div>
                 <div className="space-y-1 text-sm text-gray-500">
                   {props.templateData.customerName && (

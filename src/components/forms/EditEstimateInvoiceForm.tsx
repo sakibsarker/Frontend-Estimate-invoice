@@ -330,6 +330,14 @@ export default function EditEstimateInvoiceForm() {
                         value={customerSearch}
                         onValueChange={setCustomerSearch}
                       />
+                      <CommandItem
+                        value="add-customer"
+                        onSelect={() => setShowCustomerForm(true)}
+                        className="text-indigo-600"
+                      >
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        Add New Customer
+                      </CommandItem>
                       <CommandList>
                         <CommandEmpty>No customers found.</CommandEmpty>
                         <CommandGroup>
@@ -362,14 +370,6 @@ export default function EditEstimateInvoiceForm() {
                                 </span>
                               </CommandItem>
                             ))}
-                          <CommandItem
-                            value="add-customer"
-                            onSelect={() => setShowCustomerForm(true)}
-                            className="text-indigo-600"
-                          >
-                            <UserPlus className="mr-2 h-4 w-4" />
-                            Add New Customer
-                          </CommandItem>
                         </CommandGroup>
                       </CommandList>
                     </Command>
@@ -559,6 +559,14 @@ export default function EditEstimateInvoiceForm() {
                               value={itemSearch}
                               onValueChange={setItemSearch}
                             />
+                            <CommandItem
+                              value="add-item"
+                              onSelect={() => setShowItemForm(true)}
+                              className="text-indigo-600"
+                            >
+                              <SquarePlus className="mr-2 h-4 w-4" />
+                              Add New Item
+                            </CommandItem>
                             <CommandList>
                               <CommandEmpty>No items found.</CommandEmpty>
                               <CommandGroup>
@@ -596,14 +604,6 @@ export default function EditEstimateInvoiceForm() {
                                       </div>
                                     </CommandItem>
                                   ))}
-                                <CommandItem
-                                  value="add-item"
-                                  onSelect={() => setShowItemForm(true)}
-                                  className="text-indigo-600"
-                                >
-                                  <SquarePlus className="mr-2 h-4 w-4" />
-                                  Add New Item
-                                </CommandItem>
                               </CommandGroup>
                             </CommandList>
                           </Command>
@@ -673,20 +673,6 @@ export default function EditEstimateInvoiceForm() {
                     </div>
 
                     {/* Checkboxes */}
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium block">Paid</Label>
-                      <Checkbox
-                        checked={item.paid}
-                        onCheckedChange={(checked) =>
-                          setItems(
-                            items.map((i) =>
-                              i.id === item.id ? { ...i, paid: !!checked } : i
-                            )
-                          )
-                        }
-                        className="h-5 w-5 rounded-md border-2 border-gray-300 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
-                      />
-                    </div>
 
                     <div className="space-y-1">
                       <Label className="text-sm font-medium block">Tax</Label>
@@ -783,6 +769,14 @@ export default function EditEstimateInvoiceForm() {
                           value={taxSearch}
                           onValueChange={setTaxSearch}
                         />
+                        <CommandItem
+                          value="add-tax"
+                          onSelect={() => setShowTaxForm(true)}
+                          className="text-indigo-600"
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add Tax Rate
+                        </CommandItem>
                         <CommandList>
                           <CommandEmpty>No taxes found.</CommandEmpty>
                           <CommandGroup>
@@ -809,14 +803,6 @@ export default function EditEstimateInvoiceForm() {
                                   {tax.tax_name} ({tax.tax_rate}%)
                                 </CommandItem>
                               ))}
-                            <CommandItem
-                              value="add-tax"
-                              onSelect={() => setShowTaxForm(true)}
-                              className="text-indigo-600"
-                            >
-                              <Plus className="mr-2 h-4 w-4" />
-                              Add Tax Rate
-                            </CommandItem>
                           </CommandGroup>
                         </CommandList>
                       </Command>
@@ -856,6 +842,14 @@ export default function EditEstimateInvoiceForm() {
                           value={discountSearch}
                           onValueChange={setDiscountSearch}
                         />
+                        <CommandItem
+                          value="add-discount"
+                          onSelect={() => setShowDiscountForm(true)}
+                          className="text-indigo-600"
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add Discount
+                        </CommandItem>
                         <CommandList>
                           <CommandEmpty>No discounts found.</CommandEmpty>
                           <CommandGroup>
@@ -885,14 +879,6 @@ export default function EditEstimateInvoiceForm() {
                                   {discount.discount_rate}%)
                                 </CommandItem>
                               ))}
-                            <CommandItem
-                              value="add-discount"
-                              onSelect={() => setShowDiscountForm(true)}
-                              className="text-indigo-600"
-                            >
-                              <Plus className="mr-2 h-4 w-4" />
-                              Add Discount
-                            </CommandItem>
                           </CommandGroup>
                         </CommandList>
                       </Command>
@@ -989,10 +975,17 @@ export default function EditEstimateInvoiceForm() {
                 type="button"
                 className="bg-indigo-600 hover:bg-indigo-700 text-2xl p-2 "
                 onClick={handleUpdateInvoice}
-                // disabled={isLoading}
+                disabled={isLoading}
               >
-                Update
-                {/* {isLoading ? "Updating..." : "Save Changes"} */}
+                {isLoading ? "Saving..." : "Save & closed"}
+              </Button>
+              <Button
+                type="button"
+                className="bg-indigo-600 hover:bg-indigo-700 text-2xl p-2 "
+                onClick={handleUpdateInvoice}
+                disabled={isLoading}
+              >
+                {isLoading ? "Updating..." : "Update"}
               </Button>
             </div>
           </div>

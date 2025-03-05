@@ -321,6 +321,14 @@ export default function EditManualInvoiceForm() {
                         value={customerSearch}
                         onValueChange={setCustomerSearch}
                       />
+                      <CommandItem
+                        value="add-customer"
+                        onSelect={() => setShowCustomerForm(true)}
+                        className="text-indigo-600"
+                      >
+                        <UserPlus className="mr-2 h-4 w-4" />
+                        Add New Customer
+                      </CommandItem>
                       <CommandList>
                         <CommandEmpty>No customers found.</CommandEmpty>
                         <CommandGroup>
@@ -353,14 +361,6 @@ export default function EditManualInvoiceForm() {
                                 </span>
                               </CommandItem>
                             ))}
-                          <CommandItem
-                            value="add-customer"
-                            onSelect={() => setShowCustomerForm(true)}
-                            className="text-indigo-600"
-                          >
-                            <UserPlus className="mr-2 h-4 w-4" />
-                            Add New Customer
-                          </CommandItem>
                         </CommandGroup>
                       </CommandList>
                     </Command>
@@ -517,6 +517,14 @@ export default function EditManualInvoiceForm() {
                               value={itemSearch}
                               onValueChange={setItemSearch}
                             />
+                            <CommandItem
+                              value="add-item"
+                              onSelect={() => setShowItemForm(true)}
+                              className="text-indigo-600"
+                            >
+                              <SquarePlus className="mr-2 h-4 w-4" />
+                              Add New Item
+                            </CommandItem>
                             <CommandList>
                               <CommandEmpty>No items found.</CommandEmpty>
                               <CommandGroup>
@@ -554,14 +562,6 @@ export default function EditManualInvoiceForm() {
                                       </div>
                                     </CommandItem>
                                   ))}
-                                <CommandItem
-                                  value="add-item"
-                                  onSelect={() => setShowItemForm(true)}
-                                  className="text-indigo-600"
-                                >
-                                  <SquarePlus className="mr-2 h-4 w-4" />
-                                  Add New Item
-                                </CommandItem>
                               </CommandGroup>
                             </CommandList>
                           </Command>
@@ -741,6 +741,14 @@ export default function EditManualInvoiceForm() {
                           value={taxSearch}
                           onValueChange={setTaxSearch}
                         />
+                        <CommandItem
+                          value="add-tax"
+                          onSelect={() => setShowTaxForm(true)}
+                          className="text-indigo-600"
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add Tax Rate
+                        </CommandItem>
                         <CommandList>
                           <CommandEmpty>No taxes found.</CommandEmpty>
                           <CommandGroup>
@@ -767,14 +775,6 @@ export default function EditManualInvoiceForm() {
                                   {tax.tax_name} ({tax.tax_rate}%)
                                 </CommandItem>
                               ))}
-                            <CommandItem
-                              value="add-tax"
-                              onSelect={() => setShowTaxForm(true)}
-                              className="text-indigo-600"
-                            >
-                              <Plus className="mr-2 h-4 w-4" />
-                              Add Tax Rate
-                            </CommandItem>
                           </CommandGroup>
                         </CommandList>
                       </Command>
@@ -814,6 +814,14 @@ export default function EditManualInvoiceForm() {
                           value={discountSearch}
                           onValueChange={setDiscountSearch}
                         />
+                        <CommandItem
+                          value="add-discount"
+                          onSelect={() => setShowDiscountForm(true)}
+                          className="text-indigo-600"
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add Discount
+                        </CommandItem>
                         <CommandList>
                           <CommandEmpty>No discounts found.</CommandEmpty>
                           <CommandGroup>
@@ -843,14 +851,6 @@ export default function EditManualInvoiceForm() {
                                   {discount.discount_rate}%)
                                 </CommandItem>
                               ))}
-                            <CommandItem
-                              value="add-discount"
-                              onSelect={() => setShowDiscountForm(true)}
-                              className="text-indigo-600"
-                            >
-                              <Plus className="mr-2 h-4 w-4" />
-                              Add Discount
-                            </CommandItem>
                           </CommandGroup>
                         </CommandList>
                       </Command>
@@ -947,10 +947,17 @@ export default function EditManualInvoiceForm() {
                 type="button"
                 className="bg-indigo-600 hover:bg-indigo-700 text-2xl p-2 "
                 onClick={handleUpdateInvoice}
-                // disabled={isLoading}
+                disabled={isLoading}
               >
-                Update
-                {/* {isLoading ? "Updating..." : "Save Changes"} */}
+                {isLoading ? "Saving..." : "Save & Closed"}
+              </Button>
+              <Button
+                type="button"
+                className="bg-indigo-600 hover:bg-indigo-700 text-2xl p-2 "
+                onClick={handleUpdateInvoice}
+                disabled={isLoading}
+              >
+                {isLoading ? "Updating..." : "Update"}
               </Button>
             </div>
           </div>
