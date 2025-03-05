@@ -190,15 +190,17 @@ export default function EditManualInvoiceForm() {
     const subtotal = item.quantity * item.price;
     let total = subtotal;
 
+    // Apply tax first on the current total
     if (item.hasTax && selectedTax) {
       const taxRate = taxes.find((t) => t.id === selectedTax)?.tax_rate || 0;
-      total += subtotal * (taxRate / 100);
+      total += total * (taxRate / 100);
     }
 
+    // Then apply discount on the taxed amount
     if (item.hasDiscount && selectedDiscount) {
       const discountRate =
         discounts.find((d) => d.id === selectedDiscount)?.discount_rate || 0;
-      total -= subtotal * (discountRate / 100);
+      total -= total * (discountRate / 100);
     }
 
     return total.toFixed(2);
