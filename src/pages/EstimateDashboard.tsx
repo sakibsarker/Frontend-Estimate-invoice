@@ -462,17 +462,29 @@ export default function EstimateDashboard() {
                           setCurrentPage((prev) => Math.max(1, prev - 1))
                         }
                         aria-disabled={currentPage === 1}
+                        className={
+                          currentPage === 1
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }
                       />
                     </PaginationItem>
-
                     <PaginationItem>
                       <PaginationLink isActive>{currentPage}</PaginationLink>
                     </PaginationItem>
-
                     <PaginationItem>
                       <PaginationNext
-                        onClick={() => setCurrentPage((prev) => prev + 1)}
+                        onClick={() => {
+                          if (estimatesData?.next) {
+                            setCurrentPage((prev) => prev + 1);
+                          }
+                        }}
                         aria-disabled={!estimatesData?.next}
+                        className={
+                          !estimatesData?.next
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }
                       />
                     </PaginationItem>
                   </PaginationContent>

@@ -453,6 +453,11 @@ export default function ManualInvoiceDashboard() {
                           setCurrentPage((prev) => Math.max(1, prev - 1))
                         }
                         aria-disabled={currentPage === 1}
+                        className={
+                          currentPage === 1
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }
                       />
                     </PaginationItem>
                     <PaginationItem>
@@ -460,8 +465,17 @@ export default function ManualInvoiceDashboard() {
                     </PaginationItem>
                     <PaginationItem>
                       <PaginationNext
-                        onClick={() => setCurrentPage((prev) => prev + 1)}
+                        onClick={() => {
+                          if (invoicesData?.next) {
+                            setCurrentPage((prev) => prev + 1);
+                          }
+                        }}
                         aria-disabled={!invoicesData?.next}
+                        className={
+                          !invoicesData?.next
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }
                       />
                     </PaginationItem>
                   </PaginationContent>
