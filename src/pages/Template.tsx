@@ -214,7 +214,6 @@ export default function Template() {
 
       if (currentTemplateId) {
         formData.append("id", currentTemplateId.toString());
-        console.log(currentTemplateId);
         await updateTemplate(formData).unwrap();
         toast.success(`Template ${currentTemplateId} updated`);
       } else {
@@ -281,9 +280,6 @@ export default function Template() {
   // Update the handleSetDefault function
   const handleSetDefault = async () => {
     if (!currentTemplateId) return;
-
-    // Store just the ID in localStorage instead of full object
-    localStorage.setItem("defaultTemplate", currentTemplateId.toString());
 
     try {
       const formData = new FormData();
@@ -359,15 +355,12 @@ export default function Template() {
     }
   };
 
-  // Update the useEffect that loads the default template
+  // Add this to load stored template data on component mount
   useEffect(() => {
     const storedTemplate = localStorage.getItem("defaultTemplate");
     if (storedTemplate) {
       const parsedTemplate = JSON.parse(storedTemplate);
-      // Get just the ID from the stored template object
-      const templateId =
-        typeof parsedTemplate === "object" ? parsedTemplate.id : parsedTemplate;
-      handleSelectTemplate(templateId);
+      handleSelectTemplate(parsedTemplate.id);
     }
   }, []);
 
@@ -450,14 +443,12 @@ export default function Template() {
               </SelectContent>
             </Select>
 
-            {currentTemplateId ? (
-              <Button
-                onClick={handleSaveTemplate}
-                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-800"
-              >
-                {t("saveChanges")}
-              </Button>
-            ) : null}
+            <Button
+              onClick={handleSaveTemplate}
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-800"
+            >
+              {currentTemplateId ? t("saveChanges") : t("saveNew")}
+            </Button>
 
             {currentTemplateId && (
               <Button
@@ -473,33 +464,21 @@ export default function Template() {
           {/* Template Name Input */}
           <div className="mb-6">
             <Label htmlFor="templateName">{t("templateName")}</Label>
-            {currentTemplateId === null ? (
-              <div className="flex gap-2 mt-2">
-                <Input
-                  id="newTemplateName"
-                  value={templateData.name}
-                  onChange={(e) =>
-                    setTemplateData({ ...templateData, name: e.target.value })
-                  }
-                  placeholder="Enter template name"
-                  className="flex-1"
-                />
-                <Button
-                  onClick={handleSaveTemplate}
-                  className="w-full sm:w-auto bg-blue-600 hover:bg-blue-800"
-                >
-                  {t("saveNew")}
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="outline"
-                onClick={handleNewTemplate}
-                className="mt-2 w-full"
-              >
-                {t("createNewTemplate")}
-              </Button>
-            )}
+            <Input
+              id="templateName"
+              value={templateData.name}
+              onChange={(e) =>
+                setTemplateData({ ...templateData, name: e.target.value })
+              }
+              placeholder="Enter template name"
+            />
+            <Button
+              variant="outline"
+              onClick={handleNewTemplate}
+              className="mt-2 w-full"
+            >
+              {t("createNewTemplate")}
+            </Button>
           </div>
 
           <Accordion type="single" collapsible className="w-full">
